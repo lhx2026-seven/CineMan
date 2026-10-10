@@ -1,12 +1,378 @@
-.cineman-logo {
-  color: #ffd27a;
-  font-size: 72px;
-  font-weight: 900;
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CineMan UI Test</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, #241108 0%, #090909 40%, #000 100%);
+  color: white;
+  font-family: Arial, "Noto Sans TC", sans-serif;
+}
+
+
+/* =========================
+   CineMan 標題
+========================= */
+
+.header {
+  text-align: center;
+  padding: 45px 20px 30px;
+}
+
+.logo {
+  margin: 0;
+
+  font-family: Georgia, serif;
+  font-size: clamp(52px, 8vw, 92px);
+  font-weight: bold;
+
+  color: #ffd47c;
 
   text-shadow:
     0 0 2px #fff,
-    0 0 6px #ffd27a,
+    0 0 6px #ffd36b,
     0 0 12px #ff9d00,
-    0 0 24px #ff7600,
-    0 0 40px rgba(255, 120, 0, 0.7);
+    0 0 25px #ff7200,
+    0 0 45px rgba(255, 105, 0, 0.65);
 }
+
+.subtitle {
+  margin-top: 8px;
+  font-size: 22px;
+  letter-spacing: 8px;
+  color: #f4e2ba;
+}
+
+
+/* =========================
+   卡片區
+========================= */
+
+.cards {
+  display: flex;
+  gap: 16px;
+
+  max-width: 1450px;
+  margin: auto;
+  padding: 20px;
+
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+
+/* =========================
+   卡片共用樣式
+========================= */
+
+.cinema-card {
+
+  --neon: #ffffff;
+
+  width: 250px;
+  min-height: 360px;
+
+  padding: 22px;
+
+  border: 1px solid var(--neon);
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--neon) 10%, #101010),
+      #090909 45%
+    );
+
+  box-shadow:
+    0 0 8px rgba(255,255,255,0.05),
+    0 0 20px color-mix(in srgb, var(--neon) 22%, transparent);
+
+  transition: 0.25s;
+}
+
+
+/* 滑鼠移上去 */
+
+.cinema-card:hover {
+
+  transform: translateY(-5px);
+
+  box-shadow:
+    0 0 10px color-mix(in srgb, var(--neon) 50%, transparent),
+    0 0 28px color-mix(in srgb, var(--neon) 28%, transparent);
+}
+
+
+/* =========================
+   五間戲院顏色
+========================= */
+
+.baogong {
+  --neon: #ff493d;
+}
+
+.century {
+  --neon: #e3a52b;
+}
+
+.broadway {
+  --neon: #338cff;
+}
+
+.ylc {
+  --neon: #a45cff;
+}
+
+.arthouse {
+  --neon: #58c96b;
+}
+
+
+/* =========================
+   卡片文字
+========================= */
+
+.cinema-card h2 {
+  color: var(--neon);
+  font-size: 27px;
+  margin: 5px 0 8px;
+
+  text-shadow:
+    0 0 10px color-mix(in srgb, var(--neon) 45%, transparent);
+}
+
+.type {
+  color: #ddd;
+  font-size: 15px;
+  margin-bottom: 25px;
+}
+
+.info {
+  color: #bbb;
+  line-height: 2;
+  font-size: 14px;
+}
+
+
+/* =========================
+   按鈕
+========================= */
+
+.select-button {
+
+  width: 100%;
+
+  margin-top: 25px;
+  padding: 13px 8px;
+
+  border: 1px solid var(--neon);
+  border-radius: 30px;
+
+  color: white;
+
+  font-size: 17px;
+  font-weight: bold;
+
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--neon) 60%, #111),
+      color-mix(in srgb, var(--neon) 30%, #111)
+    );
+
+  box-shadow:
+    0 0 8px color-mix(in srgb, var(--neon) 35%, transparent),
+    inset 0 0 10px rgba(255,255,255,0.12);
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+
+.select-button:hover {
+
+  transform: scale(1.03);
+
+  box-shadow:
+    0 0 8px var(--neon),
+    0 0 18px color-mix(in srgb, var(--neon) 60%, transparent),
+    0 0 30px color-mix(in srgb, var(--neon) 30%, transparent);
+}
+
+
+/* =========================
+   手機
+========================= */
+
+@media (max-width: 600px) {
+
+  .cinema-card {
+    width: 100%;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    letter-spacing: 4px;
+  }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+  <h1 class="logo">CineMan</h1>
+
+  <div class="subtitle">
+    選擇你的起始電影院
+  </div>
+
+</header>
+
+
+<main class="cards">
+
+
+  <!-- 寶宮 -->
+
+  <div class="cinema-card baogong">
+
+    <h2>寶宮戲院</h2>
+
+    <div class="type">
+      老牌單廳首輪戲院
+    </div>
+
+    <div class="info">
+      🎞 影廳數　1廳<br>
+      💺 座位數　300～600席<br>
+      🏠 土地　自有或承租<br>
+      📍 傳統市中心
+    </div>
+
+    <button class="select-button">
+      選擇寶宮戲院
+    </button>
+
+  </div>
+
+
+  <!-- 世紀 -->
+
+  <div class="cinema-card century">
+
+    <h2>世紀戲院</h2>
+
+    <div class="type">
+      老牌二輪戲院
+    </div>
+
+    <div class="info">
+      🎞 影廳數　1～2廳<br>
+      💺 座位數　150～400席<br>
+      🏠 土地　承租為主<br>
+      📍 住宅區
+    </div>
+
+    <button class="select-button">
+      選擇世紀戲院
+    </button>
+
+  </div>
+
+
+  <!-- 布洛威 -->
+
+  <div class="cinema-card broadway">
+
+    <h2>布洛威影城</h2>
+
+    <div class="type">
+      小規模連鎖院線
+    </div>
+
+    <div class="info">
+      🎞 影廳數　3～6廳<br>
+      💺 70～220席／廳<br>
+      🏠 土地　承租為主<br>
+      📍 都會區
+    </div>
+
+    <button class="select-button">
+      選擇布洛威影城
+    </button>
+
+  </div>
+
+
+  <!-- YLC -->
+
+  <div class="cinema-card ylc">
+
+    <h2>YLC影城</h2>
+
+    <div class="type">
+      大規模商場連鎖院線
+    </div>
+
+    <div class="info">
+      🎞 影廳數　8～14廳<br>
+      💺 60～450席／廳<br>
+      🏠 高租金<br>
+      📍 大型商場
+    </div>
+
+    <button class="select-button">
+      選擇YLC影城
+    </button>
+
+  </div>
+
+
+  <!-- 公會堂 -->
+
+  <div class="cinema-card arthouse">
+
+    <h2>公會堂電影中心</h2>
+
+    <div class="type">
+      公租民營藝術電影院
+    </div>
+
+    <div class="info">
+      🎞 影廳數　1～4廳<br>
+      💺 80～250席／廳<br>
+      🏠 公有・優惠租金<br>
+      📍 文化特區
+    </div>
+
+    <button class="select-button">
+      選擇公會堂電影中心
+    </button>
+
+  </div>
+
+
+</main>
+
+
+</body>
+</html>
