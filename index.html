@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>CineMan UI Test</title>
+<title>CineMan｜選擇你的起始電影院</title>
 
 <style>
 
@@ -230,149 +230,48 @@ body {
   }
 }
 
+
+.cards { max-width: 1600px; align-items: stretch; }
+.cinema-card { width: calc(20% - 16px); min-width: 240px; padding: 0; overflow: hidden; display:flex; flex-direction:column; }
+.card-content { padding: 22px; display:flex; flex-direction:column; flex:1; }
+.cinema-card h2 { font-size:24px; }
+.cinema-card .info { flex:1; }
+.cinema-visual { margin:0; position:relative; background:#171717; }
+.cinema-visual img { width:100%; aspect-ratio: 3 / 4; object-fit:cover; display:block; }
+.view-switch { display:flex; gap:6px; position:absolute; bottom:12px; left:12px; right:12px; }
+.view-switch button { flex:1; padding:9px; border:1px solid #ffffff60; border-radius:20px; background:#080808d9; color:white; cursor:pointer; }
+.view-switch button[aria-pressed="true"] { background:var(--neon); color:#080808; border-color:var(--neon); }
+button:focus-visible { outline:3px solid white; outline-offset:4px; }
+.cinema-card.selected { outline:2px solid var(--neon); outline-offset:4px; }
+.eyebrow { color:#c7ae82; font-size:12px; letter-spacing:3px; }
+.intro { color:#bdb6aa; line-height:1.8; max-width:580px; margin:20px auto 0; }
+.type { margin-bottom:18px; min-height:22px; }
+.fact { margin:0 0 12px; line-height:1.7; }
+.fact span { display:block; color:#eee; }
+.selection { margin:20px auto 48px; max-width:900px; border:1px solid #8d7043; border-radius:18px; padding:24px; background:#17130d; }
+.selection h2 { color:#ffd47c; margin-top:0; }
+.selection p { line-height:1.8; color:#d2c8b9; }
+.status { text-align:center; color:#c7ae82; margin:20px; }
+@media(max-width:600px) { .cinema-card { width:100%; min-width:0; } .cinema-visual img { aspect-ratio:4 / 3; object-position:center 60%; } .selection { margin:20px; } .header { padding-top:30px; } }
+@media(prefers-reduced-motion:reduce) { * { transition:none !important; } .cinema-card:hover,.select-button:hover { transform:none; } }
 </style>
 </head>
 
 
 <body>
-
-
 <header class="header">
-
+  <p class="eyebrow">STEP 01 / 選擇戲院</p>
   <h1 class="logo">CineMan</h1>
-
-  <div class="subtitle">
-    選擇你的起始電影院
-  </div>
-
+  <div class="subtitle">選擇你的起始電影院</div>
+  <p class="intro">從老城的單廳戲院，到都會的大型影城。<br>看看外觀與內裝，選擇你想經營的電影故事。</p>
 </header>
-
-
-<main class="cards">
-
-
-  <!-- 寶宮 -->
-
-  <div class="cinema-card baogong">
-
-    <h2>寶宮戲院</h2>
-
-    <div class="type">
-      老牌單廳首輪戲院
-    </div>
-
-    <div class="info">
-      🎞 影廳數　1廳<br>
-      💺 座位數　300～600席<br>
-      🏠 土地　自有或承租<br>
-      📍 傳統市中心
-    </div>
-
-    <button class="select-button">
-      選擇寶宮戲院
-    </button>
-
-  </div>
-
-
-  <!-- 世紀 -->
-
-  <div class="cinema-card century">
-
-    <h2>世紀戲院</h2>
-
-    <div class="type">
-      老牌二輪戲院
-    </div>
-
-    <div class="info">
-      🎞 影廳數　1～2廳<br>
-      💺 座位數　150～400席<br>
-      🏠 土地　承租為主<br>
-      📍 住宅區
-    </div>
-
-    <button class="select-button">
-      選擇世紀戲院
-    </button>
-
-  </div>
-
-
-  <!-- 布洛威 -->
-
-  <div class="cinema-card broadway">
-
-    <h2>布洛威影城</h2>
-
-    <div class="type">
-      小規模連鎖院線
-    </div>
-
-    <div class="info">
-      🎞 影廳數　3～6廳<br>
-      💺 70～220席／廳<br>
-      🏠 土地　承租為主<br>
-      📍 都會區
-    </div>
-
-    <button class="select-button">
-      選擇布洛威影城
-    </button>
-
-  </div>
-
-
-  <!-- YLC -->
-
-  <div class="cinema-card ylc">
-
-    <h2>YLC影城</h2>
-
-    <div class="type">
-      大規模商場連鎖院線
-    </div>
-
-    <div class="info">
-      🎞 影廳數　8～14廳<br>
-      💺 60～450席／廳<br>
-      🏠 高租金<br>
-      📍 大型商場
-    </div>
-
-    <button class="select-button">
-      選擇YLC影城
-    </button>
-
-  </div>
-
-
-  <!-- 公會堂 -->
-
-  <div class="cinema-card arthouse">
-
-    <h2>公會堂電影中心</h2>
-
-    <div class="type">
-      公租民營藝術電影院
-    </div>
-
-    <div class="info">
-      🎞 影廳數　1～4廳<br>
-      💺 80～250席／廳<br>
-      🏠 公有・優惠租金<br>
-      📍 文化特區
-    </div>
-
-    <button class="select-button">
-      選擇公會堂電影中心
-    </button>
-
-  </div>
-
-
-</main>
-
-
+<p class="status" id="status" role="status">正在載入戲院資料…</p>
+<main class="cards" id="cinemas" aria-label="五種起始戲院"></main>
+<section class="selection" id="selection" aria-labelledby="selection-title" hidden>
+  <h2 id="selection-title"></h2>
+  <p id="selection-detail"></p>
+  <p>已保留你的戲院選擇。地點與影廳配置將在第二層設定。</p>
+</section>
+<script src="app.js" defer></script>
 </body>
 </html>
