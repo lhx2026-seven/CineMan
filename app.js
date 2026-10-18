@@ -44,11 +44,16 @@ function updateOrbit() {
     const centered = distance === 0;
     const highlighted = centered && card.dataset.cinemaId === selectedId && !selection.hidden;
     card.style.setProperty('--orbit-x', `${Math.sin(radians) * radius}px`);
-    card.style.setProperty('--orbit-y', `${highlighted ? -18 : Math.abs(distance) * 12}px`);
+    card.style.setProperty('--orbit-y', `${highlighted ? (width <= 760 ? -6 : -30) : Math.abs(distance) * 12}px`);
+    card.style.setProperty('--orbit-ground-y', `${Math.abs(distance) * 12}px`);
     card.style.setProperty('--orbit-z', `${(Math.cos(radians) - 1) * depthRadius}px`);
-    card.style.setProperty('--orbit-yaw', `${-angle}deg`);
-    card.style.setProperty('--orbit-scale', centered ? (highlighted ? '1.03' : '.96') : '.92');
+    card.style.setProperty('--orbit-yaw', `${angle * .6}deg`);
+    card.style.setProperty('--orbit-scale', centered ? (highlighted ? (width <= 760 ? '1.09' : '1.14') : '.96') : '.92');
     card.style.setProperty('--orbit-layer', 20 - Math.abs(distance));
+    card.style.setProperty('--float-delay', `${index * -.8}s`);
+    const shadow = container.querySelector(`[data-shadow-for="${card.dataset.cinemaId}"]`);
+    shadow.style.cssText = card.style.cssText;
+    shadow.classList.toggle('highlighted', highlighted);
     card.querySelector('.select-button').tabIndex = centered ? 0 : -1;
   });
   container.classList.toggle('has-selection', stageOrder[centerIndex] === selectedId && !selection.hidden);
@@ -148,7 +153,11 @@ async function init() {
       card.addEventListener('click', () => {
         if (!suppressClick) browseTo(stageOrder.indexOf(id));
       });
-      container.append(card);
+      const shadow = document.createElement('div');
+      shadow.className = 'card-shadow';
+      shadow.dataset.shadowFor = id;
+      shadow.setAttribute('aria-hidden', 'true');
+      container.append(shadow, card);
     }
     updateOrbit();
     status.textContent = '請選擇你想經營的電影院';

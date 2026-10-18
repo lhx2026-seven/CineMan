@@ -290,7 +290,7 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .cards::before {
   content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
   opacity:0; transition:opacity .5s ease;
-  background:radial-gradient(ellipse 280px 460px at 50% 43%, #ffd47c24, #ffd47c0b 48%, transparent 74%);
+  background:radial-gradient(ellipse 280px 460px at 50% 43%, #fff1c74d, #ffd47c20 48%, transparent 74%);
 }
 .cards.has-selection::before { opacity:1; }
 .cards::after {
@@ -305,7 +305,8 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
   display:grid; grid-template-rows:minmax(0, 1fr) auto minmax(0, 1fr);
   transform-origin:center;
   transform:translateX(calc(-50% + var(--orbit-x))) translateY(var(--orbit-y)) translateZ(var(--orbit-z)) rotateY(var(--orbit-yaw)) scale(var(--orbit-scale));
-  z-index:var(--orbit-layer); filter:brightness(.56) saturate(.86);
+  z-index:var(--orbit-layer); filter:brightness(1) saturate(1);
+  animation:card-float 5s ease-in-out infinite; animation-delay:var(--float-delay);
   cursor:pointer;
   box-shadow:0 22px 42px #000b, 0 0 14px color-mix(in srgb, var(--neon) 15%, transparent);
   transition:transform .6s cubic-bezier(.2,.7,.2,1), filter .45s ease, box-shadow .45s ease;
@@ -316,10 +317,11 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .cinema-card .type { min-height:0; margin:0; font-size:14px; }
 .cinema-card .description { flex:none; font-size:14px; line-height:1.65; margin-top:8px; }
 .cinema-card .select-button { margin-top:16px; min-height:48px; padding:11px 8px; }
-.cinema-card:hover { filter:brightness(.76) saturate(.94); }
+.cinema-card:hover { filter:brightness(1) saturate(1); }
 .cinema-card.selected, .cinema-card.selected:hover {
-  filter:brightness(1) saturate(1);
-  box-shadow:0 30px 65px #000c, 0 0 24px color-mix(in srgb, var(--neon) 38%, transparent), 0 -18px 55px #ffd47c22;
+  filter:brightness(1.22) saturate(1.08);
+  box-shadow:0 30px 65px #000c, 0 0 38px color-mix(in srgb, var(--neon) 65%, transparent), 0 -18px 70px #ffd47c4d;
+  animation-name:selected-float;
 }
 .carousel-controls { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:16px; }
 .carousel-arrow { width:48px; height:48px; border-radius:50%; border:1px solid #8d7043; color:#ffd47c; background:#17130d; font-size:28px; cursor:pointer; }
@@ -347,15 +349,30 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
   .selection { margin:6px 12px; padding:9px 12px; gap:10px; border-radius:14px; }
   .selection h2 { font-size:16px; line-height:1.45; }
   .confirm-button { min-width:64px; padding:9px 14px; font-size:15px; }
-  .cards { --mobile-card-height:clamp(260px, calc(100svh - 320px), 480px); height:calc(var(--mobile-card-height) * 1.03 + 52px); }
-  .cinema-card { height:var(--mobile-card-height); top:28px; }
+  .cards { --mobile-card-height:clamp(230px, calc(100svh - 350px), 480px); height:calc(var(--mobile-card-height) * 1.09 + 68px); }
+  .cinema-card { height:var(--mobile-card-height); top:34px; }
   .cinema-card .card-content { padding:12px 16px; }
   .cinema-card .select-button { margin-top:10px; min-height:44px; padding:9px 8px; }
   .carousel-controls { bottom:4px; gap:14px; }
   .carousel-arrow { width:44px; height:44px; }
 }
+@keyframes card-float { 0%, 100% { translate:0 0; } 50% { translate:0 -5px; } }
+@keyframes selected-float { 0%, 100% { translate:0 0; } 50% { translate:0 -2px; } }
+.card-shadow {
+  position:absolute; left:50%; top:650px; width:230px; height:28px;
+  border-radius:50%; pointer-events:none; z-index:0;
+  background:radial-gradient(ellipse, #e5e7eb85 0%, #c0c5cb44 40%, transparent 72%);
+  filter:blur(6px); opacity:.7;
+  transform:translateX(calc(-50% + var(--orbit-x))) translateY(var(--orbit-ground-y)) translateZ(var(--orbit-z));
+  transition:transform .6s cubic-bezier(.2,.7,.2,1), opacity .45s;
+}
+.card-shadow.highlighted { opacity:1; }
+.carousel-controls { z-index:50; }
+@media(max-width:760px) {
+  .card-shadow { top:calc(var(--mobile-card-height) * 1.045 + 46px); width:200px; height:22px; }
+}
 @media(prefers-reduced-motion:reduce) {
-  *, *::before, *::after { transition:none !important; scroll-behavior:auto !important; }
+  *, *::before, *::after { transition:none !important; animation:none !important; scroll-behavior:auto !important; }
   .select-button:hover { transform:none; }
 }
 
@@ -380,6 +397,6 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
     <button type="button" class="carousel-arrow" id="next-cinema" aria-label="下一家戲院">›</button>
   </div>
 </div>
-<script src="app.js?v=manual-selection-v10" defer></script>
+<script src="app.js?v=outward-float-v11" defer></script>
 </body>
 </html>
