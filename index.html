@@ -233,26 +233,20 @@ body {
 
 .cards { max-width: 1600px; align-items: stretch; }
 .cinema-card { width: calc(20% - 16px); min-width: 240px; padding: 0; overflow: hidden; display:flex; flex-direction:column; }
-.card-content { padding: 22px; display:flex; flex-direction:column; flex:1; }
+.card-content { padding: 22px; display:flex; flex-direction:column; flex:1; justify-content:center; }
 .cinema-card h2 { font-size:24px; }
-.cinema-card .info { flex:1; }
-.cinema-visual { margin:0; position:relative; background:#171717; }
-.cinema-visual img { width:100%; aspect-ratio: 3 / 4; object-fit:cover; display:block; }
-.view-switch { display:flex; gap:6px; position:absolute; bottom:12px; left:12px; right:12px; }
-.view-switch button { flex:1; padding:9px; border:1px solid #ffffff60; border-radius:20px; background:#080808d9; color:white; cursor:pointer; }
-.view-switch button[aria-pressed="true"] { background:var(--neon); color:#080808; border-color:var(--neon); }
+.cinema-visual { margin:0; position:relative; background:#171717; overflow:hidden; }
+.cinema-visual img { width:100%; height:auto; aspect-ratio: 3 / 5; object-fit:cover; display:block; transform:scale(1.04); }
 button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .cinema-card.selected { outline:2px solid var(--neon); outline-offset:4px; }
 .eyebrow { color:#c7ae82; font-size:12px; letter-spacing:3px; }
 .intro { color:#bdb6aa; line-height:1.8; max-width:580px; margin:20px auto 0; }
 .type { margin-bottom:18px; min-height:22px; }
-.fact { margin:0 0 12px; line-height:1.7; }
-.fact span { display:block; color:#eee; }
 .selection { margin:20px auto 48px; max-width:900px; border:1px solid #8d7043; border-radius:18px; padding:24px; background:#17130d; }
 .selection h2 { color:#ffd47c; margin-top:0; }
 .selection p { line-height:1.8; color:#d2c8b9; }
 .status { text-align:center; color:#c7ae82; margin:20px; }
-@media(max-width:600px) { .cinema-card { width:100%; min-width:0; } .cinema-visual img { aspect-ratio:4 / 3; object-position:center 60%; } .selection { margin:20px; } .header { padding-top:30px; } }
+@media(max-width:600px) { .cinema-card { width:100%; min-width:0; } .selection { margin:20px; } .header { padding-top:30px; } }
 @media(prefers-reduced-motion:reduce) { * { transition:none !important; } .cinema-card:hover,.select-button:hover { transform:none; } }
 </style>
 </head>
@@ -269,7 +263,6 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 <main class="cards" id="cinemas" aria-label="五種起始戲院"></main>
 <section class="selection" id="selection" aria-labelledby="selection-title" hidden>
   <h2 id="selection-title"></h2>
-  <p id="selection-detail"></p>
   <p>已保留你的戲院選擇。地點與影廳配置將在第二層設定。</p>
 </section>
 <script src="app.js" defer></script>
