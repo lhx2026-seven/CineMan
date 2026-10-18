@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>CineMan｜選擇你的起始電影院</title>
+<title>CineMan｜選擇你的電影院</title>
 
 <style>
 
@@ -239,12 +239,12 @@ body {
 .cinema-visual img { width:100%; height:auto; aspect-ratio: 2 / 1; object-fit:cover; display:block; }
 button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .cinema-card.selected { outline:2px solid var(--neon); outline-offset:4px; }
-.eyebrow { color:#c7ae82; font-size:12px; letter-spacing:3px; }
-.intro { color:#bdb6aa; line-height:1.8; max-width:580px; margin:20px auto 0; }
 .type { margin-bottom:18px; min-height:22px; }
-.selection { margin:20px auto 48px; max-width:900px; border:1px solid #8d7043; border-radius:18px; padding:24px; background:#17130d; }
+.selection { margin:20px auto 24px; max-width:900px; text-align:center; border:1px solid #8d7043; border-radius:18px; padding:24px; background:#17130d; }
 .selection h2 { color:#ffd47c; margin-top:0; }
-.selection p { line-height:1.8; color:#d2c8b9; }
+.confirm-button { min-width:140px; min-height:48px; padding:12px 32px; border:1px solid #ffd47c; border-radius:28px; background:#ffd47c; color:#211506; font-size:17px; font-weight:bold; cursor:pointer; }
+.confirm-button:disabled { background:#423820; color:#f4e2ba; cursor:default; }
+.selection h2 { font-size:clamp(19px, 4vw, 26px); line-height:1.5; }
 .status { text-align:center; color:#c7ae82; margin:20px; }
 @media(max-width:760px) {
   .cards { padding:16px; gap:24px; }
@@ -262,7 +262,6 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
   .select-button { margin-top:14px; min-height:48px; padding:11px 8px; }
   .selection { margin:20px 16px; }
   .header { padding:24px 16px 12px; }
-  .intro { margin-top:14px; font-size:14px; }
   .status { margin:12px 16px; font-size:14px; line-height:1.6; }
 }
 @media(prefers-reduced-motion:reduce) { * { transition:none !important; } .cinema-card:hover,.select-button:hover { transform:none; } }
@@ -272,17 +271,15 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 
 <body>
 <header class="header">
-  <p class="eyebrow">STEP 01 / 選擇戲院</p>
   <h1 class="logo">CineMan</h1>
-  <div class="subtitle">選擇你的起始電影院</div>
-  <p class="intro">從老城的單廳戲院，到都會的大型影城。<br>看看外觀與內裝，選擇你想經營的電影故事。</p>
+  <div class="subtitle">選擇你的電影院</div>
 </header>
 <p class="status" id="status" role="status">正在載入戲院資料…</p>
-<main class="cards" id="cinemas" aria-label="五種起始戲院"></main>
 <section class="selection" id="selection" aria-labelledby="selection-title" hidden>
   <h2 id="selection-title"></h2>
-  <p>已保留你的戲院選擇。地點與影廳配置將在第二層設定。</p>
+  <button type="button" id="confirm-selection" class="confirm-button">確定</button>
 </section>
-<script src="app.js?v=century-porch-v3" defer></script>
+<main class="cards" id="cinemas" aria-label="五種戲院"></main>
+<script src="app.js?v=confirm-v4" defer></script>
 </body>
 </html>

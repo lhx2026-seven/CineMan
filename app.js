@@ -9,14 +9,30 @@ const definitions = [
 const status = document.querySelector('#status');
 const container = document.querySelector('#cinemas');
 const selection = document.querySelector('#selection');
+const confirmButton = document.querySelector('#confirm-selection');
 let selectedId = null;
-try { selectedId = localStorage.getItem('cineman.selectedCinema'); } catch { /* Storage may be unavailable. */ }
+let confirmedId = null;
+try {
+  selectedId = localStorage.getItem('cineman.selectedCinema');
+  confirmedId = localStorage.getItem('cineman.confirmedCinema');
+} catch { /* Storage may be unavailable. */ }
+
+confirmButton.addEventListener('click', () => {
+  const cinema = definitions.find(([id]) => id === selectedId);
+  if (!cinema) return;
+  confirmedId = selectedId;
+  try { localStorage.setItem('cineman.confirmedCinema', confirmedId); } catch { /* Keep confirmation in memory. */ }
+  confirmButton.textContent = '已確定';
+  confirmButton.disabled = true;
+  status.textContent = `已確認選擇${cinema[2]}，可隨時改選。`;
+});
 
 async function init() {
   try {
     const response = await fetch('data/cinemas.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
+    const choices = new Map();
     for (const [id, slug, name, type] of definitions) {
       const rules = data.cinemas.filter(row => row.cinemaID === id);
       if (!rules.length) throw new Error(`Missing rules: ${id}`);
@@ -34,7 +50,11 @@ async function init() {
         <figure class="cinema-visual">
           <img src="assets/cinemas/landscape/${slug}-interior.webp" alt="${name}內裝示意" width="1774" height="887" loading="lazy">
         </figure>`;
-      const choose = () => {
+      const choose = (focusConfirmation = false) => {
+        if (selectedId !== id) {
+          confirmedId = null;
+          try { localStorage.removeItem('cineman.confirmedCinema'); } catch { /* Storage may be unavailable. */ }
+        }
         selectedId = id;
         try { localStorage.setItem('cineman.selectedCinema', id); } catch { /* Keep the in-memory selection. */ }
         container.querySelectorAll('.cinema-card').forEach(other => {
@@ -45,17 +65,22 @@ async function init() {
           button.textContent = `${active ? '已選擇' : '選擇'}${other.querySelector('h2').textContent}`;
         });
         selection.hidden = false;
-        document.querySelector('#selection-title').textContent = `你的起始戲院：${name}`;
-        status.textContent = `已選擇${name}，可隨時改選其他戲院。`;
+        document.querySelector('#selection-title').textContent = `要進入${name}大展身手？`;
+        confirmButton.disabled = confirmedId === id;
+        confirmButton.textContent = confirmedId === id ? '已確定' : '確定';
+        status.textContent = confirmedId === id ? `已確認選擇${name}，可隨時改選。` : `已選擇${name}，請確認你的選擇。`;
+        if (focusConfirmation) {
+          selection.scrollIntoView({ block: 'center' });
+          if (!confirmButton.disabled) confirmButton.focus({ preventScroll: true });
+        }
       };
-      card.querySelector('.select-button').addEventListener('click', choose);
+      choices.set(id, choose);
+      card.querySelector('.select-button').addEventListener('click', () => choose(true));
       container.append(card);
-      if (selectedId === id) choose();
     }
-    // Reapply after all five cards exist so restored selection updates every button.
-    const restored = container.querySelector(`[data-cinema-id="${definitions.some(d => d[0] === selectedId) ? selectedId : ''}"] .select-button`);
-    if (restored) restored.click();
-    else status.textContent = '五種戲院 · 欣賞外觀與內裝，選擇你的起點';
+    const restore = choices.get(selectedId);
+    if (restore) restore();
+    else status.textContent = '請選擇你想經營的電影院';
   } catch (error) {
     container.replaceChildren();
     selection.hidden = true;
