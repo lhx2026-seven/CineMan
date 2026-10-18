@@ -15,7 +15,6 @@ const stageScroll = document.querySelector('#stage-scroll');
 const confirmButton = document.querySelector('#confirm-selection');
 const previousButton = document.querySelector('#previous-cinema');
 const nextButton = document.querySelector('#next-cinema');
-const chooseCinema = new Map();
 let centerIndex = 2;
 let suppressClick = false;
 let selectedId = null;
@@ -43,21 +42,31 @@ function updateOrbit() {
     const angle = Math.max(-78, Math.min(78, distance * 30));
     const radians = angle * Math.PI / 180;
     const centered = distance === 0;
+    const highlighted = centered && card.dataset.cinemaId === selectedId && !selection.hidden;
     card.style.setProperty('--orbit-x', `${Math.sin(radians) * radius}px`);
-    card.style.setProperty('--orbit-y', `${centered && selectedId ? -18 : Math.abs(distance) * 12}px`);
+    card.style.setProperty('--orbit-y', `${highlighted ? -18 : Math.abs(distance) * 12}px`);
     card.style.setProperty('--orbit-z', `${(Math.cos(radians) - 1) * depthRadius}px`);
     card.style.setProperty('--orbit-yaw', `${-angle}deg`);
-    card.style.setProperty('--orbit-scale', centered ? (selectedId ? '1.03' : '.96') : '.92');
+    card.style.setProperty('--orbit-scale', centered ? (highlighted ? '1.03' : '.96') : '.92');
     card.style.setProperty('--orbit-layer', 20 - Math.abs(distance));
     card.querySelector('.select-button').tabIndex = centered ? 0 : -1;
   });
+  container.classList.toggle('has-selection', stageOrder[centerIndex] === selectedId && !selection.hidden);
   previousButton.disabled = centerIndex === 0;
   nextButton.disabled = centerIndex === stageOrder.length - 1;
 }
 
+function browseTo(index) {
+  const target = Math.max(0, Math.min(stageOrder.length - 1, index));
+  if (target === centerIndex) return;
+  centerIndex = target;
+  selection.hidden = true;
+  updateOrbit();
+}
+
 function moveCarousel(step) {
   const target = Math.max(0, Math.min(stageOrder.length - 1, centerIndex + step));
-  if (target !== centerIndex) chooseCinema.get(stageOrder[target])?.();
+  browseTo(target);
 }
 previousButton.addEventListener('click', () => moveCarousel(-1));
 nextButton.addEventListener('click', () => moveCarousel(1));
@@ -123,18 +132,21 @@ async function init() {
           button.textContent = `${active ? '已選擇' : '選擇'}${other.querySelector('h2').textContent}`;
         });
         centerIndex = stageOrder.indexOf(id);
-        updateOrbit();
-        container.classList.add('has-selection');
         selection.hidden = false;
+        updateOrbit();
         document.querySelector('#selection-title').textContent = `要進入${name}大展身手？`;
         confirmButton.disabled = confirmedId === id;
         confirmButton.textContent = confirmedId === id ? '已確定' : '確定';
       };
-      chooseCinema.set(id, choose);
-      card.addEventListener('click', () => {
+      const selectButton = card.querySelector('.select-button');
+      selectButton.addEventListener('click', event => {
+        event.stopPropagation();
         if (suppressClick) return;
         choose();
-        card.querySelector('.select-button').focus({ preventScroll: true });
+        selectButton.focus({ preventScroll: true });
+      });
+      card.addEventListener('click', () => {
+        if (!suppressClick) browseTo(stageOrder.indexOf(id));
       });
       container.append(card);
     }
