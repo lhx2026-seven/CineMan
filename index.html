@@ -236,7 +236,7 @@ body {
 .card-content { padding: 22px; display:flex; flex-direction:column; flex:1; justify-content:center; }
 .cinema-card h2 { font-size:24px; }
 .cinema-visual { margin:0; position:relative; background:#171717; overflow:hidden; }
-.cinema-visual img { width:100%; height:auto; aspect-ratio: 3 / 5; object-fit:cover; display:block; transform:scale(1.04); }
+.cinema-visual img { width:100%; height:auto; aspect-ratio: 2 / 1; object-fit:cover; display:block; }
 button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .cinema-card.selected { outline:2px solid var(--neon); outline-offset:4px; }
 .eyebrow { color:#c7ae82; font-size:12px; letter-spacing:3px; }
@@ -255,8 +255,7 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
   }
   .cinema-visual { min-height:0; }
   .cinema-visual img { height:100%; aspect-ratio:auto; object-fit:cover; }
-  .cinema-visual:first-child img { object-position:center 66%; }
-  .cinema-visual:last-child img { object-position:center 54%; }
+  .cinema-visual img { object-position:center; }
   .card-content { padding:16px 20px; }
   .cinema-card h2 { font-size:23px; margin:0 0 6px; }
   .type { min-height:0; margin-bottom:0; font-size:14px; }

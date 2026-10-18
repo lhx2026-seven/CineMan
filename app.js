@@ -25,14 +25,14 @@ async function init() {
       card.dataset.cinemaId = id;
       card.innerHTML = `
         <figure class="cinema-visual">
-          <img src="assets/cinemas/${slug}-exterior.jpg" alt="${name}外觀示意" width="304" height="510">
+          <img src="assets/cinemas/landscape/${slug}-exterior.webp" alt="${name}外觀示意" width="1774" height="887">
         </figure>
         <div class="card-content">
           <h2>${name}</h2><div class="type">${type}</div>
           <button type="button" class="select-button" aria-pressed="false">選擇${name}</button>
         </div>
         <figure class="cinema-visual">
-          <img src="assets/cinemas/${slug}-interior.jpg" alt="${name}內裝示意" width="304" height="510" loading="lazy">
+          <img src="assets/cinemas/landscape/${slug}-interior.webp" alt="${name}內裝示意" width="1774" height="887" loading="lazy">
         </figure>`;
       const choose = () => {
         selectedId = id;
