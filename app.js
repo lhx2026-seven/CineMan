@@ -71,6 +71,7 @@ async function init() {
           button.setAttribute('aria-pressed', String(active));
           button.textContent = `${active ? '已選擇' : '選擇'}${other.querySelector('h2').textContent}`;
         });
+        card.querySelector('.select-button').focus({ preventScroll: true });
         container.classList.add('has-selection');
         container.style.setProperty('--spot-x', `calc(50% + ${slot} * var(--fan-step))`);
         selection.hidden = false;
