@@ -32,7 +32,6 @@ confirmButton.addEventListener('click', () => {
   try { localStorage.setItem('cineman.confirmedCinema', confirmedId); } catch { /* Keep confirmation in memory. */ }
   confirmButton.textContent = '已確定';
   confirmButton.disabled = true;
-  status.textContent = `已確認選擇${cinema[2]}，可隨時改選。`;
 });
 
 function updateOrbit() {
@@ -130,7 +129,6 @@ async function init() {
         document.querySelector('#selection-title').textContent = `要進入${name}大展身手？`;
         confirmButton.disabled = confirmedId === id;
         confirmButton.textContent = confirmedId === id ? '已確定' : '確定';
-        status.textContent = confirmedId === id ? `已確認選擇${name}，可隨時改選。` : `已選擇${name}，請確認你的選擇。`;
       };
       chooseCinema.set(id, choose);
       card.addEventListener('click', () => {
