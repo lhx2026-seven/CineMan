@@ -246,7 +246,26 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .selection h2 { color:#ffd47c; margin-top:0; }
 .selection p { line-height:1.8; color:#d2c8b9; }
 .status { text-align:center; color:#c7ae82; margin:20px; }
-@media(max-width:600px) { .cinema-card { width:100%; min-width:0; } .selection { margin:20px; } .header { padding-top:30px; } }
+@media(max-width:760px) {
+  .cards { padding:16px; gap:24px; }
+  .cinema-card {
+    width:100%; min-width:0; min-height:0;
+    height:min(520px, calc(100svh - 32px));
+    display:grid; grid-template-rows:minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+  .cinema-visual { min-height:0; }
+  .cinema-visual img { height:100%; aspect-ratio:auto; object-fit:cover; }
+  .cinema-visual:first-child img { object-position:center 66%; }
+  .cinema-visual:last-child img { object-position:center 54%; }
+  .card-content { padding:16px 20px; }
+  .cinema-card h2 { font-size:23px; margin:0 0 6px; }
+  .type { min-height:0; margin-bottom:0; font-size:14px; }
+  .select-button { margin-top:14px; min-height:48px; padding:11px 8px; }
+  .selection { margin:20px 16px; }
+  .header { padding:24px 16px 12px; }
+  .intro { margin-top:14px; font-size:14px; }
+  .status { margin:12px 16px; font-size:14px; line-height:1.6; }
+}
 @media(prefers-reduced-motion:reduce) { * { transition:none !important; } .cinema-card:hover,.select-button:hover { transform:none; } }
 </style>
 </head>
