@@ -1,10 +1,10 @@
 'use strict';
 const definitions = [
-  ['C01', 'baogong', '寶宮戲院', '老牌首輪戲院'],
-  ['C02', 'century', '世紀戲院', '老牌二輪戲院'],
-  ['C03', 'broadway', '布洛威影城', '小規模連鎖院線'],
-  ['C04', 'ylc', 'YLC影城', '大型商場連鎖院線'],
-  ['C05', 'arthouse', '公會堂電影中心', '公租民營藝術電影院'],
+  ['C01', 'baogong', '寶宮戲院', '歷史悠久的大戲院', '曾是影迷心目中的聖地，現在要努力在競爭激烈的院線電影市場生存'],
+  ['C02', 'century', '世紀戲院', '碩果僅存的老牌二輪戲院', '小本經營，希望能維持服務影迷的初衷'],
+  ['C03', 'broadway', '布洛威影城', '小規模連鎖影城', '片單和設備可能有限，仍能稱職扮演好在地居民的娛樂中心'],
+  ['C04', 'ylc', 'YLC影城', '結合商場的大型連鎖影城', '人潮多、空間大、片單多元，以高成本換取龐大收益'],
+  ['C05', 'arthouse', '公會堂電影中心', '公部門支持的藝術電影院', '放映非主流電影、規劃主題影展，培養公民文化素養'],
 ];
 const status = document.querySelector('#status');
 const container = document.querySelector('#cinemas');
@@ -32,7 +32,7 @@ async function init() {
     const response = await fetch('data/cinemas.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
-    for (const [id, slug, name, type] of definitions) {
+    for (const [id, slug, name, type, description] of definitions) {
       const rules = data.cinemas.filter(row => row.cinemaID === id);
       if (!rules.length) throw new Error(`Missing rules: ${id}`);
       const card = document.createElement('article');
@@ -44,6 +44,7 @@ async function init() {
         </figure>
         <div class="card-content">
           <h2>${name}</h2><div class="type">${type}</div>
+          <p class="description">${description}</p>
           <button type="button" class="select-button" aria-pressed="false">選擇${name}</button>
         </div>
         <figure class="cinema-visual">

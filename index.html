@@ -49,11 +49,26 @@ body {
 }
 
 .subtitle {
-  margin-top: 8px;
-  font-size: 22px;
-  letter-spacing: 8px;
-  color: #f4e2ba;
+  max-width:560px;
+  margin:18px auto 0;
+  padding:14px 12px;
+  color:#e8cfa4;
+  font-family:Georgia, "Noto Serif TC", serif;
+  font-size:17px;
+  font-weight:normal;
+  line-height:1.9;
+  letter-spacing:0.12em;
+  text-wrap:balance;
 }
+.subtitle::before, .subtitle::after {
+  content:"";
+  display:block;
+  width:64px;
+  height:1px;
+  margin:0 auto 12px;
+  background:linear-gradient(90deg, transparent, #b98b4b, transparent);
+}
+.subtitle::after { margin:12px auto 0; }
 
 
 /* =========================
@@ -226,7 +241,7 @@ body {
 
   .subtitle {
     font-size: 16px;
-    letter-spacing: 4px;
+    letter-spacing: 0.08em;
   }
 }
 
@@ -239,7 +254,8 @@ body {
 .cinema-visual img { width:100%; height:auto; aspect-ratio: 2 / 1; object-fit:cover; display:block; }
 button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .cinema-card.selected { outline:2px solid var(--neon); outline-offset:4px; }
-.type { margin-bottom:18px; min-height:22px; }
+.type { margin-bottom:0; min-height:22px; color:#e0d8cb; line-height:1.6; }
+.description { flex:1; margin:10px 0 0; font-size:14px; line-height:1.75; color:#afa99f; }
 .selection { margin:20px auto 24px; max-width:900px; text-align:center; border:1px solid #8d7043; border-radius:18px; padding:24px; background:#17130d; }
 .selection h2 { color:#ffd47c; margin-top:0; }
 .confirm-button { min-width:140px; min-height:48px; padding:12px 32px; border:1px solid #ffd47c; border-radius:28px; background:#ffd47c; color:#211506; font-size:17px; font-weight:bold; cursor:pointer; }
@@ -259,6 +275,7 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
   .card-content { padding:16px 20px; }
   .cinema-card h2 { font-size:23px; margin:0 0 6px; }
   .type { min-height:0; margin-bottom:0; font-size:14px; }
+  .description { flex:none; margin-top:8px; font-size:14px; line-height:1.65; }
   .select-button { margin-top:14px; min-height:48px; padding:11px 8px; }
   .selection { margin:20px 16px; }
   .header { padding:24px 16px 12px; }
@@ -272,7 +289,7 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 <body>
 <header class="header">
   <h1 class="logo">CineMan</h1>
-  <div class="subtitle">選擇你的電影院</div>
+  <p class="subtitle">享受自己擁有一家電影院的美麗與哀愁</p>
 </header>
 <p class="status" id="status" role="status">正在載入戲院資料…</p>
 <section class="selection" id="selection" aria-labelledby="selection-title" hidden>
@@ -280,6 +297,6 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
   <button type="button" id="confirm-selection" class="confirm-button">確定</button>
 </section>
 <main class="cards" id="cinemas" aria-label="五種戲院"></main>
-<script src="app.js?v=clean-start-v5" defer></script>
+<script src="app.js?v=cinema-stories-v6" defer></script>
 </body>
 </html>
