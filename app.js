@@ -25,7 +25,7 @@ async function init() {
       card.dataset.cinemaId = id;
       card.innerHTML = `
         <figure class="cinema-visual">
-          <img src="assets/cinemas/landscape/${slug}-exterior${id === 'C03' || id === 'C04' ? '-v2' : ''}.webp" alt="${name}外觀示意" width="1774" height="887">
+          <img src="assets/cinemas/landscape/${slug}-exterior${id === 'C02' || id === 'C03' || id === 'C04' ? '-v2' : ''}.webp" alt="${name}外觀示意" width="1774" height="887">
         </figure>
         <div class="card-content">
           <h2>${name}</h2><div class="type">${type}</div>
