@@ -13,8 +13,8 @@ const confirmButton = document.querySelector('#confirm-selection');
 let selectedId = null;
 let confirmedId = null;
 try {
-  selectedId = localStorage.getItem('cineman.selectedCinema');
-  confirmedId = localStorage.getItem('cineman.confirmedCinema');
+  localStorage.removeItem('cineman.selectedCinema');
+  localStorage.removeItem('cineman.confirmedCinema');
 } catch { /* Storage may be unavailable. */ }
 
 confirmButton.addEventListener('click', () => {
@@ -32,7 +32,6 @@ async function init() {
     const response = await fetch('data/cinemas.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
-    const choices = new Map();
     for (const [id, slug, name, type] of definitions) {
       const rules = data.cinemas.filter(row => row.cinemaID === id);
       if (!rules.length) throw new Error(`Missing rules: ${id}`);
@@ -74,13 +73,10 @@ async function init() {
           if (!confirmButton.disabled) confirmButton.focus({ preventScroll: true });
         }
       };
-      choices.set(id, choose);
       card.querySelector('.select-button').addEventListener('click', () => choose(true));
       container.append(card);
     }
-    const restore = choices.get(selectedId);
-    if (restore) restore();
-    else status.textContent = '請選擇你想經營的電影院';
+    status.textContent = '請選擇你想經營的電影院';
   } catch (error) {
     container.replaceChildren();
     selection.hidden = true;
