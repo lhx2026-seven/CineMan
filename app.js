@@ -13,6 +13,11 @@ const container = document.querySelector('#cinemas');
 const selection = document.querySelector('#selection');
 const stageScroll = document.querySelector('#stage-scroll');
 const confirmButton = document.querySelector('#confirm-selection');
+const previousButton = document.querySelector('#previous-cinema');
+const nextButton = document.querySelector('#next-cinema');
+const chooseCinema = new Map();
+let centerIndex = 2;
+let suppressClick = false;
 let selectedId = null;
 let confirmedId = null;
 try {
@@ -30,6 +35,57 @@ confirmButton.addEventListener('click', () => {
   status.textContent = `已確認選擇${cinema[2]}，可隨時改選。`;
 });
 
+function updateOrbit() {
+  const width = container.clientWidth;
+  const radius = Math.min(650, width * (width <= 760 ? .88 : .46));
+  const depthRadius = width <= 760 ? 270 : 520;
+  container.querySelectorAll('.cinema-card').forEach((card, index) => {
+    const distance = index - centerIndex;
+    const angle = Math.max(-78, Math.min(78, distance * 30));
+    const radians = angle * Math.PI / 180;
+    const centered = distance === 0;
+    card.style.setProperty('--orbit-x', `${Math.sin(radians) * radius}px`);
+    card.style.setProperty('--orbit-y', `${centered && selectedId ? -18 : Math.abs(distance) * 12}px`);
+    card.style.setProperty('--orbit-z', `${(Math.cos(radians) - 1) * depthRadius}px`);
+    card.style.setProperty('--orbit-yaw', `${-angle}deg`);
+    card.style.setProperty('--orbit-scale', centered ? (selectedId ? '1.03' : '.96') : '.92');
+    card.style.setProperty('--orbit-layer', 20 - Math.abs(distance));
+    card.querySelector('.select-button').tabIndex = centered ? 0 : -1;
+  });
+  previousButton.disabled = centerIndex === 0;
+  nextButton.disabled = centerIndex === stageOrder.length - 1;
+}
+
+function moveCarousel(step) {
+  const target = Math.max(0, Math.min(stageOrder.length - 1, centerIndex + step));
+  if (target !== centerIndex) chooseCinema.get(stageOrder[target])?.();
+}
+previousButton.addEventListener('click', () => moveCarousel(-1));
+nextButton.addEventListener('click', () => moveCarousel(1));
+stageScroll.addEventListener('keydown', event => {
+  if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+    event.preventDefault();
+    moveCarousel(event.key === 'ArrowLeft' ? -1 : 1);
+  }
+});
+let pointerStart = null;
+stageScroll.addEventListener('pointerdown', event => {
+  if (event.isPrimary && event.button === 0) pointerStart = { x: event.clientX, y: event.clientY };
+});
+stageScroll.addEventListener('pointercancel', () => { pointerStart = null; });
+stageScroll.addEventListener('pointerup', event => {
+  if (!pointerStart) return;
+  const dx = event.clientX - pointerStart.x;
+  const dy = event.clientY - pointerStart.y;
+  pointerStart = null;
+  if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+    suppressClick = true;
+    moveCarousel(dx < 0 ? 1 : -1);
+    setTimeout(() => { suppressClick = false; }, 0);
+  }
+});
+window.addEventListener('resize', updateOrbit);
+
 async function init() {
   try {
     const response = await fetch('data/cinemas.json');
@@ -41,13 +97,9 @@ async function init() {
       const card = document.createElement('article');
       card.className = `cinema-card ${slug}`;
       card.dataset.cinemaId = id;
-      const slot = stageOrder.indexOf(id) - 2;
-      card.style.setProperty('--slot', slot);
-      card.style.setProperty('--depth', Math.abs(slot));
-      card.style.setProperty('--tilt', `${slot * 6}deg`);
       card.innerHTML = `
         <figure class="cinema-visual">
-          <img src="assets/cinemas/landscape/${slug}-exterior${id === 'C02' || id === 'C03' || id === 'C04' ? '-v2' : ''}.webp" alt="${name}外觀示意" width="1774" height="887">
+          <img draggable="false" src="assets/cinemas/landscape/${slug}-exterior${id === 'C02' || id === 'C03' || id === 'C04' ? '-v2' : ''}.webp" alt="${name}外觀示意" width="1774" height="887">
         </figure>
         <div class="card-content">
           <h2>${name}</h2><div class="type">${type}</div>
@@ -55,7 +107,7 @@ async function init() {
           <button type="button" class="select-button" aria-pressed="false">選擇${name}</button>
         </div>
         <figure class="cinema-visual">
-          <img src="assets/cinemas/landscape/${slug}-interior.webp" alt="${name}內裝示意" width="1774" height="887" loading="lazy">
+          <img draggable="false" src="assets/cinemas/landscape/${slug}-interior.webp" alt="${name}內裝示意" width="1774" height="887" loading="lazy">
         </figure>`;
       const choose = () => {
         if (selectedId !== id) {
@@ -71,22 +123,24 @@ async function init() {
           button.setAttribute('aria-pressed', String(active));
           button.textContent = `${active ? '已選擇' : '選擇'}${other.querySelector('h2').textContent}`;
         });
-        card.querySelector('.select-button').focus({ preventScroll: true });
+        centerIndex = stageOrder.indexOf(id);
+        updateOrbit();
         container.classList.add('has-selection');
-        container.style.setProperty('--spot-x', `calc(50% + ${slot} * var(--fan-step))`);
         selection.hidden = false;
         document.querySelector('#selection-title').textContent = `要進入${name}大展身手？`;
         confirmButton.disabled = confirmedId === id;
         confirmButton.textContent = confirmedId === id ? '已確定' : '確定';
         status.textContent = confirmedId === id ? `已確認選擇${name}，可隨時改選。` : `已選擇${name}，請確認你的選擇。`;
-        if (stageScroll.scrollWidth > stageScroll.clientWidth) {
-          stageScroll.scrollTo({ left: container.offsetLeft + container.clientWidth / 2 + slot * parseFloat(getComputedStyle(container).getPropertyValue('--fan-step')) - stageScroll.clientWidth / 2, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-        }
       };
-      card.addEventListener('click', choose);
+      chooseCinema.set(id, choose);
+      card.addEventListener('click', () => {
+        if (suppressClick) return;
+        choose();
+        card.querySelector('.select-button').focus({ preventScroll: true });
+      });
       container.append(card);
     }
-    stageScroll.scrollLeft = (stageScroll.scrollWidth - stageScroll.clientWidth) / 2;
+    updateOrbit();
     status.textContent = '請選擇你想經營的電影院';
   } catch (error) {
     container.replaceChildren();
