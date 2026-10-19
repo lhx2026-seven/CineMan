@@ -25,6 +25,9 @@ function initGame() {
   // Week 1 has no events. Future weekly progression supplies its event list here.
   CinemaEvents.render({events:[]});
   let restoredDraft = null;
+  let checkpoint = null, currentAllocation = null, restoring = true, bootFailed = false, storeAvailable = true;
+  let saveQueue = Promise.resolve(false), saveRevision = 0;
+  const gameDate = {year:2026,week:1};
   let venueReady = false;
   let venueScreenCount = 0;
   const venueRetry = document.querySelector('#venue-retry');
@@ -33,7 +36,7 @@ function initGame() {
     const message = document.querySelector('#venue-loading');
     message.textContent = '正在分派影廳…';
     try {
-      const allocation = await CinemaVenue.assign(id, runId);
+      const allocation = await CinemaVenue.assign(id, runId, checkpoint?.allocation);
       CinemaVenue.render(allocation);
       renderSpecialPricing(allocation);
       venueScreenCount = allocation.screenCount;
@@ -47,15 +50,17 @@ function initGame() {
       }
       share.max = String(capacity);
       share.value = String(Math.max(0,Math.min(capacity,slots)));
+      currentAllocation = allocation;
       venueReady = true;
       updateControls();
+      saveDraft();
     } catch (error) {
       message.textContent = '影廳資料暫時無法載入，請重試。';
       venueRetry.hidden = false;
       console.error('Venue allocation failed:', error);
     }
   }
-  venueRetry.addEventListener('click', loadVenue);
+  venueRetry.addEventListener('click', () => bootFailed ? bootstrap() : loadVenue());
 
   document.title = `CineMan｜${cinema.name}・本週營運配置`;
   document.documentElement.style.setProperty('--accent', cinema.color);
@@ -115,7 +120,7 @@ function initGame() {
       else control.removeAttribute('aria-describedby');
     }
   }
-  window.CinemaManagement = {setBudgetLocks};
+  window.CinemaManagement = {setBudgetLocks(locks){setBudgetLocks(locks);saveDraft();}};
   setBudgetLocks();
   function renderSpecialPricing(allocation) {
     const formats = [...new Set(allocation.screens.filter(screen => screen.type === 'EXTRA')
@@ -164,20 +169,59 @@ function initGame() {
   const draftKey = `cineman.gameDraft.${id}`;
   const draftStatus = document.querySelector('#draft-status');
   let saved = false;
-  try {
-    const stored = JSON.parse(localStorage.getItem(draftKey) || 'null');
-    const draft = stored?.runId === runId ? stored.values : null;
-    if (draft && typeof draft === 'object') {
-      restoredDraft = draft;
-      for (const control of form.elements) {
-        if (!control.name || !Object.hasOwn(draft, control.name)) continue;
-        if (control.type === 'checkbox') control.checked = draft[control.name] === true;
-        else if (control.type === 'radio') control.checked = control.value === draft[control.name];
-        else if (typeof draft[control.name] === 'string') control.value = draft[control.name];
+  form.inert = true;
+  async function bootstrap() {
+    restoring=true;form.inert=true;
+    bootFailed = false;venueRetry.hidden = true;
+    try {
+      const settings = await CinemaSave.getSettings();
+      let record = null;
+      try { record = await CinemaSave.getLatest(); } catch(error) { if(runUrl.searchParams.get('resume')==='1')throw error; }
+      checkpoint = record?.cinemaID === id && record.runId === runId ? record : null;
+      if (runUrl.searchParams.get('resume') === '1' && !checkpoint) throw Error('找不到這一局的存檔');
+      restoredDraft = checkpoint?.values || null;
+      if (!restoredDraft && settings.enabled) {
+        // One-time compatibility read; all new writes go exclusively to IndexedDB.
+        try { const legacy=JSON.parse(localStorage.getItem(draftKey)||'null');if(legacy?.runId===runId)restoredDraft=legacy.values; } catch {}
       }
-      saved = true;
+      if (checkpoint) {
+        gameDate.year=checkpoint.year;gameDate.week=checkpoint.week;
+        document.querySelector('.workspace-bar .week-badge').textContent=`${gameDate.year} W${gameDate.week}`;
+        document.querySelector('#report-weekly .report-period').textContent=`${gameDate.year} W${gameDate.week}`;
+        document.querySelector('#report-annual .report-period').textContent=String(gameDate.year);
+        document.querySelector('#report-weekly caption').textContent=`${gameDate.year} W${gameDate.week} 週報，結算規則尚未設定，金額均待結算`;
+        document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，結算規則尚未設定，金額均待結算`;
+      }
+      if (restoredDraft) {
+        for (const control of form.elements) {
+          if (!control.name || !Object.hasOwn(restoredDraft,control.name)) continue;
+          if (control.type==='checkbox') control.checked=restoredDraft[control.name]===true;
+          else if(control.type==='radio')control.checked=control.value===restoredDraft[control.name];
+          else if(typeof restoredDraft[control.name]==='string')control.value=restoredDraft[control.name];
+        }
+      }
+      setBudgetLocks(checkpoint?.budgetLocks || {});
+      if (checkpoint?.tabID) { const tab=tabs.find(t=>t.id===checkpoint.tabID);if(tab)activateTab(tab); }
+      if (checkpoint?.reportTabID) { const tab=reportTabs.find(t=>t.id===checkpoint.reportTabID);if(tab)activateReport(tab); }
+      if (checkpoint?.detailsOpen) {
+        document.querySelector('#venue-details-title').setAttribute('aria-expanded','true');
+        document.querySelector('#venue-details-panel').hidden=false;
+      }
+      storeAvailable=true;
+      draftStatus.textContent=settings.enabled?'':'自動存檔 OFF';
+    } catch(error) {
+      storeAvailable=false;
+      if(runUrl.searchParams.get('resume')==='1') {
+        bootFailed=true;venueRetry.hidden=false;
+        document.querySelector('#venue-loading').textContent='無法讀取存檔，請重試或返回首頁。';
+        draftStatus.textContent='存檔尚未讀取，沒有重新分派場地。';
+        form.inert=false;return;
+      }
+      draftStatus.textContent='自動存檔暫時無法使用，本次設定尚未保存。';
     }
-  } catch { /* This preview also works when browser storage is unavailable. */ }
+    restoring=false;form.inert=false;
+    films.restoreView();updateControls();loadVenue();
+  }
 
   function updateControls() {
     for (const item of ['poster', 'figure']) {
@@ -200,31 +244,48 @@ function initGame() {
     films.update();
   }
   function saveDraft() {
-    const draft = {};
+    if(restoring || !venueReady || !storeAvailable)return saveQueue;
+    const values = {};
     for (const control of form.elements) {
-      if (!control.name || control.name === 'featuredSlots' && !venueReady) continue;
-      if (control.type === 'checkbox') draft[control.name] = control.checked;
-      else if (control.type === 'radio') { if (control.checked) draft[control.name] = control.value; }
-      else draft[control.name] = control.value;
+      if (!control.name) continue;
+      if (control.type==='checkbox')values[control.name]=control.checked;
+      else if(control.type==='radio'){if(control.checked)values[control.name]=control.value;}
+      else values[control.name]=control.value;
     }
-    try {
-      localStorage.setItem(draftKey, JSON.stringify({runId, values:draft}));
-      draftStatus.textContent = '本週配置已保留在這個瀏覽器';
-      saved = true;
-    } catch {
-      draftStatus.textContent = '這個瀏覽器無法保存配置，請保持本頁開啟';
-      saved = false;
-    }
+    const budgetLocks=Object.fromEntries(['maintenance','consumables'].map(name=>[name,form.elements[name].disabled ? document.querySelector(`#${name}-lock`).title || true : false]));
+    const snapshot={cinemaID:id,cinemaName:cinema.name,runId,year:gameDate.year,week:gameDate.week,
+      values,allocation:currentAllocation,budgetLocks,
+      tabID:tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
+      reportTabID:reportTabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
+      detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};
+    const revision=++saveRevision;
+    draftStatus.textContent='自動存檔中…';
+    // Start the transaction immediately, including before navigation/refresh.
+    // IndexedDB orders overlapping readwrite transactions on these stores.
+    saveQueue=CinemaSave.save(snapshot).then(written=>{
+      if(revision===saveRevision){saved=written;draftStatus.textContent=written?'已自動存檔':'自動存檔 OFF';}return written;
+    }).catch(()=>{if(revision===saveRevision){saved=false;draftStatus.textContent='自動存檔失敗，本次設定尚未保存。';}return false;});
+    return saveQueue;
   }
   form.addEventListener('submit', event => event.preventDefault());
   form.addEventListener('input', () => { updateControls(); saveDraft(); });
   form.addEventListener('change', () => { updateControls(); saveDraft(); });
-  films.restoreView();
   updateControls();
-  loadVenue();
-  document.querySelector('#next-week').addEventListener('click', () => {
+  bootstrap();
+  for (const list of [tabList,reportTabList]) {
+    list.addEventListener('click',()=>saveDraft());
+    list.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key))saveDraft();});
+  }
+  document.querySelector('#venue-details-title').addEventListener('click',()=>saveDraft());
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)saveDraft();});
+  window.addEventListener('pagehide',()=>saveDraft());
+  document.querySelector('.logo a').addEventListener('click',async event=>{
+    if(event.button!==0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)return;
+    const destination=event.currentTarget.href;event.preventDefault();await saveDraft();location.assign(destination);
+  });
+  document.querySelector('#next-week').addEventListener('click', async () => {
     if (!venueReady || !form.querySelector('input[name="featuredFilm"]:checked')) return;
-    saveDraft();
+    await saveDraft();
     document.querySelector('#dialog-save-status').textContent = saved ? '你的配置已保留，可以繼續調整。' : '目前配置僅保留在本頁，請勿關閉頁面。';
     document.querySelector('#week-dialog').showModal();
   });

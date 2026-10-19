@@ -1,11 +1,15 @@
 'use strict';
 (function(root) {
-  async function assign(cinemaID, runId) {
+  async function assign(cinemaID, runId, savedAllocation = null) {
     const response = await fetch('data/cinemas.json');
     if (!response.ok) throw Error('無法讀取戲院資料');
     const database = await response.json();
     // The run in the URL keeps refreshes stable. A new homepage confirmation
     // creates a fresh run and therefore a new field allocation and form draft.
+    if (savedAllocation) {
+      if (savedAllocation.cinemaID !== cinemaID || savedAllocation.seed !== runId || root.CinemaRules.validateAssignment(savedAllocation,database).length) throw Error('存檔場地與資料庫不相符');
+      return savedAllocation;
+    }
     const allocation = root.CinemaRules.generate(database, cinemaID, runId);
     return allocation;
   }

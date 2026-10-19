@@ -391,6 +391,18 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .entry-transition.closing .entry-title { opacity:1; }
 .entering-game .cinema-card, .entering-game .card-shadow { animation-play-state:paused; }
 .entry-curtain { will-change:transform; }
+.home-playbar { display:grid; grid-template-columns:minmax(100px,1fr) minmax(0,2fr) minmax(140px,1fr); align-items:center; gap:12px; width:min(850px,calc(100% - 32px)); margin:12px auto; }
+.home-playbar .status { margin:0; }
+#auto-save-toggle { justify-self:start; display:flex; align-items:center; gap:9px; min-height:44px; padding:6px 0; background:none; border:0; color:#bda67b; font:inherit; font-size:11px; cursor:pointer; }
+#auto-save-value { display:grid; place-items:center; width:42px; height:24px; border:1px solid #a1875359; border-radius:20px; background:#29251d; color:#b8ac96; font-size:10px; }
+#auto-save-toggle[aria-checked="true"] #auto-save-value { color:#251a09; background:#d6b675; border-color:#efd098; }
+.resume-control { justify-self:end; display:flex; flex-direction:column; align-items:flex-end; gap:5px; min-width:0; }
+#resume-game { min-height:44px; padding:8px 15px; background:#b9934a14; border:1px solid #a1875359; border-radius:7px; color:#e8cfa4; font:inherit; font-size:12px; cursor:pointer; }
+#resume-game:disabled { opacity:.4; cursor:default; }
+#saved-game-label { font-size:10px; color:#a99d86; text-align:right; line-height:1.5; overflow-wrap:anywhere; }
+#auto-save-status { margin:0 12px; text-align:center; color:#bda67b; font-size:11px; }
+#auto-save-status:empty { display:none; }
+@media(max-width:760px) { .home-playbar { grid-template-columns:68px minmax(0,1fr) 90px; gap:6px; width:calc(100% - 24px); margin:6px 12px; } #auto-save-toggle { flex-direction:column; gap:3px; justify-content:center; font-size:10px; } #resume-game { padding:6px 9px; font-size:11px; } .home-playbar .status { font-size:12px; } #saved-game-label { font-size:9px; } }
 </style>
 </head>
 
@@ -400,7 +412,12 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
   <h1 class="logo">CineMan</h1>
   <p class="subtitle">享受自己擁有一家電影院的美麗與哀愁</p>
 </header>
-<p class="status" id="status" role="status">正在載入戲院資料…</p>
+<div class="home-playbar">
+  <button type="button" id="auto-save-toggle" role="switch" aria-checked="true" aria-label="自動存檔" disabled><span>自動存檔</span><span id="auto-save-value">ON</span></button>
+  <p class="status" id="status" role="status">正在載入戲院資料…</p>
+  <div class="resume-control"><button type="button" id="resume-game" disabled>繼續經營</button><span id="saved-game-label" aria-live="polite"></span></div>
+</div>
+<p id="auto-save-status" role="status"></p>
 <section class="selection" id="selection" aria-labelledby="selection-title" hidden>
   <h2 id="selection-title"></h2>
   <button type="button" id="confirm-selection" class="confirm-button">確定</button>
@@ -413,6 +430,8 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
   </div>
 </div>
 <footer class="site-footer">©2026 CineMan · Developed by <a href="https://www.facebook.com/FRONTDELIBERATIONCINEMA" target="_blank" rel="noopener noreferrer">電影解放陣線</a></footer>
-<script src="app.js?v=labels-entry-v32" defer></script>
+<script src="autosave.js?v=autosave-v22" defer></script>
+<script src="home-save.js?v=autosave-v22" defer></script>
+<script src="app.js?v=autosave-entry-v33" defer></script>
 </body>
 </html>

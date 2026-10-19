@@ -1,0 +1,69 @@
+'use strict';
+(function(root) {
+  const DB_NAME = 'CineMan', DB_VERSION = 1, SAVE_VERSION = 1;
+  let opening;
+  const listeners = new Set();
+  let channel;
+  try { channel = new BroadcastChannel('cineman-autosave');channel.onmessage = () => listeners.forEach(fn=>fn()); } catch { /* Focus refresh also works without BroadcastChannel. */ }
+  function notify() { listeners.forEach(fn=>fn());channel?.postMessage('changed'); }
+  function open() {
+    if (opening) return opening;
+    opening = new Promise((resolve,reject)=>{
+      let request, settled = false;
+      const fail = error => { if(settled)return;settled=true;clearTimeout(timeout);reject(error); };
+      const timeout = setTimeout(()=>fail(Error('存檔資料庫暫時無法開啟')),4000);
+      try { request = root.indexedDB.open(DB_NAME,DB_VERSION); } catch(error) { fail(error);return; }
+      request.onupgradeneeded = () => {
+        for(const name of ['preferences','saves'])if(!request.result.objectStoreNames.contains(name))request.result.createObjectStore(name,{keyPath:'key'});
+      };
+      request.onerror = () => fail(request.error || Error('無法開啟存檔資料庫'));
+      request.onblocked = () => fail(Error('存檔資料庫更新受其他分頁阻擋'));
+      request.onsuccess = () => {
+        if(settled){request.result.close();return;}settled=true;clearTimeout(timeout);
+        const db=request.result;db.onversionchange=()=>{db.close();opening=null;};resolve(db);
+      };
+    }).catch(error=>{opening=null;throw error;});
+    return opening;
+  }
+  async function read(store,key) {
+    const db=await open();return new Promise((resolve,reject)=>{
+      const tx=db.transaction(store,'readonly'),request=tx.objectStore(store).get(key);
+      tx.oncomplete=()=>resolve(request.result);tx.onabort=tx.onerror=()=>reject(tx.error||Error('讀取存檔失敗'));
+    });
+  }
+  function valid(record) {
+    return record?.version===SAVE_VERSION && ['C01','C02','C03','C04','C05'].includes(record.cinemaID) &&
+      typeof record.cinemaName==='string' && typeof record.runId==='string' && record.runId.length>0 && record.runId.length<=256 &&
+      Number.isInteger(record.year) && record.year>0 && Number.isInteger(record.week) && record.week>=1 && record.week<=53 &&
+      record.values && typeof record.values==='object' && !Array.isArray(record.values) &&
+      record.allocation?.cinemaID===record.cinemaID && record.allocation?.seed===record.runId && Array.isArray(record.allocation.screens);
+  }
+  async function getLatest() {
+    const record=await read('saves','latest');if(!record)return null;
+    if(!valid(record))throw Error('存檔格式不支援或已損壞');return record;
+  }
+  async function getSettings() { const pref=await read('preferences','autoSave');return {enabled:pref?.enabled!==false}; }
+  async function setEnabled(enabled) {
+    const db=await open();await new Promise((resolve,reject)=>{
+      const tx=db.transaction(['preferences','saves'],'readwrite');
+      tx.objectStore('preferences').put({key:'autoSave',enabled:!!enabled});
+      tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(tx.error||Error('更新自動存檔設定失敗'));
+    });notify();
+  }
+  async function save(snapshot) {
+    const record={...snapshot,key:'latest',version:SAVE_VERSION,savedAt:Date.now()};
+    if(!valid(record))throw Error('無法保存不完整的遊戲狀態');
+    const db=await open();let written=false,writeError;
+    await new Promise((resolve,reject)=>{
+      // Preference and checkpoint share one transaction, so an OFF setting in
+      // another tab cannot be bypassed by a stale cached preference.
+      const tx=db.transaction(['preferences','saves'],'readwrite');
+      const pref=tx.objectStore('preferences').get('autoSave');
+      pref.onsuccess=()=>{try{if(pref.result?.enabled!==false){tx.objectStore('saves').put(record);written=true;}}catch(error){writeError=error;tx.abort();}};
+      tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(writeError||tx.error||Error('自動存檔失敗'));
+    });if(written)notify();return written;
+  }
+  root.CinemaSave={DB_NAME,SAVE_VERSION,getSettings,setEnabled,getLatest,save,
+    label:record=>`${record.cinemaName} ${record.year}年${record.week}週`,
+    subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn);}};
+})(globalThis);
