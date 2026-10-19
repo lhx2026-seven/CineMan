@@ -45,6 +45,7 @@
     });
     list.replaceChildren(...cards);
     section.hidden = !cards.length;
+    document.querySelector('#weekly-bulletin').classList.toggle('has-events', cards.length > 0);
   }
   root.CinemaEvents = {render};
 })(globalThis);

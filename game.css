@@ -381,7 +381,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .cinema-overview .cinema-hero > img { height:100%; min-height:260px; aspect-ratio:auto; object-position:center; }
 .cinema-overview .hero-caption { padding:16px 18px; }
 .cinema-overview .financial-report { min-width:0; margin:0; }
-.workspace-bar { justify-content:flex-end; }
+.workspace-bar { justify-content:flex-start; }
 .next-week-area { justify-content:flex-end; }
 .draft-status:empty { display:none; }
 @media(max-width:760px) {
@@ -454,3 +454,9 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .weekly-event .event-decision-status { font-size:11px; margin-top:8px; color:#bda67b; }
 .event-decision-status:empty { display:none; }
 @media(max-width:760px) { .workspace-bar .week-badge { font-size:18px; padding:6px 10px; } }
+
+/* The week is always visible within the event area; its bulletin is optional. */
+.weekly-bulletin.has-events { padding:14px 18px; margin-bottom:12px; border:1px solid #a1875347; border-radius:12px; background:#17120cd9; }
+.weekly-bulletin.has-events .workspace-bar { padding:0 0 12px; }
+.weekly-bulletin .weekly-events { padding:0; margin:0; border:0; background:none; }
+@media(max-width:760px) { .weekly-bulletin.has-events { padding:12px; border-radius:9px; } }
