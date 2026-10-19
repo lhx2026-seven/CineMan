@@ -222,3 +222,126 @@ dialog .gold-button { margin-top:10px; }
 .management-tabs button[aria-selected="true"] { color:#ffdc9a; background:#ffd47c12; border-color:#b98b4b66; box-shadow:inset 0 -2px #d3a454; }
 [role="tabpanel"] { scroll-margin-top:82px; }
 @media(max-width:760px) { .management-tabs { gap:2px; padding:4px; margin-bottom:12px; border-radius:12px; } .management-tabs button { font-size:12px; min-height:46px; padding:9px 2px; } [role="tabpanel"] { scroll-margin-top:74px; } }
+
+/* Dense operating sheet: compact data rows, not oversized form cards. */
+.game-shell { width:min(960px, calc(100% - 32px)); }
+.cinema-hero { display:grid; grid-template-columns:210px minmax(0,1fr); border-radius:12px; }
+.cinema-hero > img { width:100%; height:106px; aspect-ratio:auto; object-position:center; }
+.hero-shade { display:none; }
+.hero-caption { position:static; display:flex; align-items:center; padding:16px 20px; }
+.hero-caption .overline { display:none; }
+.hero-caption h2 { font-size:25px; margin:0 0 7px; }
+.hero-caption p { font-size:12px; }
+.workspace-bar { padding:10px 0; gap:10px; }
+.workspace-meta { display:flex; align-items:center; gap:8px; }
+.week-badge { padding:4px 8px; font-size:11px; border-color:var(--line); }
+.preview-badge { padding:4px 8px; font-size:10px; }
+.management-tabs { margin-bottom:10px; padding:4px; border-radius:10px; }
+.management-tabs button { min-height:40px; padding:8px; font-size:13px; border-radius:7px; }
+.panel { padding:16px 18px; margin-bottom:12px; border-radius:12px; }
+.section-heading { margin-bottom:12px; gap:10px; }
+.section-heading .overline { display:none; }
+.section-heading h2 { font-size:18px; letter-spacing:.08em; }
+.section-note { font-size:11px; }
+.budget-grid { grid-template-columns:1fr 1fr; gap:0 26px; }
+.budget-field { display:grid; grid-template-columns:minmax(0,1fr) 150px; align-items:center; gap:12px; padding:2px 0; min-height:43px; background:none; border:0; border-bottom:1px solid #ffffff0b; border-radius:0; font-size:13px; }
+.field-index { display:none; }
+.input-wrap { background:#09080766; border:1px solid #a893701a; border-radius:5px; padding:0 8px; gap:5px; }
+.input-wrap > span { font-size:10px; }
+input[type="number"] { min-height:34px; padding:6px 9px; border-radius:5px; font-size:13px; }
+.input-wrap input[type="number"] { min-height:34px; padding:6px 0; text-align:right; }
+input::placeholder { font-size:12px; }
+.pricing-columns { grid-template-columns:1fr 1fr; gap:26px; }
+.price-group legend, .subheading { margin-bottom:7px; font-size:13px; color:#cbbb9e; }
+.ticket-grid, .food-grid { display:block; }
+.price-group .field { display:grid; grid-template-columns:minmax(0,1fr) 130px; align-items:center; min-height:42px; gap:10px; border-bottom:1px solid #ffffff0b; }
+.merch-grid { margin-top:14px; padding-top:12px; gap:12px; }
+.merch-card { padding:10px 12px; border-radius:8px; }
+.merch-toggle { min-height:32px; }
+.merch-toggle strong { font-size:13px; }
+.merch-toggle small { display:none; }
+.merch-settings { gap:10px; margin-top:8px; padding-top:10px; }
+.merch-settings .field { gap:5px; font-size:12px; }
+.new-films { gap:12px; }
+.film-option { grid-template-columns:66px minmax(0,1fr); border-radius:8px; }
+.poster-placeholder { min-height:112px; padding:10px; }
+.poster-placeholder > span { font-size:10px; }
+.poster-placeholder small { font-size:24px; }
+.film-info { padding:12px; gap:5px; }
+.film-info > strong { font-size:16px; }
+.film-tag { font-size:9px; }
+.feature-indicator { padding-top:7px; }
+.showtime-control { padding:12px; gap:8px; margin-top:12px; border-radius:8px; }
+.showtime-control label { font-size:13px; }
+.showtime-control p { font-size:11px; margin-top:3px; }
+.showtime-control output { font-size:23px; }
+.range-labels { margin-top:-5px; font-size:10px; }
+.old-films-heading { margin:16px 0 8px; }
+.old-films-heading h3 { font-size:13px; }
+.old-films { display:block; border-top:1px solid #ffffff0b; }
+.old-film { padding:8px 0; gap:10px; background:none; border:0; border-bottom:1px solid #ffffff0b; border-radius:0; }
+.mini-poster { width:23px; height:30px; font-size:13px; }
+.old-film > div { display:flex; align-items:center; gap:16px; }
+.old-film h4 { margin:0; font-size:12px; }
+.old-film p { font-size:10px; }
+.finance-summary { border-radius:8px; }
+.finance-summary > div { padding:13px 14px; gap:7px; }
+.finance-summary strong { font-size:26px; }
+.report-lines { margin-top:12px; }
+.report-lines > div { padding:9px 0; }
+.report-lines dt, .report-lines dd { font-size:12px; }
+.report-note { margin-top:11px; font-size:11px; }
+.counter-scene { border-radius:12px; }
+.counter-scene > img { height:142px; aspect-ratio:auto; object-position:center 55%; }
+.next-week-area { inset:auto 16px 14px; flex-direction:row; align-items:center; gap:12px; }
+.next-week-area .overline { font-size:11px; }
+.gold-button { min-height:40px; padding:9px 20px; font-size:14px; }
+.draft-status { margin:7px 0; min-height:16px; font-size:10px; }
+@media(max-width:760px) {
+  .game-shell { width:calc(100% - 20px); margin-top:10px; }
+  .cinema-hero { grid-template-columns:108px minmax(0,1fr); border-radius:9px; }
+  .cinema-hero > img { height:82px; }
+  .hero-caption { padding:10px 12px; }
+  .hero-caption h2 { font-size:20px; margin-bottom:5px; }
+  .hero-caption p { font-size:11px; line-height:1.5; }
+  .workspace-bar { padding:8px 0; }
+  .workspace-meta { gap:5px; }
+  .back-link { font-size:12px; }
+  .week-badge { font-size:10px; }
+  .preview-badge { font-size:9px; }
+  .management-tabs { margin-bottom:8px; padding:3px; gap:2px; }
+  .management-tabs button { min-height:44px; padding:7px 2px; font-size:12px; }
+  .panel { padding:13px 12px; margin-bottom:9px; border-radius:10px; }
+  .section-heading { margin-bottom:9px; }
+  .section-heading h2 { font-size:16px; }
+  .section-note { font-size:10px; }
+  .budget-grid { grid-template-columns:1fr; gap:0; }
+  .budget-field { grid-template-columns:minmax(0,1fr) 146px; min-height:46px; gap:10px; padding:1px 0; }
+  input[type="number"], .input-wrap input[type="number"] { min-height:44px; font-size:14px; }
+  .pricing-columns { grid-template-columns:1fr; gap:14px; }
+  .price-group .field { grid-template-columns:minmax(0,1fr) 146px; min-height:46px; }
+  .merch-grid { grid-template-columns:1fr; margin-top:13px; padding-top:12px; gap:8px; }
+  .merch-card { padding:7px 10px; }
+  .merch-toggle { min-height:44px; }
+  .merch-settings { margin-top:4px; padding-top:9px; }
+  .new-films { grid-template-columns:1fr; gap:8px; }
+  .film-option { grid-template-columns:54px minmax(0,1fr); }
+  .poster-placeholder { min-height:98px; padding:8px; }
+  .poster-placeholder > span { font-size:9px; }
+  .poster-placeholder small { font-size:22px; }
+  .film-info { padding:10px 12px; }
+  .feature-indicator { min-height:24px; }
+  .showtime-control { padding:10px; }
+  input[type="range"] { min-height:32px; }
+  .old-film { padding:7px 0; }
+  .old-film > div { gap:10px; }
+  .finance-summary > div { padding:12px 9px; }
+  .finance-summary span { font-size:10px; }
+  .finance-summary strong { font-size:24px; }
+  .counter-scene { border-radius:9px; }
+  .counter-scene > img { height:108px; }
+  .next-week-area { inset:auto 10px 10px; gap:8px; }
+  .next-week-area .overline { font-size:10px; line-height:1.5; max-width:48%; }
+  .next-week-area .gold-button { min-height:44px; padding:10px 17px; font-size:13px; }
+  .next-week-area .gold-button > span { margin-left:10px; }
+}
