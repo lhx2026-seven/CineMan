@@ -23,7 +23,9 @@ function initGame() {
   exterior.src = `assets/cinemas/landscape/${cinema.exterior}`;
   exterior.alt = `${cinema.name}外觀`;
   const counter = document.querySelector('#cinema-counter');
-  counter.src = `assets/cinemas/counters/${cinema.slug}-counter.webp`;
+  const counterVersion = id === 'C02' ? '' : '-v2';
+  counter.src = `assets/cinemas/counters/${cinema.slug}-counter${counterVersion}.webp`;
+  document.body.dataset.cinema = cinema.slug;
   counter.alt = `${cinema.name}售票櫃台`;
   document.querySelector('#game-content').hidden = false;
   const form = document.querySelector('#management-form');

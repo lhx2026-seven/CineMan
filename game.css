@@ -367,3 +367,12 @@ input::placeholder { font-size:12px; }
 .management-tabs { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .gold-button:disabled, .gold-button:disabled:hover { background:#302d28; border-color:#655d4f; color:#a59b8b; opacity:.75; box-shadow:none; cursor:not-allowed; }
 @media(max-width:760px) { .financial-report { padding:12px; margin:8px 0; } .ledger-table th, .ledger-table td { padding:6px 7px; } .ledger-balance { padding-left:7px; padding-right:7px; } .financial-report .report-note { margin-left:7px; margin-right:7px; } }
+/* Keep neutral-white counter lighting visible under the action overlay. */
+body[data-cinema="broadway"] .counter-shade,
+body[data-cinema="ylc"] .counter-shade,
+body[data-cinema="arthouse"] .counter-shade { background:linear-gradient(0deg,#030302a8,transparent 68%); }
+.counter-scene .next-week-area .overline { text-shadow:0 1px 4px #000,0 0 10px #000a; }
+/* Give Baogong's crystal chandelier enough room to remain visible. */
+body[data-cinema="baogong"] .counter-scene > img { height:260px; object-position:center 30%; }
+body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#030302a8,transparent 55%); }
+@media(max-width:760px) { body[data-cinema="baogong"] .counter-scene > img { height:140px; } }
