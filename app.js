@@ -24,13 +24,30 @@ try {
   localStorage.removeItem('cineman.confirmedCinema');
 } catch { /* Storage may be unavailable. */ }
 
+let enteringGame = false;
 confirmButton.addEventListener('click', () => {
   const cinema = definitions.find(([id]) => id === selectedId);
-  if (!cinema) return;
+  if (!cinema || enteringGame) return;
+  enteringGame = true;
   confirmedId = selectedId;
-  try { localStorage.setItem('cineman.confirmedCinema', confirmedId); } catch { /* Keep confirmation in memory. */ }
-  confirmButton.textContent = '已確定';
+  try { localStorage.setItem('cineman.confirmedCinema', confirmedId); } catch { /* The URL also carries the selected cinema. */ }
   confirmButton.disabled = true;
+  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}`;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    location.assign(destination);
+    return;
+  }
+  const transition = document.createElement('div');
+  transition.className = 'entry-transition';
+  transition.setAttribute('role', 'status');
+  transition.innerHTML = '<div class="entry-curtain entry-left"></div><div class="entry-curtain entry-right"></div><div class="entry-title"><span>CineMan</span><p></p></div>';
+  transition.querySelector('p').textContent = `歡迎來到${cinema[2]}`;
+  document.body.append(transition);
+  requestAnimationFrame(() => requestAnimationFrame(() => transition.classList.add('closing')));
+  setTimeout(() => location.assign(destination), 700);
+});
+window.addEventListener('pageshow', event => {
+  if (event.persisted) location.reload();
 });
 
 function updateOrbit() {

@@ -380,6 +380,15 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .site-footer a { color:#e8cfa4; text-decoration:underline; text-underline-offset:3px; }
 .site-footer a:hover { color:#ffd47c; }
 .site-footer a:focus-visible { outline:2px solid #ffd47c; outline-offset:4px; }
+.entry-transition { position:fixed; inset:0; z-index:1000; overflow:hidden; }
+.entry-curtain { position:absolute; inset-block:0; width:50.2%; background:repeating-linear-gradient(90deg,#180b08 0,#381b13 8%,#1c0e0a 17%,#30160e 25%); box-shadow:0 0 50px #000c; transition:transform .6s cubic-bezier(.35,0,.15,1); }
+.entry-left { left:0; transform:translateX(-102%); }
+.entry-right { right:0; transform:translateX(102%); }
+.entry-transition.closing .entry-curtain { transform:translateX(0); }
+.entry-title { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#ffd47c; opacity:0; transition:opacity .25s .35s; }
+.entry-title > span { font:bold 48px Georgia,serif; text-shadow:0 0 24px #ff9d0080; }
+.entry-title p { font-size:14px; letter-spacing:.1em; color:#e8cfa4; }
+.entry-transition.closing .entry-title { opacity:1; }
 </style>
 </head>
 
@@ -402,6 +411,6 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
   </div>
 </div>
 <footer class="site-footer">©2026 CineMan · Developed by <a href="https://www.facebook.com/FRONTDELIBERATIONCINEMA" target="_blank" rel="noopener noreferrer">電影解放陣線</a></footer>
-<script src="app.js?v=outward-float-v11" defer></script>
+<script src="app.js?v=game-entry-v12" defer></script>
 </body>
 </html>

@@ -8,9 +8,9 @@
 
 關聯：C01=baogong=寶宮、C02=century=世紀、C03=broadway=布洛威、C04=ylc=YLC、C05=arthouse=公會堂。cinemaID 對應 LocationsList 的 cinemaID_Cxx_applicable 欄。只有 true 顯示為適用，空白代表不適用（使用者已確認）。CinemasList 的 screens 是可選廳數，不是連續範圍；依 Excel 取代原 HTML 的概略數值。影廳類型 A/B/C/D/EXTRA 可對應 ScreensList.type，但目前不生成實際配置，也不推算座位總數。
 
-第一層保留待選 cinemaID（localStorage: cineman.selectedCinema）及確定後的 cinemaID（cineman.confirmedCinema），可改選並再次確認；每次開啟或重新整理選擇頁都清除先前選擇與確認，不預選任何戲院；第二層與跨裝置儲存未實作。儲存不可用時仍可在本頁選擇。
+第一層保留待選 cinemaID（localStorage: cineman.selectedCinema）及確定後的 cinemaID（cineman.confirmedCinema），可改選並再次確認；每次開啟或重新整理選擇頁都清除先前選擇與確認，不預選任何戲院；第二層營運配置版型已建立（見 game.html）；跨裝置儲存未實作。儲存不可用時仍可在本頁選擇。
 
-使用者已確認：影廳資料以 Excel 為準；normal 代表常態分布；LocationsList 空白代表否定（不適用）。目前保留 normal 原值，不生成隨機配置。實作時仍需定義常態分布的平均值、標準差、取值範圍及離散化方式；第二層進入流程也尚待定義。原頁土地與租金敘述缺少 Excel 依據，因此不作為配置資料展示。
+使用者已確認：影廳資料以 Excel 為準；normal 代表常態分布；LocationsList 空白代表否定（不適用）。目前保留 normal 原值，不生成隨機配置。實作時仍需定義常態分布的平均值、標準差、取值範圍及離散化方式；第二層透過選定戲院後的布幕轉場進入。原頁土地與租金敘述缺少 Excel 依據，因此不作為配置資料展示。
 
 玩家卡片依序展示外觀圖、戲院名稱與類型及選擇鈕、內裝圖，不使用圖片切換按鈕。影廳選項與適用地點不在卡片或選擇摘要中顯示；完整規則仍保留在 data/cinemas.json，以 cinemaID 關聯。
 
@@ -24,7 +24,7 @@
 
 世紀外觀更新為一樓角落售票口、另一半是帶小張海報櫥窗的內凹門廊，二樓改為三扇小窗，使用 century-exterior-v2.webp。已刪除十張舊 JPG 與三張被新版取代的外觀 WebP，保留十張使用中圖片；未重寫 Git 歷史。
 
-選擇確認區位於頁首與戲院卡片之間，顯示「要進入 XX 戲院大展身手？」與確定鈕；玩家選取後留在舞台查看卡片浮起與聚光，上方確認區同步更新，確定後保存狀態、改選時清除先前確認。第二層尚未實作，確定鈕目前不導向新頁面。頁首保留 CineMan 與金色細線裝飾副標「享受自己擁有一家電影院的美麗與哀愁」。
+選擇確認區位於頁首與戲院卡片之間，顯示「要進入 XX 戲院大展身手？」與確定鈕；玩家選取後留在舞台查看卡片浮起與聚光，上方確認區同步更新，確定後保存狀態、改選時清除先前確認。確定鈕以布幕合上動畫導向 game.html?cinema=Cxx，第二頁再打開布幕。頁首保留 CineMan 與金色細線裝飾副標「享受自己擁有一家電影院的美麗與哀愁」。
 
 起始頁永遠無預選戲院，確認區預設隱藏；不從 localStorage 還原先前選擇。玩家本次操作才會顯示選中狀態。
 

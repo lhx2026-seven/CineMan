@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineMan｜本週營運配置</title>
+<link rel="stylesheet" href="game.css?v=game-preview-v1">
+<script src="game.js?v=game-preview-v1" defer></script>
+</head>
+<body class="game-page page-entering">
+<header class="header">
+  <h1 class="logo">CineMan</h1>
+  <p class="subtitle">享受自己擁有一家電影院的美麗與哀愁</p>
+</header>
+<main class="game-shell" id="game-content" hidden>
+  <section class="cinema-hero" aria-labelledby="cinema-name">
+    <img id="cinema-exterior" width="1774" height="887" alt="">
+    <div class="hero-shade"></div>
+    <div class="hero-caption"><div><p class="overline">你的電影院</p><h2 id="cinema-name"></h2><p id="cinema-type"></p></div><span class="week-badge">第 01 週</span></div>
+  </section>
+  <div class="workspace-bar"><a href="index.html" class="back-link">‹ 返回戲院選擇</a><span class="preview-badge">介面預覽</span></div>
+  <form id="management-form" autocomplete="off">
+    <section class="panel" aria-labelledby="budget-title">
+      <div class="section-heading"><div><p class="overline">OPERATING BUDGET</p><h2 id="budget-title">預算配置</h2></div><span class="section-note">NT$／週</span></div>
+      <div class="budget-grid">
+        <label class="budget-field"><span class="field-index">01</span><span>租金</span><span class="input-wrap"><span>NT$</span><input type="number" name="rent" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="field-index">02</span><span>硬體維護</span><span class="input-wrap"><span>NT$</span><input type="number" name="maintenance" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="field-index">03</span><span>人力</span><span class="input-wrap"><span>NT$</span><input type="number" name="staffing" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="field-index">04</span><span>稅</span><span class="input-wrap"><span>NT$</span><input type="number" name="tax" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+      </div>
+    </section>
+    <section class="panel" aria-labelledby="pricing-title">
+      <div class="section-heading"><div><p class="overline">TICKETS & MORE</p><h2 id="pricing-title">定價</h2></div><span class="section-note">金額單位 NT$</span></div>
+      <div class="pricing-columns">
+        <fieldset class="price-group"><legend>電影票價</legend><div class="ticket-grid">
+          <label class="field"><span>全票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketFull" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+          <label class="field"><span>優待票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketDiscount" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+          <label class="field"><span>早場票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketMorning" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+        </div></fieldset>
+        <fieldset class="price-group"><legend>餐飲售價</legend><div class="food-grid">
+          <label class="field"><span>爆米花</span><span class="input-wrap"><span>NT$</span><input type="number" name="popcornPrice" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+          <label class="field"><span>飲料</span><span class="input-wrap"><span>NT$</span><input type="number" name="drinkPrice" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+        </div></fieldset>
+      </div>
+      <div class="merch-grid">
+        <div class="merch-card"><label class="merch-toggle"><input type="checkbox" name="posterEnabled" aria-controls="poster-settings"><span><strong>開賣獨家海報</strong><small>讓電影的餘韻，留在生活裡。</small></span><span class="toggle-track" aria-hidden="true"></span></label>
+          <fieldset class="merch-settings" id="poster-settings" hidden disabled><legend class="sr-only">獨家海報設定</legend><label class="field"><span>印量（張）</span><input type="number" name="posterQuantity" min="0" step="1" placeholder="—" inputmode="numeric"></label><label class="field"><span>售價（NT$／張）</span><input type="number" name="posterPrice" min="0" step="1" placeholder="—" inputmode="numeric"></label></fieldset>
+        </div>
+        <div class="merch-card"><label class="merch-toggle"><input type="checkbox" name="figureEnabled" aria-controls="figure-settings"><span><strong>開賣獨家公仔</strong><small>把喜歡的角色，帶出大銀幕。</small></span><span class="toggle-track" aria-hidden="true"></span></label>
+          <fieldset class="merch-settings" id="figure-settings" hidden disabled><legend class="sr-only">獨家公仔設定</legend><label class="field"><span>製作量（個）</span><input type="number" name="figureQuantity" min="0" step="1" placeholder="—" inputmode="numeric"></label><label class="field"><span>售價（NT$／個）</span><input type="number" name="figurePrice" min="0" step="1" placeholder="—" inputmode="numeric"></label></fieldset>
+        </div>
+      </div>
+    </section>
+    <section class="panel" aria-labelledby="films-title">
+      <div class="section-heading"><div><p class="overline">ON THE BIG SCREEN</p><h2 id="films-title">選片</h2></div><span class="section-note">本週新片 · 2 部</span></div>
+      <h3 class="subheading">本週新片</h3><fieldset class="new-films"><legend class="sr-only">選擇本週主打片</legend>
+        <label class="film-option"><input type="radio" name="featuredFilm" value="new-01"><span class="poster-placeholder poster-one" aria-hidden="true"><span>COMING<br>SOON</span><small>01</small></span><span class="film-info"><span class="film-tag">本週新片</span><strong>新片 01</strong><span class="muted">片名與電影資訊待補</span><span class="feature-indicator">設為主打片 <span aria-hidden="true">○</span></span></span></label>
+        <label class="film-option"><input type="radio" name="featuredFilm" value="new-02"><span class="poster-placeholder poster-two" aria-hidden="true"><span>COMING<br>SOON</span><small>02</small></span><span class="film-info"><span class="film-tag">本週新片</span><strong>新片 02</strong><span class="muted">片名與電影資訊待補</span><span class="feature-indicator">設為主打片 <span aria-hidden="true">○</span></span></span></label>
+      </fieldset>
+      <div class="showtime-control"><div><label for="featured-share">主打片場次占比</label><p id="share-hint">先選擇一部主打片，再安排場次。</p></div><output id="share-output" for="featured-share">—</output><input type="range" id="featured-share" name="featuredShare" min="0" max="100" step="5" value="50" aria-describedby="share-hint" disabled><div class="range-labels"><span>0%</span><span>100%</span></div></div>
+      <div class="old-films-heading"><h3>持續上映</h3><span class="muted">既定片單 · 不可調整</span></div>
+      <div class="old-films"><article class="old-film"><span class="mini-poster" aria-hidden="true">01</span><div><h4>舊片 01</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article><article class="old-film"><span class="mini-poster" aria-hidden="true">02</span><div><h4>舊片 02</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article><article class="old-film"><span class="mini-poster" aria-hidden="true">03</span><div><h4>舊片 03</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article></div>
+    </section>
+    <section class="panel finance-panel" aria-labelledby="finance-title"><div class="section-heading"><div><p class="overline">THE WEEK IN NUMBERS</p><h2 id="finance-title">財務報表</h2></div><span class="pending-tag">尚未結算</span></div>
+      <div class="finance-summary"><div><span>本週收入</span><strong>—</strong><small>NT$</small></div><div><span>本週支出</span><strong>—</strong><small>NT$</small></div><div><span>本週損益</span><strong>—</strong><small>NT$</small></div></div>
+      <dl class="report-lines"><div><dt>電影票房</dt><dd>待設定</dd></div><div><dt>餐飲收入</dt><dd>待設定</dd></div><div><dt>獨家商品收入</dt><dd>待設定</dd></div><div><dt>營運支出</dt><dd>待設定</dd></div></dl><p class="report-note">營收與損益將在結算規則設定後顯示。</p>
+    </section>
+  </form>
+  <section class="counter-scene" aria-label="電影院售票櫃台"><img id="cinema-counter" width="1774" height="887" alt="" loading="lazy"><div class="counter-shade"></div><div class="next-week-area"><span class="overline">下一場好戲，等你開場。</span><button type="button" id="next-week" class="gold-button">下一週 <span aria-hidden="true">→</span></button></div></section>
+  <p id="draft-status" class="draft-status" role="status"></p>
+</main>
+<dialog id="week-dialog"><form method="dialog"><p class="overline">CineMan</p><h2>下一週，敬請期待</h2><p>目前先開放本週配置預覽，週結算尚未開放。</p><p id="dialog-save-status"></p><button class="gold-button" value="close">繼續調整</button></form></dialog>
+<footer class="site-footer">©2026 CineMan · Developed by <a href="https://www.facebook.com/FRONTDELIBERATIONCINEMA" target="_blank" rel="noopener noreferrer">電影解放陣線</a></footer>
+</body>
+</html>
