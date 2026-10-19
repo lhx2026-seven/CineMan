@@ -391,18 +391,18 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .entry-transition.closing .entry-title { opacity:1; }
 .entering-game .cinema-card, .entering-game .card-shadow { animation-play-state:paused; }
 .entry-curtain { will-change:transform; }
-.home-playbar { display:grid; grid-template-columns:minmax(100px,1fr) minmax(0,2fr) minmax(140px,1fr); align-items:center; gap:12px; width:min(850px,calc(100% - 32px)); margin:12px auto; }
+.home-playbar { display:grid; grid-template-columns:70px minmax(0,1fr) 108px; align-items:center; gap:8px; width:min(850px,calc(100% - 32px)); margin:5px auto; }
 .home-playbar .status { margin:0; }
-#auto-save-toggle { justify-self:start; display:flex; align-items:center; gap:9px; min-height:44px; padding:6px 0; background:none; border:0; color:#bda67b; font:inherit; font-size:11px; cursor:pointer; }
-#auto-save-value { display:grid; place-items:center; width:42px; height:24px; border:1px solid #a1875359; border-radius:20px; background:#29251d; color:#b8ac96; font-size:10px; }
-#auto-save-toggle[aria-checked="true"] #auto-save-value { color:#251a09; background:#d6b675; border-color:#efd098; }
-.resume-control { justify-self:end; display:flex; flex-direction:column; align-items:flex-end; gap:5px; min-width:0; }
-#resume-game { min-height:44px; padding:8px 15px; background:#b9934a14; border:1px solid #a1875359; border-radius:7px; color:#e8cfa4; font:inherit; font-size:12px; cursor:pointer; }
+#auto-save-toggle { justify-self:start; display:flex; align-items:center; gap:3px; min-height:20px; padding:0; background:none; border:0; color:#a99d86; font:inherit; font-size:9px; cursor:pointer; }
+#auto-save-value { display:grid; place-items:center; width:25px; height:15px; border:1px solid #a1875340; border-radius:10px; background:#29251d; color:#b8ac96; font-size:8px; }
+#auto-save-toggle[aria-checked="true"] #auto-save-value { color:#251a09; background:#c7aa72; border-color:#d6b675; }
+.resume-control { justify-self:end; display:flex; flex-direction:column; align-items:flex-end; gap:1px; min-width:0; }
+#resume-game { min-height:18px; padding:0; background:none; border:0; color:#c7ae82; font:inherit; font-size:10px; cursor:pointer; }
 #resume-game:disabled { opacity:.4; cursor:default; }
-#saved-game-label { font-size:10px; color:#a99d86; text-align:right; line-height:1.5; overflow-wrap:anywhere; }
-#auto-save-status { margin:0 12px; text-align:center; color:#bda67b; font-size:11px; }
+#saved-game-label { font-size:8px; color:#8f8572; text-align:right; line-height:1.2; overflow-wrap:anywhere; }
+#auto-save-status { margin:0 12px; text-align:center; color:#bda67b; font-size:10px; }
 #auto-save-status:empty { display:none; }
-@media(max-width:760px) { .home-playbar { grid-template-columns:68px minmax(0,1fr) 90px; gap:6px; width:calc(100% - 24px); margin:6px 12px; } #auto-save-toggle { flex-direction:column; gap:3px; justify-content:center; font-size:10px; } #resume-game { padding:6px 9px; font-size:11px; } .home-playbar .status { font-size:12px; } #saved-game-label { font-size:9px; } }
+@media(max-width:760px) { .home-playbar { grid-template-columns:64px minmax(0,1fr) 92px; gap:4px; width:calc(100% - 24px); margin:3px 12px; } .home-playbar .status { font-size:12px; } }
 </style>
 </head>
 
