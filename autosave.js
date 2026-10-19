@@ -38,11 +38,26 @@
       record.values && typeof record.values==='object' && !Array.isArray(record.values) &&
       record.allocation?.cinemaID===record.cinemaID && record.allocation?.seed===record.runId && Array.isArray(record.allocation.screens);
   }
-  async function getLatest() {
-    const record=await read('saves','latest');if(!record)return null;
-    if(!valid(record))throw Error('存檔格式不支援或已損壞');return record;
+  async function list() {
+    const db=await open();
+    const records=await new Promise((resolve,reject)=>{
+      const tx=db.transaction('saves','readonly'),request=tx.objectStore('saves').getAll();
+      tx.oncomplete=()=>resolve(request.result);tx.onabort=tx.onerror=()=>reject(tx.error||Error('讀取存檔失敗'));
+    });
+    if(records.some(record=>!valid(record)))throw Error('存檔格式不支援或已損壞');
+    const runs=new Map();
+    records.sort((a,b)=>(b.savedAt||0)-(a.savedAt||0)).forEach(record=>{if(!runs.has(record.runId))runs.set(record.runId,record);});
+    return [...runs.values()];
   }
-  async function getSettings() { const pref=await read('preferences','autoSave');return {enabled:pref?.enabled!==false}; }
+  async function getLatest() { return (await list())[0] || null; }
+  async function getByRun(runId) { return (await list()).find(record=>record.runId===runId) || null; }
+  async function clear() {
+    const db=await open();await new Promise((resolve,reject)=>{
+      const tx=db.transaction('saves','readwrite');tx.objectStore('saves').clear();
+      tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(tx.error||Error('清空紀錄失敗'));
+    });notify();
+  }
+  async function getSettings() { const pref=await read('preferences','autoSave');return {enabled:pref?.enabled===true}; }
   async function setEnabled(enabled) {
     const db=await open();await new Promise((resolve,reject)=>{
       const tx=db.transaction(['preferences','saves'],'readwrite');
@@ -51,7 +66,7 @@
     });notify();
   }
   async function save(snapshot) {
-    const record={...snapshot,key:'latest',version:SAVE_VERSION,savedAt:Date.now()};
+    const record={...snapshot,key:snapshot.runId,version:SAVE_VERSION,savedAt:Date.now()};
     if(!valid(record))throw Error('無法保存不完整的遊戲狀態');
     const db=await open();let written=false,writeError;
     await new Promise((resolve,reject)=>{
@@ -59,11 +74,11 @@
       // another tab cannot be bypassed by a stale cached preference.
       const tx=db.transaction(['preferences','saves'],'readwrite');
       const pref=tx.objectStore('preferences').get('autoSave');
-      pref.onsuccess=()=>{try{if(pref.result?.enabled!==false){tx.objectStore('saves').put(record);written=true;}}catch(error){writeError=error;tx.abort();}};
+      pref.onsuccess=()=>{try{if(pref.result?.enabled===true){const store=tx.objectStore('saves');store.put(record);const legacy=store.get('latest');legacy.onsuccess=()=>{if(legacy.result?.runId===record.runId)store.delete('latest');};written=true;}}catch(error){writeError=error;tx.abort();}};
       tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(writeError||tx.error||Error('自動存檔失敗'));
     });if(written)notify();return written;
   }
-  root.CinemaSave={DB_NAME,SAVE_VERSION,getSettings,setEnabled,getLatest,save,
+  root.CinemaSave={DB_NAME,SAVE_VERSION,getSettings,setEnabled,getLatest,getByRun,list,clear,save,
     label:record=>`${record.cinemaName} ${record.year}年${record.week}週`,
     subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn);}};
 })(globalThis);

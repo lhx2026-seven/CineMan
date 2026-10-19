@@ -176,7 +176,7 @@ function initGame() {
     try {
       const settings = await CinemaSave.getSettings();
       let record = null;
-      try { record = await CinemaSave.getLatest(); } catch(error) { if(runUrl.searchParams.get('resume')==='1')throw error; }
+      try { record = await CinemaSave.getByRun(runId); } catch(error) { if(runUrl.searchParams.get('resume')==='1')throw error; }
       checkpoint = record?.cinemaID === id && record.runId === runId ? record : null;
       if (runUrl.searchParams.get('resume') === '1' && !checkpoint) throw Error('找不到這一局的存檔');
       restoredDraft = checkpoint?.values || null;

@@ -391,18 +391,22 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .entry-transition.closing .entry-title { opacity:1; }
 .entering-game .cinema-card, .entering-game .card-shadow { animation-play-state:paused; }
 .entry-curtain { will-change:transform; }
-.home-playbar { display:grid; grid-template-columns:70px minmax(0,1fr) 108px; align-items:center; gap:8px; width:min(850px,calc(100% - 32px)); margin:5px auto; }
-.home-playbar .status { margin:0; }
+.home-playbar { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:8px; width:min(850px,calc(100% - 32px)); margin:5px auto; }
+.home-playbar .status { margin:0; text-align:center; }
 #auto-save-toggle { justify-self:start; display:flex; align-items:center; gap:3px; min-height:20px; padding:0; background:none; border:0; color:#a99d86; font:inherit; font-size:9px; cursor:pointer; }
 #auto-save-value { display:grid; place-items:center; width:25px; height:15px; border:1px solid #a1875340; border-radius:10px; background:#29251d; color:#b8ac96; font-size:8px; }
 #auto-save-toggle[aria-checked="true"] #auto-save-value { color:#251a09; background:#c7aa72; border-color:#d6b675; }
 .resume-control { justify-self:end; display:flex; flex-direction:column; align-items:flex-end; gap:1px; min-width:0; }
-#resume-game { min-height:18px; padding:0; background:none; border:0; color:#c7ae82; font:inherit; font-size:10px; cursor:pointer; }
+#resume-game { min-height:18px; padding:0; background:none; border:0; color:#c7ae82; font:inherit; font-size:9px; cursor:pointer; }
 #resume-game:disabled { opacity:.4; cursor:default; }
 #saved-game-label { font-size:8px; color:#8f8572; text-align:right; line-height:1.2; overflow-wrap:anywhere; }
 #auto-save-status { margin:0 12px; text-align:center; color:#bda67b; font-size:10px; }
 #auto-save-status:empty { display:none; }
-@media(max-width:760px) { .home-playbar { grid-template-columns:64px minmax(0,1fr) 92px; gap:4px; width:calc(100% - 24px); margin:3px 12px; } .home-playbar .status { font-size:12px; } }
+@media(max-width:760px) { .home-playbar { grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:4px; width:calc(100% - 24px); margin:3px 12px; } .home-playbar .status { font-size:12px; } }
+#save-drawer { width:min(420px,calc(100% - 24px)); margin:4px auto 8px; padding:8px 12px; border:1px solid #a1875338; border-radius:8px; background:#211c16; }
+#save-list { max-height:160px; overflow:auto; }
+#save-list button { display:block; width:100%; padding:7px 0; text-align:left; color:#c7ae82; background:none; border:0; font:inherit; font-size:11px; cursor:pointer; }
+#clear-saves { display:block; margin:4px 0 0 auto; padding:2px; background:none; border:0; color:#a99d86; font:inherit; font-size:9px; cursor:pointer; }
 </style>
 </head>
 
@@ -413,11 +417,15 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
   <p class="subtitle">享受自己擁有一家電影院的美麗與哀愁</p>
 </header>
 <div class="home-playbar">
-  <button type="button" id="auto-save-toggle" role="switch" aria-checked="true" aria-label="自動存檔" disabled><span>自動存檔</span><span id="auto-save-value">ON</span></button>
+  <button type="button" id="auto-save-toggle" role="switch" aria-checked="false" aria-label="自動存檔" disabled><span>自動存檔</span><span id="auto-save-value">OFF</span></button>
   <p class="status" id="status" role="status">正在載入戲院資料…</p>
-  <div class="resume-control"><button type="button" id="resume-game" disabled>繼續經營</button><span id="saved-game-label" aria-live="polite"></span></div>
+  <div class="resume-control"><button type="button" id="resume-game" aria-expanded="false" aria-controls="save-drawer" disabled>繼續經營</button><span id="saved-game-label" aria-live="polite"></span></div>
 </div>
 <p id="auto-save-status" role="status"></p>
+<section id="save-drawer" aria-label="經營紀錄" hidden>
+  <div id="save-list"></div>
+  <button type="button" id="clear-saves">清空紀錄</button>
+</section>
 <section class="selection" id="selection" aria-labelledby="selection-title" hidden>
   <h2 id="selection-title"></h2>
   <button type="button" id="confirm-selection" class="confirm-button">確定</button>
@@ -430,8 +438,8 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
   </div>
 </div>
 <footer class="site-footer">©2026 CineMan · Developed by <a href="https://www.facebook.com/FRONTDELIBERATIONCINEMA" target="_blank" rel="noopener noreferrer">電影解放陣線</a></footer>
-<script src="autosave.js?v=autosave-v22" defer></script>
-<script src="home-save.js?v=autosave-v22" defer></script>
-<script src="app.js?v=autosave-entry-v33" defer></script>
+<script src="autosave.js?v=autosave-v23" defer></script>
+<script src="home-save.js?v=autosave-v23" defer></script>
+<script src="app.js?v=autosave-entry-v34" defer></script>
 </body>
 </html>

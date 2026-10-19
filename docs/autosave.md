@@ -2,18 +2,18 @@
 
 ## 玩家操作
 
-首頁提示列由左至右為自動存檔 ON／OFF、請選擇你想經營的電影院、繼續經營。開關預設 ON；右側紀錄顯示為「寶宮戲院 2026年1週」，沒有紀錄則顯示尚無存檔、停用繼續經營。
+首頁提示列由左至右為自動存檔 ON／OFF、請選擇你想經營的電影院、繼續經營。初次使用開關預設 OFF（已有偏好仍保留）；右側紀錄顯示為「寶宮戲院 2026年1週」，沒有紀錄則顯示尚無存檔、停用繼續經營。
 
-本版保留一筆最近一局的自動存檔。ON 時新開局分派成功及設定變更會更新紀錄；OFF 停止寫入，保留原紀錄，仍可繼續經營。重新選戲院確認建立新 run，仍會重抽場地；繼續經營與同 run 重新整理則還原原有場地，不抽新場地。OFF 開新局不覆蓋先前紀錄。
+本版按 runId 保留多局自動存檔。點「繼續經營」展開抽屜，點選紀錄還原；抽屜提供「清空紀錄」，確認後刪除所有存檔，保留開關偏好。ON 時新開局分派成功及設定變更會更新紀錄；OFF 停止寫入，保留原紀錄，仍可繼續經營。重新選戲院確認建立新 run，仍會重抽場地；繼續經營與同 run 重新整理則還原原有場地，不抽新場地。OFF 開新局不覆蓋先前紀錄。
 
 存檔限同一裝置、同一瀏覽器及相同網站來源，不是帳號／雲端同步。清除網站資料會清除本機存檔。此功能不提供離線網頁快取，也不實作目前尚未定義的週進程、事件效果或財務結算。
 
 ## 儲存內容與格式
 
-`autosave.js` 對外提供 `CinemaSave.getSettings / setEnabled / getLatest / save / subscribe`。資料庫 `CineMan`，版本 1：
+`autosave.js` 對外提供 `CinemaSave.getSettings / setEnabled / getLatest / getByRun / list / clear / save / subscribe`。資料庫 `CineMan`，版本 1：
 
 - preferences：key 為 autoSave，保存 enabled。
-- saves：key 為 latest，保存最近完整 checkpoint。
+- saves：key 為 runId，各局保存最新完整 checkpoint。相容舊版 latest 紀錄，列表按 runId 去重；同局再次保存時移除舊 latest 鍵。
 
 checkpoint 含存檔版本、cinemaID／cinemaName、runId、遊戲年／週、savedAt、完整場地 allocation、表單 values、兩項預算鎖定狀態、營運頁籤、財報頁籤及影廳明細展開狀態。表單包含行政管理、一般／特殊廳票價、餐飲／商品設定、主打片及整數場次、特別場選片與價格。
 
