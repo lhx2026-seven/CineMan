@@ -24,6 +24,7 @@ function initGame() {
   }
   // Week 1 has no events. Future weekly progression supplies its event list here.
   CinemaEvents.render({events:[]});
+  let restoredDraft = null;
   let venueReady = false;
   const venueRetry = document.querySelector('#venue-retry');
   async function loadVenue() {
@@ -33,6 +34,7 @@ function initGame() {
     try {
       const allocation = await CinemaVenue.assign(id, runId);
       CinemaVenue.render(allocation);
+      renderSpecialPricing(allocation);
       venueReady = true;
       updateControls();
     } catch (error) {
@@ -88,6 +90,38 @@ function initGame() {
     activateReport(reportTabs[target], true);
   });
   const form = document.querySelector('#management-form');
+  function setBudgetLocks(locks = {}) {
+    for (const name of ['maintenance','consumables']) {
+      const control = form.elements[name], reason = locks[name];
+      const locked = !!reason;
+      control.disabled = locked;
+      control.closest('.budget-field').classList.toggle('is-locked', locked);
+      const badge = document.querySelector(`#${name}-lock`);
+      badge.hidden = !locked;
+      if (locked) { control.setAttribute('aria-describedby', badge.id); badge.title = typeof reason === 'string' ? reason : '鎖定'; }
+      else control.removeAttribute('aria-describedby');
+    }
+  }
+  window.CinemaManagement = {setBudgetLocks};
+  setBudgetLocks();
+  function renderSpecialPricing(allocation) {
+    const formats = [...new Set(allocation.screens.filter(screen => screen.type === 'EXTRA')
+      .map(screen => screen.name.replace(/\s*\([^)]*\)$/, '')))];
+    const fields = formats.map(format => {
+      const label = document.createElement('label'); label.className = 'field';
+      const title = document.createElement('span'); title.textContent = `${format}廳`;
+      const wrap = document.createElement('span'); wrap.className = 'input-wrap';
+      const currency = document.createElement('span'); currency.textContent = 'NT$';
+      const input = document.createElement('input'); input.type = 'number';
+      input.name = `ticketExtra_${format.replace(/[^a-zA-Z0-9]/g, '')}`;
+      input.min = '0'; input.step = '1'; input.placeholder = '—'; input.inputMode = 'numeric';
+      if (typeof restoredDraft?.[input.name] === 'string') input.value = restoredDraft[input.name];
+      wrap.append(currency, input); label.append(title, wrap); return label;
+    });
+    document.querySelector('#special-ticket-fields').replaceChildren(...fields);
+    document.querySelector('#special-ticket-group').hidden = !formats.length;
+  }
+
   const tabList = document.querySelector('.management-tabs');
   const tabs = [...tabList.querySelectorAll('[role="tab"]')];
   function activateTab(tab, moveFocus = false) {
@@ -121,6 +155,7 @@ function initGame() {
     const stored = JSON.parse(localStorage.getItem(draftKey) || 'null');
     const draft = stored?.runId === runId ? stored.values : null;
     if (draft && typeof draft === 'object') {
+      restoredDraft = draft;
       for (const control of form.elements) {
         if (!control.name || !Object.hasOwn(draft, control.name)) continue;
         if (control.type === 'checkbox') control.checked = draft[control.name] === true;

@@ -460,3 +460,28 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .weekly-bulletin.has-events .workspace-bar { padding:0 0 12px; }
 .weekly-bulletin .weekly-events { padding:0; margin:0; border:0; background:none; }
 @media(max-width:760px) { .weekly-bulletin.has-events { padding:12px; border-radius:9px; } }
+
+/* Compact management and sales layouts, with headings supplied by their tabs. */
+.panel-unit { margin:0 0 6px; text-align:right; font-size:10px; color:#9d9384; }
+.budget-label { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.budget-lock { padding:2px 5px; border:1px solid var(--line); border-radius:3px; color:#a99d86; font-size:9px; }
+.budget-field.is-locked .input-wrap { opacity:.6; border-style:dashed; }
+#panel-pricing .pricing-columns { grid-template-columns:minmax(0,1fr); gap:16px; }
+#panel-pricing .ticket-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+#panel-pricing .food-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+#panel-pricing .price-group .field { display:flex; flex-direction:column; align-items:stretch; gap:6px; border:0; min-width:0; min-height:0; font-size:12px; }
+#panel-pricing .price-group legend { margin-bottom:10px; }
+.food-label { display:flex; align-items:center; gap:7px; }
+.sales-icon { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+@media(max-width:760px) {
+  #panel-pricing .ticket-grid { gap:7px; }
+  #panel-pricing .price-group .field { font-size:11px; }
+  #panel-pricing .merch-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  #panel-pricing .merch-card { padding:8px; }
+  #panel-pricing .merch-toggle { gap:5px; }
+  #panel-pricing .merch-toggle strong { font-size:11px; }
+  #panel-pricing .toggle-track { width:28px; height:18px; }
+  #panel-pricing .toggle-track::after { width:10px; height:10px; }
+  #panel-pricing .merch-toggle input:checked ~ .toggle-track::after { transform:translateX(9px); }
+  #panel-pricing .merch-settings { grid-template-columns:minmax(0,1fr); }
+}

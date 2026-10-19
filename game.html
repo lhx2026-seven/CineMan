@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=week-section-v16">
-<script src="assignment-rules.js?v=week-section-v16" defer></script>
-<script src="venue.js?v=week-section-v16" defer></script>
-<script src="weekly-events.js?v=week-section-v16" defer></script>
-<script src="game.js?v=week-section-v16" defer></script>
+<link rel="stylesheet" href="game.css?v=management-sales-v17">
+<script src="assignment-rules.js?v=management-sales-v17" defer></script>
+<script src="venue.js?v=management-sales-v17" defer></script>
+<script src="weekly-events.js?v=management-sales-v17" defer></script>
+<script src="game.js?v=management-sales-v17" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -93,25 +93,25 @@
   </div>
   <form id="management-form" autocomplete="off">
     <section class="panel" id="panel-budget" role="tabpanel" aria-labelledby="tab-budget" tabindex="0">
-      <div class="section-heading"><div><p class="overline">OPERATING BUDGET</p><h2 id="budget-title">行政管理</h2></div><span class="section-note">NT$／週</span></div>
+      <p class="panel-unit">NT$／週</p>
       <div class="budget-grid">
-        <label class="budget-field"><span class="field-index">01</span><span>租金</span><span class="input-wrap"><span>NT$</span><input type="number" name="rent" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
-        <label class="budget-field"><span class="field-index">02</span><span>硬體維護</span><span class="input-wrap"><span>NT$</span><input type="number" name="maintenance" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
-        <label class="budget-field"><span class="field-index">03</span><span>人力</span><span class="input-wrap"><span>NT$</span><input type="number" name="staffing" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
-        <label class="budget-field"><span class="field-index">04</span><span>稅</span><span class="input-wrap"><span>NT$</span><input type="number" name="tax" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="budget-label">人力預算</span><span class="input-wrap"><span>NT$</span><input type="number" name="staffing" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="budget-label">餐飲成本</span><span class="input-wrap"><span>NT$</span><input type="number" name="foodCost" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="budget-label">硬體維護<span class="budget-lock" id="maintenance-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="maintenance" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="budget-label">日常耗材<span class="budget-lock" id="consumables-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="consumables" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
       </div>
     </section>
     <section class="panel" id="panel-pricing" role="tabpanel" aria-labelledby="tab-pricing" tabindex="0" hidden>
-      <div class="section-heading"><div><p class="overline">TICKETS & MORE</p><h2 id="pricing-title">銷售規劃</h2></div><span class="section-note">金額單位 NT$</span></div>
       <div class="pricing-columns">
         <fieldset class="price-group"><legend>電影票價</legend><div class="ticket-grid">
           <label class="field"><span>全票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketFull" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
-          <label class="field"><span>優待票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketDiscount" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
-          <label class="field"><span>早場票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketMorning" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+          <label class="field"><span>學生軍警票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketDiscount" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+          <label class="field"><span>早場優惠票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketMorning" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
         </div></fieldset>
+        <fieldset class="price-group special-ticket-group" id="special-ticket-group" hidden><legend>特殊廳</legend><div class="ticket-grid" id="special-ticket-fields"></div></fieldset>
         <fieldset class="price-group"><legend>餐飲售價</legend><div class="food-grid">
-          <label class="field"><span>爆米花</span><span class="input-wrap"><span>NT$</span><input type="number" name="popcornPrice" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
-          <label class="field"><span>飲料</span><span class="input-wrap"><span>NT$</span><input type="number" name="drinkPrice" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+          <label class="field"><span class="food-label"><svg class="sales-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 9 2 12h10l2-12ZM8 10l1 10m7-10-1 10M12 10v10M5 9a3 3 0 0 1-1-5 3 3 0 0 1 5-2 3 3 0 0 1 6 0 3 3 0 0 1 5 2 3 3 0 0 1-1 5"/></svg>爆米花</span><span class="input-wrap"><span>NT$</span><input type="number" name="popcornPrice" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+          <label class="field"><span class="food-label"><svg class="sales-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 7 2 14h10l2-14ZM4 7h16M13 7l2-5h4M8 11h8"/></svg>飲料</span><span class="input-wrap"><span>NT$</span><input type="number" name="drinkPrice" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
         </div></fieldset>
       </div>
       <div class="merch-grid">
@@ -124,7 +124,6 @@
       </div>
     </section>
     <section class="panel" id="panel-films" role="tabpanel" aria-labelledby="tab-films" tabindex="0" hidden>
-      <div class="section-heading"><div><p class="overline">ON THE BIG SCREEN</p><h2 id="films-title">排片策略</h2></div><span class="section-note">本週新片 · 2 部</span></div>
       <h3 class="subheading">本週新片</h3><fieldset class="new-films"><legend class="sr-only">選擇本週主打片</legend>
         <label class="film-option"><input type="radio" name="featuredFilm" value="new-01"><span class="poster-placeholder poster-one" aria-hidden="true"><span>COMING<br>SOON</span><small>01</small></span><span class="film-info"><span class="film-tag">本週新片</span><strong>新片 01</strong><span class="muted">片名與電影資訊待補</span><span class="feature-indicator">設為主打片 <span aria-hidden="true">○</span></span></span></label>
         <label class="film-option"><input type="radio" name="featuredFilm" value="new-02"><span class="poster-placeholder poster-two" aria-hidden="true"><span>COMING<br>SOON</span><small>02</small></span><span class="film-info"><span class="film-tag">本週新片</span><strong>新片 02</strong><span class="muted">片名與電影資訊待補</span><span class="feature-indicator">設為主打片 <span aria-hidden="true">○</span></span></span></label>
