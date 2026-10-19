@@ -35,11 +35,12 @@ function prepareGame(id) {
   if (navigator.connection?.saveData || preparedGames.has(id)) return;
   preparedGames.add(id);
   for (const [href, as] of [
-    [`game.html?cinema=${encodeURIComponent(id)}&v=venue-v14&run=${preparedRuns.get(id)}`, 'document'],
-    ['game.css?v=venue-v14', 'style'],
-    ['assignment-rules.js?v=venue-v14', 'script'],
-    ['venue.js?v=venue-v14', 'script'],
-    ['game.js?v=venue-v14', 'script'],
+    [`game.html?cinema=${encodeURIComponent(id)}&v=events-v15&run=${preparedRuns.get(id)}`, 'document'],
+    ['game.css?v=events-v15', 'style'],
+    ['assignment-rules.js?v=events-v15', 'script'],
+    ['venue.js?v=events-v15', 'script'],
+    ['weekly-events.js?v=events-v15', 'script'],
+    ['game.js?v=events-v15', 'script'],
   ]) {
     const link = document.createElement('link');
     link.rel = as === 'document' ? 'prefetch' : 'preload';
@@ -58,7 +59,7 @@ confirmButton.addEventListener('click', () => {
   try { localStorage.setItem('cineman.confirmedCinema', confirmedId); } catch { /* The URL also carries the selected cinema. */ }
   confirmButton.disabled = true;
   const run = preparedRuns.get(selectedId) || newRunId();
-  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=venue-v14&run=${run}`;
+  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=events-v15&run=${run}`;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     location.assign(destination);
     return;

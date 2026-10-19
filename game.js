@@ -22,6 +22,8 @@ function initGame() {
     runUrl.searchParams.set('run', runId);
     history.replaceState(null, '', runUrl);
   }
+  // Week 1 has no events. Future weekly progression supplies its event list here.
+  CinemaEvents.render({events:[]});
   let venueReady = false;
   const venueRetry = document.querySelector('#venue-retry');
   async function loadVenue() {

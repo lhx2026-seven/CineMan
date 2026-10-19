@@ -66,7 +66,6 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline:2px solid v
 .workspace-bar { display:flex; justify-content:space-between; align-items:center; padding:18px 2px 24px; gap:16px; }
 .back-link { color:#b8aea0; font-size:13px; text-underline-offset:4px; text-decoration:none; }
 .back-link:hover { color:var(--gold); }
-.preview-badge { color:#b5a382; font-size:11px; border:1px solid var(--line); padding:5px 10px; border-radius:20px; }
 .panel { margin-bottom:24px; padding:30px; border:1px solid var(--line); border-radius:20px; background:linear-gradient(140deg,#1b1710b5,#0e0d0ce8 65%); }
 .section-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; }
 .section-heading h2 { margin:0; color:#f1dfbf; font-size:24px; letter-spacing:.12em; font-weight:600; }
@@ -235,7 +234,6 @@ dialog .gold-button { margin-top:10px; }
 .workspace-bar { padding:10px 0; gap:10px; }
 .workspace-meta { display:flex; align-items:center; gap:8px; }
 .week-badge { padding:4px 8px; font-size:11px; border-color:var(--line); }
-.preview-badge { padding:4px 8px; font-size:10px; }
 .management-tabs { margin-bottom:10px; padding:4px; border-radius:10px; }
 .management-tabs button { min-height:40px; padding:8px; font-size:13px; border-radius:7px; }
 .panel { padding:16px 18px; margin-bottom:12px; border-radius:12px; }
@@ -308,7 +306,6 @@ input::placeholder { font-size:12px; }
   .workspace-meta { gap:5px; }
   .back-link { font-size:12px; }
   .week-badge { font-size:10px; }
-  .preview-badge { font-size:9px; }
   .management-tabs { margin-bottom:8px; padding:3px; gap:2px; }
   .management-tabs button { min-height:44px; padding:7px 2px; font-size:12px; }
   .panel { padding:13px 12px; margin-bottom:9px; border-radius:10px; }
@@ -438,3 +435,22 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .venue-details-toggle::before { content:""; width:5px; height:5px; border-right:1px solid currentColor; border-bottom:1px solid currentColor; transform:rotate(45deg) translateY(-2px); }
 .venue-details-toggle[aria-expanded="true"]::before { transform:rotate(225deg) translate(-1px,-1px); }
 .venue-details-toggle:hover { color:#ffe2a4; background:#b9934a0b; }
+
+/* The current week introduces the event bulletin above management tabs. */
+.workspace-bar .week-badge { font-size:20px; letter-spacing:.05em; padding:7px 12px; border-radius:7px; }
+.weekly-events { margin:0 0 12px; border-color:#a1875347; background:#17120cd9; }
+.weekly-events .section-heading { padding-bottom:10px; margin-bottom:0; border-bottom:1px solid var(--line); }
+.weekly-events .section-heading h2 { font-size:16px; }
+.weekly-event { padding-top:13px; }
+.weekly-event + .weekly-event { border-top:1px solid var(--line); margin-top:13px; }
+.weekly-event h3 { margin:0 0 6px; font-size:14px; font-weight:500; color:#ead4ac; }
+.weekly-event > p { margin:0; color:#b8ac96; font-size:12px; line-height:1.8; white-space:pre-line; overflow-wrap:anywhere; }
+.event-notice { display:inline-block; color:#8a806f; font-size:10px; margin-top:8px; }
+.event-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.event-actions button { min-height:44px; padding:9px 14px; border:1px solid #a1875359; border-radius:6px; background:#b9934a12; color:#dec59b; font-size:12px; }
+.event-actions button:hover, .event-actions button.chosen { color:#ffe2a4; border-color:#b9934a99; background:#b9934a24; }
+.event-actions button:disabled { opacity:.55; cursor:default; }
+.event-actions button.chosen { opacity:1; }
+.weekly-event .event-decision-status { font-size:11px; margin-top:8px; color:#bda67b; }
+.event-decision-status:empty { display:none; }
+@media(max-width:760px) { .workspace-bar .week-badge { font-size:18px; padding:6px 10px; } }

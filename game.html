@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=venue-v14">
-<script src="assignment-rules.js?v=venue-v14" defer></script>
-<script src="venue.js?v=venue-v14" defer></script>
-<script src="game.js?v=venue-v14" defer></script>
+<link rel="stylesheet" href="game.css?v=events-v15">
+<script src="assignment-rules.js?v=events-v15" defer></script>
+<script src="venue.js?v=events-v15" defer></script>
+<script src="weekly-events.js?v=events-v15" defer></script>
+<script src="game.js?v=events-v15" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -78,7 +79,11 @@
     <p class="report-note">「—」待結算；「·」不適用。結算規則尚未設定。</p>
   </section>
   </div>
-  <div class="workspace-bar"><div class="workspace-meta"><span class="week-badge">2026 W1</span><span class="preview-badge">介面預覽</span></div></div>
+  <div class="workspace-bar"><div class="workspace-meta"><span class="week-badge">2026 W1</span></div></div>
+  <section class="panel weekly-events" id="weekly-events" aria-labelledby="weekly-events-title" hidden>
+    <div class="section-heading"><h2 id="weekly-events-title">本週大事</h2></div>
+    <div id="weekly-event-list"></div>
+  </section>
   <div class="management-tabs" role="tablist" aria-label="營運配置">
     <button type="button" role="tab" id="tab-budget" aria-controls="panel-budget" aria-selected="true" tabindex="0">行政管理</button>
     <button type="button" role="tab" id="tab-pricing" aria-controls="panel-pricing" aria-selected="false" tabindex="-1">銷售規劃</button>
