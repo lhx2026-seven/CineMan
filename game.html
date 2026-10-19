@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=film-overview-v20">
-<script src="assignment-rules.js?v=film-overview-v20" defer></script>
-<script src="venue.js?v=film-overview-v20" defer></script>
-<script src="weekly-events.js?v=film-overview-v20" defer></script>
-<script src="films.js?v=film-overview-v20" defer></script>
-<script src="game.js?v=film-overview-v20" defer></script>
+<link rel="stylesheet" href="game.css?v=labels-v21">
+<script src="assignment-rules.js?v=labels-v21" defer></script>
+<script src="venue.js?v=labels-v21" defer></script>
+<script src="weekly-events.js?v=labels-v21" defer></script>
+<script src="films.js?v=labels-v21" defer></script>
+<script src="game.js?v=labels-v21" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -99,7 +99,7 @@
         <label class="budget-field"><span class="budget-label">人力預算</span><span class="input-wrap"><span>NT$</span><input type="number" name="staffing" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
         <label class="budget-field"><span class="budget-label">餐飲成本</span><span class="input-wrap"><span>NT$</span><input type="number" name="foodCost" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
         <label class="budget-field"><span class="budget-label">硬體維護<span class="budget-lock" id="maintenance-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="maintenance" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
-        <label class="budget-field"><span class="budget-label">日常耗材<span class="budget-lock" id="consumables-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="consumables" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="budget-label">雜支<span class="budget-lock" id="consumables-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="consumables" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
       </div>
     </section>
     <section class="panel" id="panel-pricing" role="tabpanel" aria-labelledby="tab-pricing" tabindex="0" hidden>
@@ -142,7 +142,7 @@
       </div>
       <fieldset class="special-screenings"><legend>特別場</legend>
         <div class="special-screening">
-          <label class="special-film-picker"><span>電影</span><select name="specialMovie" aria-controls="special-price"><option value="">選擇電影</option><option value="new-01">新片 01</option><option value="new-02">新片 02</option><option value="MV0001">魔猴</option><option value="MV0002">恐怖速食店</option><option value="MV0003">酆都</option></select></label>
+          <label class="special-film-picker"><span class="sr-only">特別場電影</span><select name="specialMovie" aria-controls="special-price"><option value="">選擇電影</option><option value="new-01">新片 01</option><option value="new-02">新片 02</option><option value="MV0001">魔猴</option><option value="MV0002">恐怖速食店</option><option value="MV0003">酆都</option></select></label>
           <label class="special-film-price" id="special-price" hidden><span>票價（單一票種）</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label>
         </div>
       </fieldset>
