@@ -27,7 +27,7 @@ function initGame() {
   exterior.src = `assets/cinemas/landscape/${cinema.exterior}`;
   exterior.alt = `${cinema.name}外觀`;
   const counter = document.querySelector('#cinema-counter');
-  const counterVersion = id === 'C02' ? '' : id === 'C01' ? '-v3' : '-v2';
+  const counterVersion = id === 'C02' ? '' : id === 'C01' ? '-v4' : '-v2';
   counter.sizes = '(max-width: 760px) calc(100vw - 32px), 960px';
   counter.srcset = `assets/cinemas/optimized/${cinema.slug}-counter${counterVersion}-960.webp 960w, assets/cinemas/counters/${cinema.slug}-counter${counterVersion}.webp ${id === 'C01' ? 2048 : 1774}w`;
   counter.decoding = 'async';
