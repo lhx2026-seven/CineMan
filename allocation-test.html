@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CineMan｜影廳分派測試</title>
+<link rel="stylesheet" href="game.css?v=venue-v12">
+<script src="assignment-rules.js?v=venue-v12" defer></script>
+<script src="allocation-test.js?v=venue-v12" defer></script>
+<style>
+.test-shell { width:min(1080px,calc(100% - 28px)); margin:24px auto; }
+.test-shell h1 { font-size:24px; color:#ecd1a0; }.test-shell p { font-size:13px; line-height:1.8; color:#b8ac96; }
+.test-controls { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }.test-controls label { display:grid; gap:7px; color:#dec59b; font-size:12px; }
+.test-controls input,.test-controls select { min-width:0; width:100%; min-height:44px; padding:8px; background:#0e0c09; border:1px solid #a1875359; border-radius:6px; color:#eadbc0; }
+.test-actions { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; }.test-actions button { min-height:44px; padding:8px 16px; border:1px solid #a1875359; border-radius:6px; color:#ecd1a0; background:#b9934a18; }.test-actions button:disabled { opacity:.4; }
+.test-scroll { overflow:auto; }.test-table { border-collapse:collapse; width:100%; font-size:12px; white-space:nowrap; }.test-table th,.test-table td { padding:9px 10px; border-bottom:1px solid #ffffff15; text-align:right; }.test-table th:first-child,.test-table td:first-child { text-align:left; }.test-table th { color:#dec59b; font-weight:400; }.test-table td { color:#b8ac96; font-variant-numeric:tabular-nums; }
+.test-shell pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:12px; color:#cbb58d; line-height:1.8; }.test-shell h2 { font-size:17px; color:#ecd1a0; }
+#test-status { min-height:24px; }.test-error { color:#ff9b8c !important; }
+@media(max-width:600px) { .test-controls { grid-template-columns:minmax(0,1fr); }.test-shell .panel { padding:14px; } }
+</style>
+</head>
+<body><main class="test-shell">
+<a href="index.html">‹ CineMan 首頁</a>
+<h1>影廳分派測試</h1>
+<p>此頁與玩家共用分派引擎，不讀寫玩家存檔。相同資料版本、戲院、種子與總廳數設定會重現相同配置。玩家頁沒有重抽或指定廳數的控制項。</p>
+<section class="panel">
+<div class="test-controls">
+<label>戲院<select id="test-cinema"><option value="C01">寶宮戲院</option><option value="C02">世紀戲院</option><option value="C03">布洛威影城</option><option value="C04">YLC影城</option><option value="C05">公會堂電影中心</option></select></label>
+<label>總廳數<select id="test-count"><option value="">依資料庫抽選</option></select></label>
+<label>種子<input id="test-seed" value="cineman-test-2026" maxlength="200" autocomplete="off"></label>
+<label>批次樣本數（1–10,000）<input id="test-samples" type="number" value="1000" min="1" max="10000" step="1"></label>
+</div>
+<div class="test-actions"><button id="test-single" disabled>生成一筆</button><button id="test-fresh" disabled>換隨機種子</button><button id="test-batch" disabled>批次抽樣</button><button id="test-cancel" hidden>停止</button><button id="test-export" disabled>下載測試 JSON</button></div>
+<p id="test-status" role="status">正在載入資料庫…</p>
+</section>
+<section class="panel"><h2>公式與限制</h2><p><code>normal = 1 / 總廳數</code>；既有 chance 欄空白為 0。總廳數從明列值等機率抽選。A chance 是整家戲院出現 A 廳的設定機率；資料要求必有／不能有時，先滿足硬條件。給定 A 是否出現後，其餘可行的類型數量組合等機率。</p><p>A 廳：500 席權重為 1 − non-500 chance，800／1000 席各為 non-500 chance ÷ 2。D 廳：20 席權重為 D20 chance，50 席為 1 − D20 chance。B／C／EXTRA 沒有獨立 chance 欄，在 min/max 開放的規格中等權重抽樣。座位分配會以剩餘合法配置的機率質量加權，滿足總座位下限及每種特殊廳上限；因此受限制後的機率可能與原始權重不同。</p><p id="test-version"></p></section>
+<section class="panel"><h2>本筆分派</h2><pre id="test-profile">尚未生成</pre><div class="test-scroll"><table class="test-table"><thead><tr><th>廳別</th><th>類型</th><th>規格</th><th>座位</th></tr></thead><tbody id="test-screen-rows"></tbody></table></div></section>
+<section class="panel"><h2>批次統計</h2><pre id="test-summary">尚未抽樣</pre><div class="test-scroll"><table class="test-table"><thead><tr><th>總廳數</th><th>樣本</th><th>平均總席</th><th>A 設定</th><th>A 受限目標</th><th>A 實測</th><th>D20 設定</th><th>D20 實測</th><th>違規</th></tr></thead><tbody id="test-batch-rows"></tbody></table></div><p>D20 實測以 D 廳總數為分母；A 實測以該廳數的戲院樣本數為分母。有限樣本會有隨機誤差，0 筆不能用來判定機率。下載檔含每筆 seed 與逐廳資料，可逐筆重現。</p></section>
+<section class="panel"><h2>所選戲院的資料庫規則</h2><div class="test-scroll"><table class="test-table"><thead><tr><th>總廳數</th><th>A</th><th>B</th><th>C</th><th>D</th><th>EXTRA</th><th>總席下限</th><th>A chance</th><th>non-500</th><th>D20</th></tr></thead><tbody id="test-rule-rows"></tbody></table></div><p>範圍為廳數 min–max；「原值 → 換算」顯示來源欄位與計算後機率。資料如有變更，版本指紋也會改變。</p></section>
+</main></body></html>

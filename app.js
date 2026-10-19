@@ -26,13 +26,20 @@ try {
 
 // Warm only the chosen destination; never preload all five game screens.
 const preparedGames = new Set();
+const preparedRuns = new Map();
+function newRunId() {
+  return Array.from(crypto.getRandomValues(new Uint32Array(4)), value => value.toString(16).padStart(8, '0')).join('');
+}
 function prepareGame(id) {
+  if (!preparedRuns.has(id)) preparedRuns.set(id, newRunId());
   if (navigator.connection?.saveData || preparedGames.has(id)) return;
   preparedGames.add(id);
   for (const [href, as] of [
-    [`game.html?cinema=${encodeURIComponent(id)}&v=report-profit-v11`, 'document'],
-    ['game.css?v=report-profit-v11', 'style'],
-    ['game.js?v=report-profit-v11', 'script'],
+    [`game.html?cinema=${encodeURIComponent(id)}&v=venue-v12&run=${preparedRuns.get(id)}`, 'document'],
+    ['game.css?v=venue-v12', 'style'],
+    ['assignment-rules.js?v=venue-v12', 'script'],
+    ['venue.js?v=venue-v12', 'script'],
+    ['game.js?v=venue-v12', 'script'],
   ]) {
     const link = document.createElement('link');
     link.rel = as === 'document' ? 'prefetch' : 'preload';
@@ -50,7 +57,8 @@ confirmButton.addEventListener('click', () => {
   confirmedId = selectedId;
   try { localStorage.setItem('cineman.confirmedCinema', confirmedId); } catch { /* The URL also carries the selected cinema. */ }
   confirmButton.disabled = true;
-  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=report-profit-v11`;
+  const run = preparedRuns.get(selectedId) || newRunId();
+  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=venue-v12&run=${run}`;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     location.assign(destination);
     return;

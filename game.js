@@ -15,6 +15,32 @@ if (!cinema) {
 }
 
 function initGame() {
+  const runUrl = new URL(location.href);
+  let runId = runUrl.searchParams.get('run');
+  if (!runId || runId.length > 256) {
+    runId = CinemaRules.freshSeed();
+    runUrl.searchParams.set('run', runId);
+    history.replaceState(null, '', runUrl);
+  }
+  let venueReady = false;
+  const venueRetry = document.querySelector('#venue-retry');
+  async function loadVenue() {
+    venueRetry.hidden = true;
+    const message = document.querySelector('#venue-loading');
+    message.textContent = '正在分派影廳…';
+    try {
+      const allocation = await CinemaVenue.assign(id, runId);
+      CinemaVenue.render(allocation);
+      venueReady = true;
+      updateControls();
+    } catch (error) {
+      message.textContent = '影廳資料暫時無法載入，請重試。';
+      venueRetry.hidden = false;
+      console.error('Venue allocation failed:', error);
+    }
+  }
+  venueRetry.addEventListener('click', loadVenue);
+
   document.title = `CineMan｜${cinema.name}・本週營運配置`;
   document.documentElement.style.setProperty('--accent', cinema.color);
   document.querySelector('#cinema-name').textContent = cinema.name;
@@ -90,7 +116,8 @@ function initGame() {
   const draftStatus = document.querySelector('#draft-status');
   let saved = false;
   try {
-    const draft = JSON.parse(localStorage.getItem(draftKey) || 'null');
+    const stored = JSON.parse(localStorage.getItem(draftKey) || 'null');
+    const draft = stored?.runId === runId ? stored.values : null;
     if (draft && typeof draft === 'object') {
       for (const control of form.elements) {
         if (!control.name || !Object.hasOwn(draft, control.name)) continue;
@@ -111,7 +138,7 @@ function initGame() {
       form.elements[`${item}Enabled`].setAttribute('aria-expanded', String(enabled));
     }
     const featured = form.querySelector('input[name="featuredFilm"]:checked');
-    document.querySelector('#next-week').disabled = !featured;
+    document.querySelector('#next-week').disabled = !featured || !venueReady;
     const share = document.querySelector('#featured-share');
     share.disabled = !featured;
     document.querySelector('#share-output').textContent = featured ? `${share.value}%` : '—';
@@ -131,7 +158,7 @@ function initGame() {
       else draft[control.name] = control.value;
     }
     try {
-      localStorage.setItem(draftKey, JSON.stringify(draft));
+      localStorage.setItem(draftKey, JSON.stringify({runId, values:draft}));
       draftStatus.textContent = '本週配置已保留在這個瀏覽器';
       saved = true;
     } catch {
@@ -143,8 +170,9 @@ function initGame() {
   form.addEventListener('input', () => { updateControls(); saveDraft(); });
   form.addEventListener('change', () => { updateControls(); saveDraft(); });
   updateControls();
+  loadVenue();
   document.querySelector('#next-week').addEventListener('click', () => {
-    if (!form.querySelector('input[name="featuredFilm"]:checked')) return;
+    if (!venueReady || !form.querySelector('input[name="featuredFilm"]:checked')) return;
     saveDraft();
     document.querySelector('#dialog-save-status').textContent = saved ? '你的配置已保留，可以繼續調整。' : '目前配置僅保留在本頁，請勿關閉頁面。';
     document.querySelector('#week-dialog').showModal();

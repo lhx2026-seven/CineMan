@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=report-profit-v11">
-<script src="game.js?v=report-profit-v11" defer></script>
+<link rel="stylesheet" href="game.css?v=venue-v12">
+<script src="assignment-rules.js?v=venue-v12" defer></script>
+<script src="venue.js?v=venue-v12" defer></script>
+<script src="game.js?v=venue-v12" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -18,6 +20,16 @@
     <img id="cinema-exterior" width="1774" height="887" alt="">
     <div class="hero-shade"></div>
     <div class="hero-caption"><div><p class="overline">你的電影院</p><h2 id="cinema-name"></h2><p id="cinema-type"></p></div></div>
+    <section class="venue-profile" id="venue-profile" aria-labelledby="venue-title">
+      <h3 id="venue-title">電影院資料</h3>
+      <p id="venue-loading" role="status">正在分派影廳…</p>
+      <div id="venue-data" hidden>
+        <dl class="venue-totals"><div><dt>影廳數</dt><dd><strong id="venue-screen-count">—</strong><span>廳</span></dd></div><div><dt>總座位</dt><dd><strong id="venue-seat-count">—</strong><span>席</span></dd></div><div><dt>特殊廳</dt><dd><strong id="venue-extra-count">—</strong><span>廳</span></dd></div></dl>
+        <p class="venue-extras" id="venue-extra-names"></p>
+        <details class="venue-details"><summary id="venue-details-title">影廳明細</summary><div class="venue-table-scroll"><table class="venue-table"><thead><tr><th scope="col">廳別</th><th scope="col">規格</th><th scope="col">座位（席）</th></tr></thead><tbody id="venue-screens"></tbody></table></div></details>
+      </div>
+      <button type="button" class="venue-retry" id="venue-retry" hidden>重試載入</button>
+    </section>
   </section>
   <section class="panel finance-panel financial-report" id="financial-report" aria-labelledby="finance-title">
     <div class="section-heading"><h2 id="finance-title">財務報表</h2><span class="section-note">NT$</span></div>
