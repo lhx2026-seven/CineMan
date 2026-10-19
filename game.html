@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=game-preview-v1">
-<script src="game.js?v=game-preview-v1" defer></script>
+<link rel="stylesheet" href="game.css?v=game-tabs-v2">
+<script src="game.js?v=game-tabs-v2" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -19,8 +19,14 @@
     <div class="hero-caption"><div><p class="overline">你的電影院</p><h2 id="cinema-name"></h2><p id="cinema-type"></p></div><span class="week-badge">第 01 週</span></div>
   </section>
   <div class="workspace-bar"><a href="index.html" class="back-link">‹ 返回戲院選擇</a><span class="preview-badge">介面預覽</span></div>
+  <div class="management-tabs" role="tablist" aria-label="營運配置">
+    <button type="button" role="tab" id="tab-budget" aria-controls="panel-budget" aria-selected="true" tabindex="0">預算配置</button>
+    <button type="button" role="tab" id="tab-pricing" aria-controls="panel-pricing" aria-selected="false" tabindex="-1">定價</button>
+    <button type="button" role="tab" id="tab-films" aria-controls="panel-films" aria-selected="false" tabindex="-1">選片</button>
+    <button type="button" role="tab" id="tab-finance" aria-controls="panel-finance" aria-selected="false" tabindex="-1">財務報表</button>
+  </div>
   <form id="management-form" autocomplete="off">
-    <section class="panel" aria-labelledby="budget-title">
+    <section class="panel" id="panel-budget" role="tabpanel" aria-labelledby="tab-budget" tabindex="0">
       <div class="section-heading"><div><p class="overline">OPERATING BUDGET</p><h2 id="budget-title">預算配置</h2></div><span class="section-note">NT$／週</span></div>
       <div class="budget-grid">
         <label class="budget-field"><span class="field-index">01</span><span>租金</span><span class="input-wrap"><span>NT$</span><input type="number" name="rent" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
@@ -29,7 +35,7 @@
         <label class="budget-field"><span class="field-index">04</span><span>稅</span><span class="input-wrap"><span>NT$</span><input type="number" name="tax" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
       </div>
     </section>
-    <section class="panel" aria-labelledby="pricing-title">
+    <section class="panel" id="panel-pricing" role="tabpanel" aria-labelledby="tab-pricing" tabindex="0" hidden>
       <div class="section-heading"><div><p class="overline">TICKETS & MORE</p><h2 id="pricing-title">定價</h2></div><span class="section-note">金額單位 NT$</span></div>
       <div class="pricing-columns">
         <fieldset class="price-group"><legend>電影票價</legend><div class="ticket-grid">
@@ -51,7 +57,7 @@
         </div>
       </div>
     </section>
-    <section class="panel" aria-labelledby="films-title">
+    <section class="panel" id="panel-films" role="tabpanel" aria-labelledby="tab-films" tabindex="0" hidden>
       <div class="section-heading"><div><p class="overline">ON THE BIG SCREEN</p><h2 id="films-title">選片</h2></div><span class="section-note">本週新片 · 2 部</span></div>
       <h3 class="subheading">本週新片</h3><fieldset class="new-films"><legend class="sr-only">選擇本週主打片</legend>
         <label class="film-option"><input type="radio" name="featuredFilm" value="new-01"><span class="poster-placeholder poster-one" aria-hidden="true"><span>COMING<br>SOON</span><small>01</small></span><span class="film-info"><span class="film-tag">本週新片</span><strong>新片 01</strong><span class="muted">片名與電影資訊待補</span><span class="feature-indicator">設為主打片 <span aria-hidden="true">○</span></span></span></label>
@@ -61,7 +67,7 @@
       <div class="old-films-heading"><h3>持續上映</h3><span class="muted">既定片單 · 不可調整</span></div>
       <div class="old-films"><article class="old-film"><span class="mini-poster" aria-hidden="true">01</span><div><h4>舊片 01</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article><article class="old-film"><span class="mini-poster" aria-hidden="true">02</span><div><h4>舊片 02</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article><article class="old-film"><span class="mini-poster" aria-hidden="true">03</span><div><h4>舊片 03</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article></div>
     </section>
-    <section class="panel finance-panel" aria-labelledby="finance-title"><div class="section-heading"><div><p class="overline">THE WEEK IN NUMBERS</p><h2 id="finance-title">財務報表</h2></div><span class="pending-tag">尚未結算</span></div>
+    <section class="panel finance-panel" id="panel-finance" role="tabpanel" aria-labelledby="tab-finance" tabindex="0" hidden><div class="section-heading"><div><p class="overline">THE WEEK IN NUMBERS</p><h2 id="finance-title">財務報表</h2></div><span class="pending-tag">尚未結算</span></div>
       <div class="finance-summary"><div><span>本週收入</span><strong>—</strong><small>NT$</small></div><div><span>本週支出</span><strong>—</strong><small>NT$</small></div><div><span>本週損益</span><strong>—</strong><small>NT$</small></div></div>
       <dl class="report-lines"><div><dt>電影票房</dt><dd>待設定</dd></div><div><dt>餐飲收入</dt><dd>待設定</dd></div><div><dt>獨家商品收入</dt><dd>待設定</dd></div><div><dt>營運支出</dt><dd>待設定</dd></div></dl><p class="report-note">營收與損益將在結算規則設定後顯示。</p>
     </section>

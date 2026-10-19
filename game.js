@@ -27,6 +27,32 @@ function initGame() {
   counter.alt = `${cinema.name}售票櫃台`;
   document.querySelector('#game-content').hidden = false;
   const form = document.querySelector('#management-form');
+  const tabList = document.querySelector('.management-tabs');
+  const tabs = [...tabList.querySelectorAll('[role="tab"]')];
+  function activateTab(tab, moveFocus = false) {
+    const listTop = tabList.getBoundingClientRect().top;
+    tabs.forEach(button => {
+      const active = button === tab;
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+      document.getElementById(button.getAttribute('aria-controls')).hidden = !active;
+    });
+    if (moveFocus) tab.focus({ preventScroll:true });
+    if (listTop <= 1) tabList.scrollIntoView({ block:'start' });
+  }
+  tabs.forEach(tab => tab.addEventListener('click', () => activateTab(tab)));
+  tabList.addEventListener('keydown', event => {
+    const index = tabs.indexOf(document.activeElement);
+    if (index < 0) return;
+    let target;
+    if (event.key === 'ArrowRight') target = (index + 1) % tabs.length;
+    else if (event.key === 'ArrowLeft') target = (index + tabs.length - 1) % tabs.length;
+    else if (event.key === 'Home') target = 0;
+    else if (event.key === 'End') target = tabs.length - 1;
+    else return;
+    event.preventDefault();
+    activateTab(tabs[target], true);
+  });
   const draftKey = `cineman.gameDraft.${id}`;
   const draftStatus = document.querySelector('#draft-status');
   let saved = false;

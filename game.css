@@ -215,3 +215,10 @@ dialog .gold-button { margin-top:10px; }
   .gold-button { min-height:46px; padding:11px 24px; }
 }
 @media(prefers-reduced-motion:reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } .page-entering::before, .page-entering::after { display:none; } }
+
+.management-tabs { position:sticky; top:0; z-index:20; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; margin-bottom:16px; padding:6px; border:1px solid var(--line); border-radius:14px; background:#110f0cf5; backdrop-filter:blur(12px); }
+.management-tabs button { min-height:48px; padding:10px 8px; border:1px solid transparent; border-radius:9px; background:transparent; color:#9e9380; font-size:14px; transition:background .2s,color .2s; }
+.management-tabs button:hover { color:#f1dfbf; background:#ffd47c09; }
+.management-tabs button[aria-selected="true"] { color:#ffdc9a; background:#ffd47c12; border-color:#b98b4b66; box-shadow:inset 0 -2px #d3a454; }
+[role="tabpanel"] { scroll-margin-top:82px; }
+@media(max-width:760px) { .management-tabs { gap:2px; padding:4px; margin-bottom:12px; border-radius:12px; } .management-tabs button { font-size:12px; min-height:46px; padding:9px 2px; } [role="tabpanel"] { scroll-margin-top:74px; } }
