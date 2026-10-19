@@ -393,3 +393,10 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
   .cinema-overview .cinema-hero > img { height:auto; min-height:0; aspect-ratio:2/1; }
   .cinema-overview .hero-caption { padding:12px 14px; }
 }
+
+.report-tabs { display:flex; gap:4px; padding:8px 0 0; }
+.report-tabs button { min-height:36px; padding:6px 18px; border:1px solid transparent; border-radius:5px; background:transparent; color:#a99d86; font-size:12px; }
+.report-tabs button[aria-selected="true"] { color:#f6d9a4; border-color:#a1875359; background:#b9934a18; }
+.report-tabs button:hover { color:#ffe2a4; }
+.report-period { margin:8px 10px; color:#bda67b; font-size:11px; font-variant-numeric:tabular-nums; }
+@media(max-width:760px) { .report-tabs button { min-height:44px; } }

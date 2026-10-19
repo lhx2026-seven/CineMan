@@ -30,9 +30,9 @@ function prepareGame(id) {
   if (navigator.connection?.saveData || preparedGames.has(id)) return;
   preparedGames.add(id);
   for (const [href, as] of [
-    [`game.html?cinema=${encodeURIComponent(id)}&v=overview-layout-v9`, 'document'],
-    ['game.css?v=overview-layout-v9', 'style'],
-    ['game.js?v=overview-layout-v9', 'script'],
+    [`game.html?cinema=${encodeURIComponent(id)}&v=report-tabs-v10`, 'document'],
+    ['game.css?v=report-tabs-v10', 'style'],
+    ['game.js?v=report-tabs-v10', 'script'],
   ]) {
     const link = document.createElement('link');
     link.rel = as === 'document' ? 'prefetch' : 'preload';
@@ -50,7 +50,7 @@ confirmButton.addEventListener('click', () => {
   confirmedId = selectedId;
   try { localStorage.setItem('cineman.confirmedCinema', confirmedId); } catch { /* The URL also carries the selected cinema. */ }
   confirmButton.disabled = true;
-  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=overview-layout-v9`;
+  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=report-tabs-v10`;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     location.assign(destination);
     return;

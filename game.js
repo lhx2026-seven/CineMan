@@ -35,6 +35,30 @@ function initGame() {
   document.body.dataset.cinema = cinema.slug;
   counter.alt = `${cinema.name}售票櫃台`;
   document.querySelector('#game-content').hidden = false;
+  const reportTabList = document.querySelector('.report-tabs');
+  const reportTabs = [...reportTabList.querySelectorAll('[role="tab"]')];
+  function activateReport(tab, focus = false) {
+    reportTabs.forEach(button => {
+      const active = button === tab;
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+      document.getElementById(button.getAttribute('aria-controls')).hidden = !active;
+    });
+    if (focus) tab.focus({ preventScroll:true });
+  }
+  reportTabs.forEach(tab => tab.addEventListener('click', () => activateReport(tab)));
+  reportTabList.addEventListener('keydown', event => {
+    const index = reportTabs.indexOf(document.activeElement);
+    if (index < 0) return;
+    let target;
+    if (event.key === 'ArrowRight') target = (index + 1) % reportTabs.length;
+    else if (event.key === 'ArrowLeft') target = (index + reportTabs.length - 1) % reportTabs.length;
+    else if (event.key === 'Home') target = 0;
+    else if (event.key === 'End') target = reportTabs.length - 1;
+    else return;
+    event.preventDefault();
+    activateReport(reportTabs[target], true);
+  });
   const form = document.querySelector('#management-form');
   const tabList = document.querySelector('.management-tabs');
   const tabs = [...tabList.querySelectorAll('[role="tab"]')];
