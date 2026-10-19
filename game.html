@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=film-strategy-v18">
-<script src="assignment-rules.js?v=film-strategy-v18" defer></script>
-<script src="venue.js?v=film-strategy-v18" defer></script>
-<script src="weekly-events.js?v=film-strategy-v18" defer></script>
-<script src="films.js?v=film-strategy-v18" defer></script>
-<script src="game.js?v=film-strategy-v18" defer></script>
+<link rel="stylesheet" href="game.css?v=screening-slots-v19">
+<script src="assignment-rules.js?v=screening-slots-v19" defer></script>
+<script src="venue.js?v=screening-slots-v19" defer></script>
+<script src="weekly-events.js?v=screening-slots-v19" defer></script>
+<script src="films.js?v=screening-slots-v19" defer></script>
+<script src="game.js?v=screening-slots-v19" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -133,7 +133,7 @@
         </div>
         <div class="film-carousel-controls"><button type="button" id="previous-film" aria-label="上一部新片">‹</button><span id="film-position" aria-live="polite">1 / 2</span><button type="button" id="next-film" aria-label="下一部新片">›</button></div>
       </div>
-      <div class="showtime-control" id="featured-settings" hidden><div><label for="featured-share" id="featured-heading">場次占比</label><p id="share-hint" class="sr-only">調整本週主打電影的場次占比。</p></div><output id="share-output" for="featured-share">—</output><input type="range" id="featured-share" name="featuredShare" min="0" max="100" step="5" value="50" aria-describedby="share-hint" disabled><div class="range-labels"><span>0%</span><span>100%</span></div></div>
+      <div class="showtime-control" id="featured-settings" hidden><div><label for="featured-share" id="featured-heading">場次占比</label><p id="share-hint" class="sr-only">調整本週主打電影的場次占比。</p></div><output id="share-output" for="featured-share">—</output><input type="range" id="featured-share" name="featuredSlots" min="0" max="1" step="1" value="0" aria-describedby="share-hint" disabled><div class="range-labels"><span>0%</span><span>100%</span></div></div>
       <div class="old-films-heading"><h3>持續上映</h3></div>
       <div class="old-films">
         <article class="old-film" data-movie-id="MV0001"><div class="old-film-poster old-film-poster-1" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>魔猴</h4></article>

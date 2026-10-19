@@ -1,14 +1,39 @@
 'use strict';
 (function(root) {
   const OLD_FILMS = [{id:'MV0001',title:'魔猴'},{id:'MV0002',title:'恐怖速食店'},{id:'MV0003',title:'酆都'}];
+  const canonicalId = id => ({MV001:'MV0001',MV002:'MV0002',MV003:'MV0003'})[id] || id;
+  function screeningCapacity(screenCount) {
+    if (!Number.isInteger(screenCount) || screenCount < 1) throw Error('Invalid screen count');
+    return 6 * screenCount;
+  }
+  function sharePercentage(slots, screenCount) {
+    const capacity = screeningCapacity(screenCount);
+    if (!Number.isInteger(slots) || slots < 0 || slots > capacity) throw Error('Invalid screening slots');
+    return slots * 100 / capacity;
+  }
+  function retirementPool(showing, week) {
+    if (!Number.isInteger(week) || week < 1) throw Error('Invalid week');
+    const forced = week >= 2 ? showing.filter(movie=>canonicalId(movie.id)==='MV0003') : [];
+    const randomPool = week >= 3 ? showing.filter(movie=>canonicalId(movie.id)!=='MV0003') : [];
+    return {forced, randomPool};
+  }
+  // Quantity must be supplied by the future week progression rules. Do not
+  // invent a weekly retirement probability or count while MoviesList is absent.
+  function drawRetirements(showing, week, count, seed) {
+    const {forced,randomPool} = retirementPool(showing,week);
+    if (!Number.isInteger(count) || count < 0 || count > randomPool.length) throw Error('Specify a valid retirement count');
+    const random = root.CinemaRules.seededRandom(seed), shuffled=randomPool.slice();
+    for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
+    return {forced,random:shuffled.slice(0,count)};
+  }
   // Future MoviesList integration supplies the eligible new-release pool, not
   // an assumed database schema. Keep the three fixed older titles out of it.
   function pickNewMovies(pool, seed) {
     const excluded = new Set(OLD_FILMS.map(movie=>movie.id));
     const ids = new Set();
     const eligible = pool.filter(movie=>{
-      if (!movie || typeof movie.id !== 'string' || typeof movie.title !== 'string' || ids.has(movie.id)) throw Error('Invalid or duplicate movie');
-      ids.add(movie.id); return !excluded.has(movie.id);
+      if (!movie || typeof movie.id !== 'string' || typeof movie.title !== 'string' || ids.has(canonicalId(movie.id))) throw Error('Invalid or duplicate movie');
+      ids.add(canonicalId(movie.id)); return !excluded.has(canonicalId(movie.id));
     });
     if (eligible.length < 2) throw Error('At least two eligible new movies required');
     const random = root.CinemaRules.seededRandom(seed), shuffled = eligible.slice();
@@ -65,5 +90,5 @@
     return {update,restoreView(){const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?0:selected);},
       titleFor(value){return cards.find(card=>card.dataset.filmValue===value)?.querySelector('h4').textContent||'';}};
   }
-  root.CinemaFilms = {OLD_FILMS,pickNewMovies,init};
+  root.CinemaFilms = {OLD_FILMS,pickNewMovies,screeningCapacity,sharePercentage,retirementPool,drawRetirements,init};
 })(globalThis);

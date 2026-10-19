@@ -26,6 +26,7 @@ function initGame() {
   CinemaEvents.render({events:[]});
   let restoredDraft = null;
   let venueReady = false;
+  let venueScreenCount = 0;
   const venueRetry = document.querySelector('#venue-retry');
   async function loadVenue() {
     venueRetry.hidden = true;
@@ -35,6 +36,17 @@ function initGame() {
       const allocation = await CinemaVenue.assign(id, runId);
       CinemaVenue.render(allocation);
       renderSpecialPricing(allocation);
+      venueScreenCount = allocation.screenCount;
+      const share = document.querySelector('#featured-share');
+      const capacity = CinemaFilms.screeningCapacity(venueScreenCount);
+      let slots = capacity / 2;
+      if (typeof restoredDraft?.featuredSlots === 'string' && Number.isFinite(Number(restoredDraft.featuredSlots))) {
+        slots = Math.round(Number(restoredDraft.featuredSlots));
+      } else if (typeof restoredDraft?.featuredShare === 'string' && Number.isFinite(Number(restoredDraft.featuredShare))) {
+        slots = Math.round(capacity * Number(restoredDraft.featuredShare) / 100);
+      }
+      share.max = String(capacity);
+      share.value = String(Math.max(0,Math.min(capacity,slots)));
       venueReady = true;
       updateControls();
     } catch (error) {
@@ -178,8 +190,11 @@ function initGame() {
     const featured = form.querySelector('input[name="featuredFilm"]:checked');
     document.querySelector('#next-week').disabled = !featured || !venueReady;
     const share = document.querySelector('#featured-share');
-    share.disabled = !featured;
-    document.querySelector('#share-output').textContent = featured ? `${share.value}%` : '—';
+    share.disabled = !featured || !venueReady;
+    const percentage = venueReady ? CinemaFilms.sharePercentage(Number(share.value),venueScreenCount) : 0;
+    const formattedShare = percentage.toLocaleString('zh-TW',{maximumFractionDigits:2}) + '%';
+    document.querySelector('#share-output').textContent = featured && venueReady ? formattedShare : '—';
+    if (venueReady) share.setAttribute('aria-valuetext',`${formattedShare}（${share.value}／${share.max}場）`);
     document.querySelector('#featured-settings').hidden = !featured;
     if (featured) document.querySelector('#featured-heading').textContent = `選擇${films.titleFor(featured.value)}為本週主打，場次占比`;
     films.update();
@@ -187,7 +202,7 @@ function initGame() {
   function saveDraft() {
     const draft = {};
     for (const control of form.elements) {
-      if (!control.name) continue;
+      if (!control.name || control.name === 'featuredSlots' && !venueReady) continue;
       if (control.type === 'checkbox') draft[control.name] = control.checked;
       else if (control.type === 'radio') { if (control.checked) draft[control.name] = control.value; }
       else draft[control.name] = control.value;
