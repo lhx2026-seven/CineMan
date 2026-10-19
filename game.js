@@ -23,7 +23,7 @@ function initGame() {
   exterior.src = `assets/cinemas/landscape/${cinema.exterior}`;
   exterior.alt = `${cinema.name}外觀`;
   const counter = document.querySelector('#cinema-counter');
-  const counterVersion = id === 'C02' ? '' : '-v2';
+  const counterVersion = id === 'C02' ? '' : id === 'C01' ? '-v3' : '-v2';
   counter.src = `assets/cinemas/counters/${cinema.slug}-counter${counterVersion}.webp`;
   document.body.dataset.cinema = cinema.slug;
   counter.alt = `${cinema.name}售票櫃台`;
