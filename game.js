@@ -90,6 +90,7 @@ function initGame() {
     activateReport(reportTabs[target], true);
   });
   const form = document.querySelector('#management-form');
+  const films = CinemaFilms.init(form);
   function setBudgetLocks(locks = {}) {
     for (const name of ['maintenance','consumables']) {
       const control = form.elements[name], reason = locks[name];
@@ -179,12 +180,9 @@ function initGame() {
     const share = document.querySelector('#featured-share');
     share.disabled = !featured;
     document.querySelector('#share-output').textContent = featured ? `${share.value}%` : '—';
-    document.querySelector('#share-hint').textContent = featured ? `${featured.value === 'new-01' ? '新片 01' : '新片 02'}是本週主打片。` : '先選擇一部主打片，再安排場次。';
-    form.querySelectorAll('.film-option').forEach(option => {
-      const checked = option.querySelector('input').checked;
-      option.querySelector('.feature-indicator').firstChild.textContent = checked ? '本週主打片 ' : '設為主打片 ';
-      option.querySelector('.feature-indicator > span').textContent = checked ? '●' : '○';
-    });
+    document.querySelector('#featured-settings').hidden = !featured;
+    if (featured) document.querySelector('#featured-heading').textContent = `選擇${films.titleFor(featured.value)}為本週主打，場次占比`;
+    films.update();
   }
   function saveDraft() {
     const draft = {};
@@ -206,6 +204,7 @@ function initGame() {
   form.addEventListener('submit', event => event.preventDefault());
   form.addEventListener('input', () => { updateControls(); saveDraft(); });
   form.addEventListener('change', () => { updateControls(); saveDraft(); });
+  films.restoreView();
   updateControls();
   loadVenue();
   document.querySelector('#next-week').addEventListener('click', () => {

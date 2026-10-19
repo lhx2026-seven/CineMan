@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=management-sales-v17">
-<script src="assignment-rules.js?v=management-sales-v17" defer></script>
-<script src="venue.js?v=management-sales-v17" defer></script>
-<script src="weekly-events.js?v=management-sales-v17" defer></script>
-<script src="game.js?v=management-sales-v17" defer></script>
+<link rel="stylesheet" href="game.css?v=film-strategy-v18">
+<script src="assignment-rules.js?v=film-strategy-v18" defer></script>
+<script src="venue.js?v=film-strategy-v18" defer></script>
+<script src="weekly-events.js?v=film-strategy-v18" defer></script>
+<script src="films.js?v=film-strategy-v18" defer></script>
+<script src="game.js?v=film-strategy-v18" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -124,13 +125,28 @@
       </div>
     </section>
     <section class="panel" id="panel-films" role="tabpanel" aria-labelledby="tab-films" tabindex="0" hidden>
-      <h3 class="subheading">本週新片</h3><fieldset class="new-films"><legend class="sr-only">選擇本週主打片</legend>
-        <label class="film-option"><input type="radio" name="featuredFilm" value="new-01"><span class="poster-placeholder poster-one" aria-hidden="true"><span>COMING<br>SOON</span><small>01</small></span><span class="film-info"><span class="film-tag">本週新片</span><strong>新片 01</strong><span class="muted">片名與電影資訊待補</span><span class="feature-indicator">設為主打片 <span aria-hidden="true">○</span></span></span></label>
-        <label class="film-option"><input type="radio" name="featuredFilm" value="new-02"><span class="poster-placeholder poster-two" aria-hidden="true"><span>COMING<br>SOON</span><small>02</small></span><span class="film-info"><span class="film-tag">本週新片</span><strong>新片 02</strong><span class="muted">片名與電影資訊待補</span><span class="feature-indicator">設為主打片 <span aria-hidden="true">○</span></span></span></label>
+      <h3 class="subheading">本週新片</h3>
+      <div class="film-carousel" id="film-carousel" role="region" aria-roledescription="旋轉木馬" aria-label="本週新片" tabindex="0">
+        <div class="film-orbit">
+          <article class="film-option" data-film-value="new-01"><input type="radio" name="featuredFilm" value="new-01" hidden><div class="film-poster film-poster-1" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54M7 16h7m-7 11h7M7 38h7M7 49h7M34 16h7M34 27h7M34 38h7M34 49h7"/></svg></div><div class="film-info"><h4>新片 01</h4><button class="film-select" type="button" aria-pressed="false">選擇</button></div></article>
+          <article class="film-option" data-film-value="new-02"><input type="radio" name="featuredFilm" value="new-02" hidden><div class="film-poster film-poster-2" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54M7 16h7m-7 11h7M7 38h7M7 49h7M34 16h7M34 27h7M34 38h7M34 49h7"/></svg></div><div class="film-info"><h4>新片 02</h4><button class="film-select" type="button" aria-pressed="false">選擇</button></div></article>
+        </div>
+        <div class="film-carousel-controls"><button type="button" id="previous-film" aria-label="上一部新片">‹</button><span id="film-position" aria-live="polite">1 / 2</span><button type="button" id="next-film" aria-label="下一部新片">›</button></div>
+      </div>
+      <div class="showtime-control" id="featured-settings" hidden><div><label for="featured-share" id="featured-heading">場次占比</label><p id="share-hint" class="sr-only">調整本週主打電影的場次占比。</p></div><output id="share-output" for="featured-share">—</output><input type="range" id="featured-share" name="featuredShare" min="0" max="100" step="5" value="50" aria-describedby="share-hint" disabled><div class="range-labels"><span>0%</span><span>100%</span></div></div>
+      <div class="old-films-heading"><h3>持續上映</h3></div>
+      <div class="old-films">
+        <article class="old-film" data-movie-id="MV0001"><div class="old-film-poster old-film-poster-1" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>魔猴</h4></article>
+        <article class="old-film" data-movie-id="MV0002"><div class="old-film-poster old-film-poster-2" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>恐怖速食店</h4></article>
+        <article class="old-film" data-movie-id="MV0003"><div class="old-film-poster old-film-poster-3" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>酆都</h4></article>
+      </div>
+      <fieldset class="special-screenings"><legend>特別場</legend><div class="special-screening-heading">票價（單一票種）</div>
+        <div class="special-screening"><label class="special-film-choice"><input type="checkbox" name="specialEnabled_new01" aria-controls="special-price-new01"><span>新片 01</span></label><label class="special-film-price" id="special-price-new01" hidden><span class="sr-only">新片 01特別場票價</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice_new01" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label></div>
+        <div class="special-screening"><label class="special-film-choice"><input type="checkbox" name="specialEnabled_new02" aria-controls="special-price-new02"><span>新片 02</span></label><label class="special-film-price" id="special-price-new02" hidden><span class="sr-only">新片 02特別場票價</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice_new02" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label></div>
+        <div class="special-screening"><label class="special-film-choice"><input type="checkbox" name="specialEnabled_MV0001" aria-controls="special-price-MV0001"><span>魔猴</span></label><label class="special-film-price" id="special-price-MV0001" hidden><span class="sr-only">魔猴特別場票價</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice_MV0001" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label></div>
+        <div class="special-screening"><label class="special-film-choice"><input type="checkbox" name="specialEnabled_MV0002" aria-controls="special-price-MV0002"><span>恐怖速食店</span></label><label class="special-film-price" id="special-price-MV0002" hidden><span class="sr-only">恐怖速食店特別場票價</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice_MV0002" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label></div>
+        <div class="special-screening"><label class="special-film-choice"><input type="checkbox" name="specialEnabled_MV0003" aria-controls="special-price-MV0003"><span>酆都</span></label><label class="special-film-price" id="special-price-MV0003" hidden><span class="sr-only">酆都特別場票價</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice_MV0003" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label></div>
       </fieldset>
-      <div class="showtime-control"><div><label for="featured-share">主打片場次占比</label><p id="share-hint">先選擇一部主打片，再安排場次。</p></div><output id="share-output" for="featured-share">—</output><input type="range" id="featured-share" name="featuredShare" min="0" max="100" step="5" value="50" aria-describedby="share-hint" disabled><div class="range-labels"><span>0%</span><span>100%</span></div></div>
-      <div class="old-films-heading"><h3>持續上映</h3><span class="muted">既定片單 · 不可調整</span></div>
-      <div class="old-films"><article class="old-film"><span class="mini-poster" aria-hidden="true">01</span><div><h4>舊片 01</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article><article class="old-film"><span class="mini-poster" aria-hidden="true">02</span><div><h4>舊片 02</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article><article class="old-film"><span class="mini-poster" aria-hidden="true">03</span><div><h4>舊片 03</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article></div>
     </section>
 
   </form>
