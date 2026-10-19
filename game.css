@@ -410,14 +410,17 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .cinema-overview .cinema-hero > img { min-height:220px; }
 .venue-profile { min-width:0; padding:0 18px 16px; }
 .venue-profile > p { color:#afa99f; font-size:12px; line-height:1.7; }
-.venue-totals { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); margin:0 0 8px; padding-top:12px; border-top:1px solid var(--line); gap:8px; }
+#venue-data { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; column-gap:8px; padding-top:10px; border-top:1px solid var(--line); }
+.venue-totals { display:contents; }
+.venue-totals > div:first-child { grid-column:1; grid-row:1; }
+.venue-totals > div:last-child { grid-column:3; grid-row:1; }
+.venue-totals > div:last-child dt, .venue-totals > div:last-child dd { justify-content:flex-end; }
 .venue-totals dt { display:flex; align-items:center; gap:6px; color:#afa99f; font-size:11px; }
 .venue-totals dd { display:flex; align-items:baseline; gap:5px; margin:4px 0 0; }
 .venue-totals strong { font-size:22px; font-weight:400; color:#ecd1a0; font-variant-numeric:tabular-nums; }
 .venue-totals dd span { font-size:10px; color:#afa99f; }
-.venue-extras { margin:0 0 10px; color:#bda67b; font-size:11px; line-height:1.7; }
-.venue-details summary { cursor:pointer; color:#cbb58d; font-size:11px; padding:8px 0; }
-.venue-table-scroll { max-height:260px; overflow:auto; }
+.venue-extras { grid-column:1/-1; grid-row:2; margin:5px 0 0; color:#bda67b; font-size:11px; line-height:1.7; }
+.venue-table-scroll { grid-column:1/-1; grid-row:3; margin-top:8px; max-height:260px; overflow:auto; }
 .venue-table { border-collapse:collapse; width:100%; font-size:11px; font-variant-numeric:tabular-nums; }
 .venue-table th, .venue-table td { text-align:left; padding:7px 4px; border-bottom:1px solid #ffffff0b; color:#b8ac96; }
 .venue-table th { font-weight:400; color:#dec59b; }
@@ -427,7 +430,11 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
   .cinema-overview .cinema-hero { grid-template-rows:auto auto auto; }
   .cinema-overview .cinema-hero > img { min-height:0; }
   .venue-profile { padding:0 14px 12px; }
-  .venue-details summary { min-height:44px; display:list-item; padding-block:14px; }
 }
 
 .venue-icon { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+
+.venue-details-toggle { grid-column:2; grid-row:1; display:flex; align-items:center; justify-content:center; gap:5px; min-height:44px; padding:8px 3px; border:0; border-radius:5px; color:#cbb58d; background:transparent; font-size:11px; white-space:nowrap; }
+.venue-details-toggle::before { content:""; width:5px; height:5px; border-right:1px solid currentColor; border-bottom:1px solid currentColor; transform:rotate(45deg) translateY(-2px); }
+.venue-details-toggle[aria-expanded="true"]::before { transform:rotate(225deg) translate(-1px,-1px); }
+.venue-details-toggle:hover { color:#ffe2a4; background:#b9934a0b; }

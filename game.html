@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=venue-v13">
-<script src="assignment-rules.js?v=venue-v13" defer></script>
-<script src="venue.js?v=venue-v13" defer></script>
-<script src="game.js?v=venue-v13" defer></script>
+<link rel="stylesheet" href="game.css?v=venue-v14">
+<script src="assignment-rules.js?v=venue-v14" defer></script>
+<script src="venue.js?v=venue-v14" defer></script>
+<script src="game.js?v=venue-v14" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -23,9 +23,9 @@
     <section class="venue-profile" id="venue-profile" aria-label="影廳與座位">
       <p id="venue-loading" role="status">正在分派影廳…</p>
       <div id="venue-data" hidden>
-        <dl class="venue-totals"><div><dt><svg class="venue-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v12H3zM12 16v4m-5 0h10M2 4h20"/></svg>影廳數</dt><dd><strong id="venue-screen-count">—</strong><span>廳</span></dd></div><div><dt><svg class="venue-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 13V6a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v7M5 10H3v8h18v-8h-2M6 13h12v5M6 18v3m12-3v3"/></svg>總座位</dt><dd><strong id="venue-seat-count">—</strong><span>席</span></dd></div></dl>
+        <dl class="venue-totals"><div><dt><svg class="venue-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4Q12 7 21 4v12Q12 19 3 16ZM6 21h12"/></svg>影廳數</dt><dd><strong id="venue-screen-count">—</strong><span>廳</span></dd></div><div><dt><svg class="venue-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 13V6a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v7M5 10H3v8h18v-8h-2M6 13h12v5M6 18v3m12-3v3"/></svg>總座位數</dt><dd><strong id="venue-seat-count">—</strong><span>席</span></dd></div></dl>
         <p class="venue-extras" id="venue-extra-names"></p>
-        <details class="venue-details"><summary id="venue-details-title">影廳明細</summary><div class="venue-table-scroll"><table class="venue-table"><thead><tr><th scope="col">廳別</th><th scope="col">座位數</th></tr></thead><tbody id="venue-screens"></tbody></table></div></details>
+        <button type="button" class="venue-details-toggle" id="venue-details-title" aria-expanded="false" aria-controls="venue-details-panel">影廳明細</button><div id="venue-details-panel" class="venue-table-scroll" hidden><table class="venue-table"><thead><tr><th scope="col">廳別</th><th scope="col">座位數</th></tr></thead><tbody id="venue-screens"></tbody></table></div>
       </div>
       <button type="button" class="venue-retry" id="venue-retry" hidden>重試載入</button>
     </section>

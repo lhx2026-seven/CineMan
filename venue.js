@@ -18,7 +18,7 @@
       extras.set(label, (extras.get(label) || 0) + 1);
     }
     document.querySelector('#venue-extra-names').textContent = extras.size ? `含 ${allocation.counts.EXTRA} 個特殊廳：${Array.from(extras, ([name,n]) => `${name}廳 × ${n}`).join('、')}` : '無特殊廳';
-    document.querySelector('#venue-details-title').textContent = `影廳明細（${allocation.screenCount} 廳）`;
+    document.querySelector('#venue-details-title').textContent = '影廳明細';
     const rows = allocation.screens.map((screen,index) => {
       const tr = document.createElement('tr');
       const label = screen.type === 'EXTRA' ? `${index+1}廳（${screen.name.replace(/\s*\([^)]*\)$/, '')}廳）` : `${index+1}廳`;
@@ -32,5 +32,11 @@
     document.querySelector('#venue-loading').hidden = true;
     document.querySelector('#venue-data').hidden = false;
   }
+  const toggle = document.querySelector('#venue-details-title');
+  toggle.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') !== 'true';
+    toggle.setAttribute('aria-expanded', String(expanded));
+    document.querySelector('#venue-details-panel').hidden = !expanded;
+  });
   root.CinemaVenue = {assign, render};
 })(globalThis);
