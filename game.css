@@ -489,7 +489,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .film-carousel { --film-step:190px; --film-card-width:180px; position:relative; height:330px; overflow:hidden; touch-action:pan-y; border-radius:10px; background:radial-gradient(ellipse at 50% 80%,#bda67b0c,transparent 65%); }
 .film-orbit { position:relative; height:285px; perspective:900px; }
 .film-orbit::after { content:""; position:absolute; left:50%; bottom:0; width:230px; height:13px; transform:translateX(-50%); background:radial-gradient(ellipse,#e6e0d046,transparent 68%); filter:blur(5px); }
-.film-orbit .film-option { display:block; position:absolute; top:9px; left:50%; width:var(--film-card-width); border-radius:9px; cursor:pointer; overflow:hidden; transform:translateX(calc(-50% + var(--film-distance)*var(--film-step))) translateY(calc(var(--film-distance)*8px)) translateZ(calc(var(--film-distance)*var(--film-distance)*-90px)) rotateY(calc(var(--film-distance)*20deg)); transition:transform .45s ease,filter .3s,box-shadow .3s; animation:film-float 5s ease-in-out infinite; box-shadow:0 15px 25px #0008; }
+.film-orbit .film-option { display:block; position:absolute; top:9px; left:50%; width:var(--film-card-width); border-radius:9px; cursor:pointer; overflow:hidden; transform:translateX(calc(-50% + var(--film-distance)*var(--film-step))) translateY(calc(var(--film-depth)*8px)) translateZ(calc(var(--film-depth)*var(--film-depth)*-90px)) rotateY(calc(var(--film-distance)*20deg)); transition:transform .45s ease,filter .3s,box-shadow .3s; animation:film-float 5s ease-in-out infinite; box-shadow:0 15px 25px #0008; }
 .film-orbit .film-option:has(input:checked) { filter:brightness(1.16); border-color:#e6c584; box-shadow:0 0 28px #ffd47c30,0 18px 30px #000a; }
 .film-poster { height:176px; display:grid; place-items:center; background:radial-gradient(ellipse at top,#66503940,transparent 80%),linear-gradient(145deg,#272019,#0b0907); }
 .film-poster-2 { background:radial-gradient(ellipse at top,#33485565,transparent 80%),linear-gradient(145deg,#15212a,#090b0e); }
@@ -510,11 +510,8 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 #panel-films .old-film .old-film-poster-3 { background:linear-gradient(145deg,#26342d50,#0b0907); }
 #panel-films .old-film h4 { font-size:12px; text-align:center; margin:0; }
 .special-screenings { margin-top:18px; border-top:1px solid var(--line); padding-top:12px; }
-.special-screenings > legend { float:left; color:#cbbb9e; font-size:13px; padding:12px 0 0; }
-.special-screening-heading { text-align:right; color:#9d9384; font-size:10px; padding:4px 0 10px; }
-.special-screening { clear:both; display:grid; grid-template-columns:minmax(0,1fr) 150px; align-items:center; gap:12px; min-height:48px; border-bottom:1px solid #ffffff0b; }
-.special-film-choice { display:flex; align-items:center; gap:10px; font-size:12px; color:#cbb58d; min-height:44px; cursor:pointer; }
-.special-film-choice input { accent-color:#c5a05e; width:16px; height:16px; }
+.special-screenings > legend { color:#cbbb9e; font-size:13px; padding:12px 0 0; }
+.special-screening { display:grid; grid-template-columns:minmax(0,1fr) 150px; align-items:end; gap:12px; min-height:48px; }
 @keyframes film-float { 50% { translate:0 -4px; } }
 @media(max-width:760px) {
  .film-carousel { --film-step:155px; --film-card-width:148px; height:292px; }
@@ -526,3 +523,8 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
  #panel-films .old-film h4 { font-size:11px; }
  .special-screening { grid-template-columns:minmax(0,1fr) 124px; gap:8px; }
 }
+
+.special-film-picker, .special-film-price { display:flex; flex-direction:column; gap:7px; min-width:0; font-size:11px; color:#b8ac96; }
+.special-film-picker select { width:100%; min-width:0; min-height:44px; padding:8px 10px; border:1px solid #a893702e; border-radius:5px; color:#e5cea0; background:#0b0907; font:inherit; }
+.special-screening .input-wrap input { min-height:44px; }
+@media(max-width:760px) { .film-carousel.is-overview { --film-step:132px; --film-card-width:124px; } }

@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=screening-slots-v19">
-<script src="assignment-rules.js?v=screening-slots-v19" defer></script>
-<script src="venue.js?v=screening-slots-v19" defer></script>
-<script src="weekly-events.js?v=screening-slots-v19" defer></script>
-<script src="films.js?v=screening-slots-v19" defer></script>
-<script src="game.js?v=screening-slots-v19" defer></script>
+<link rel="stylesheet" href="game.css?v=film-overview-v20">
+<script src="assignment-rules.js?v=film-overview-v20" defer></script>
+<script src="venue.js?v=film-overview-v20" defer></script>
+<script src="weekly-events.js?v=film-overview-v20" defer></script>
+<script src="films.js?v=film-overview-v20" defer></script>
+<script src="game.js?v=film-overview-v20" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -140,12 +140,11 @@
         <article class="old-film" data-movie-id="MV0002"><div class="old-film-poster old-film-poster-2" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>恐怖速食店</h4></article>
         <article class="old-film" data-movie-id="MV0003"><div class="old-film-poster old-film-poster-3" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>酆都</h4></article>
       </div>
-      <fieldset class="special-screenings"><legend>特別場</legend><div class="special-screening-heading">票價（單一票種）</div>
-        <div class="special-screening"><label class="special-film-choice"><input type="checkbox" name="specialEnabled_new01" aria-controls="special-price-new01"><span>新片 01</span></label><label class="special-film-price" id="special-price-new01" hidden><span class="sr-only">新片 01特別場票價</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice_new01" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label></div>
-        <div class="special-screening"><label class="special-film-choice"><input type="checkbox" name="specialEnabled_new02" aria-controls="special-price-new02"><span>新片 02</span></label><label class="special-film-price" id="special-price-new02" hidden><span class="sr-only">新片 02特別場票價</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice_new02" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label></div>
-        <div class="special-screening"><label class="special-film-choice"><input type="checkbox" name="specialEnabled_MV0001" aria-controls="special-price-MV0001"><span>魔猴</span></label><label class="special-film-price" id="special-price-MV0001" hidden><span class="sr-only">魔猴特別場票價</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice_MV0001" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label></div>
-        <div class="special-screening"><label class="special-film-choice"><input type="checkbox" name="specialEnabled_MV0002" aria-controls="special-price-MV0002"><span>恐怖速食店</span></label><label class="special-film-price" id="special-price-MV0002" hidden><span class="sr-only">恐怖速食店特別場票價</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice_MV0002" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label></div>
-        <div class="special-screening"><label class="special-film-choice"><input type="checkbox" name="specialEnabled_MV0003" aria-controls="special-price-MV0003"><span>酆都</span></label><label class="special-film-price" id="special-price-MV0003" hidden><span class="sr-only">酆都特別場票價</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice_MV0003" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label></div>
+      <fieldset class="special-screenings"><legend>特別場</legend>
+        <div class="special-screening">
+          <label class="special-film-picker"><span>電影</span><select name="specialMovie" aria-controls="special-price"><option value="">選擇電影</option><option value="new-01">新片 01</option><option value="new-02">新片 02</option><option value="MV0001">魔猴</option><option value="MV0002">恐怖速食店</option><option value="MV0003">酆都</option></select></label>
+          <label class="special-film-price" id="special-price" hidden><span>票價（單一票種）</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label>
+        </div>
       </fieldset>
     </section>
 

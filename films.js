@@ -44,25 +44,26 @@
     const carousel = document.querySelector('#film-carousel');
     const cards = [...carousel.querySelectorAll('.film-option')];
     const previous = document.querySelector('#previous-film'), next = document.querySelector('#next-film');
-    let center = 0, pointer = null, swiped = false;
+    const midpoint = (cards.length - 1) / 2;
+    let center = midpoint, pointer = null, swiped = false;
     function update() {
+      carousel.classList.toggle('is-overview', center === midpoint);
       cards.forEach((card,index)=>{
         const distance = index-center;
         card.style.setProperty('--film-distance',distance);
+        card.style.setProperty('--film-depth',Math.abs(distance));
         card.style.zIndex = index === center ? '2' : '1';
         const button = card.querySelector('.film-select');
-        button.tabIndex = index === center ? 0 : -1;
+        button.tabIndex = center === midpoint || index === center ? 0 : -1;
         const selected = card.querySelector('input').checked;
         button.setAttribute('aria-pressed',String(selected));button.textContent = selected ? '已選擇' : '選擇';
         button.setAttribute('aria-label',`${selected ? '已選擇' : '選擇'}${card.querySelector('h4').textContent}`);
       });
       previous.disabled = center === 0;next.disabled = center === cards.length-1;
-      document.querySelector('#film-position').textContent = `${center+1} / ${cards.length}`;
-      for (const row of form.querySelectorAll('.special-screening')) {
-        const checkbox = row.querySelector('input[type="checkbox"]'), price = row.querySelector('input[type="number"]');
-        price.disabled = !checkbox.checked;row.querySelector('.special-film-price').hidden = !checkbox.checked;
-        checkbox.setAttribute('aria-expanded',String(checkbox.checked));
-      }
+      document.querySelector('#film-position').textContent = center === midpoint ? '2 部新片' : `${center+1} / ${cards.length}`;
+      const selectedMovie = form.elements.specialMovie.value;
+      document.querySelector('#special-price').hidden = !selectedMovie;
+      form.elements.specialPrice.disabled = !selectedMovie;
     }
     function browse(index) { center = Math.max(0,Math.min(cards.length-1,index));update(); }
     previous.addEventListener('click',()=>browse(center-1));next.addEventListener('click',()=>browse(center+1));
@@ -87,7 +88,7 @@
       if(!pointer)return;const dx=event.clientX-pointer.x,dy=event.clientY-pointer.y;pointer=null;
       if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3){swiped=true;browse(center+(dx<0?1:-1));setTimeout(()=>{swiped=false;},0);}
     });
-    return {update,restoreView(){const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?0:selected);},
+    return {update,restoreView(){const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?midpoint:selected);},
       titleFor(value){return cards.find(card=>card.dataset.filmValue===value)?.querySelector('h4').textContent||'';}};
   }
   root.CinemaFilms = {OLD_FILMS,pickNewMovies,screeningCapacity,sharePercentage,retirementPool,drawRetirements,init};
