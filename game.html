@@ -4,24 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=lobby-axis-v8">
-<script src="game.js?v=lobby-axis-v8" defer></script>
+<link rel="stylesheet" href="game.css?v=overview-layout-v9">
+<script src="game.js?v=overview-layout-v9" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
-  <h1 class="logo">CineMan</h1>
+  <h1 class="logo"><a href="index.html" aria-label="CineMan，返回首頁">CineMan</a></h1>
   <p class="subtitle">享受自己擁有一家電影院的美麗與哀愁</p>
 </header>
 <main class="game-shell" id="game-content" hidden>
+  <div class="cinema-overview">
   <section class="cinema-hero" aria-labelledby="cinema-name">
     <img id="cinema-exterior" width="1774" height="887" alt="">
     <div class="hero-shade"></div>
     <div class="hero-caption"><div><p class="overline">你的電影院</p><h2 id="cinema-name"></h2><p id="cinema-type"></p></div></div>
   </section>
   <section class="panel finance-panel financial-report" id="financial-report" aria-labelledby="finance-title">
-    <div class="section-heading"><h2 id="finance-title">財務報表</h2><span class="section-note">第 01 週 · NT$</span></div>
+    <div class="section-heading"><h2 id="finance-title">財務報表</h2><span class="section-note">2026 W1 · NT$</span></div>
     <table class="ledger-table">
-      <caption class="sr-only">第 01 週收支報表，結算規則尚未設定，金額均待結算</caption>
+      <caption class="sr-only">2026 W1收支報表，結算規則尚未設定，金額均待結算</caption>
       <thead><tr><th scope="col">項目</th><th scope="col">收入</th><th scope="col">支出</th></tr></thead>
       <tbody>
         <tr><th scope="row">電影票房</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
@@ -37,7 +38,8 @@
     <div class="ledger-balance"><span>本週損益</span><strong>—</strong><span class="pending-tag">尚未結算</span></div>
     <p class="report-note">「—」待結算；「·」不適用。結算規則尚未設定。</p>
   </section>
-  <div class="workspace-bar"><a href="index.html" class="back-link">‹ 返回戲院選擇</a><div class="workspace-meta"><span class="week-badge">第 01 週</span><span class="preview-badge">介面預覽</span></div></div>
+  </div>
+  <div class="workspace-bar"><div class="workspace-meta"><span class="week-badge">2026 W1</span><span class="preview-badge">介面預覽</span></div></div>
   <div class="management-tabs" role="tablist" aria-label="營運配置">
     <button type="button" role="tab" id="tab-budget" aria-controls="panel-budget" aria-selected="true" tabindex="0">預算配置</button>
     <button type="button" role="tab" id="tab-pricing" aria-controls="panel-pricing" aria-selected="false" tabindex="-1">定價</button>
@@ -87,7 +89,7 @@
     </section>
 
   </form>
-  <section class="counter-scene" aria-label="電影院售票櫃台"><img id="cinema-counter" width="1774" height="887" alt="" loading="lazy"><div class="counter-shade"></div><div class="next-week-area"><span class="overline" id="next-week-hint" aria-live="polite">請先至「選片」設定本週主打片</span><button type="button" id="next-week" class="gold-button" aria-describedby="next-week-hint" disabled>下一週 <span aria-hidden="true">→</span></button></div></section>
+  <section class="counter-scene" aria-label="電影院售票櫃台"><img id="cinema-counter" width="1774" height="887" alt="" loading="lazy"><div class="counter-shade"></div><div class="next-week-area"><button type="button" id="next-week" class="gold-button" disabled>下一週 <span aria-hidden="true">→</span></button></div></section>
   <p id="draft-status" class="draft-status" role="status"></p>
 </main>
 <dialog id="week-dialog"><form method="dialog"><p class="overline">CineMan</p><h2>下一週，敬請期待</h2><p>目前先開放本週配置預覽，週結算尚未開放。</p><p id="dialog-save-status"></p><button class="gold-button" value="close">繼續調整</button></form></dialog>

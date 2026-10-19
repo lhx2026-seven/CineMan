@@ -20,7 +20,7 @@ function initGame() {
   document.querySelector('#cinema-name').textContent = cinema.name;
   document.querySelector('#cinema-type').textContent = cinema.type;
   const exterior = document.querySelector('#cinema-exterior');
-  exterior.sizes = '160px';
+  exterior.sizes = '(max-width: 760px) calc(100vw - 20px), (max-width: 992px) 52vw, 510px';
   exterior.srcset = `assets/cinemas/optimized/${cinema.exterior.replace('.webp', '-640.webp')} 640w, assets/cinemas/landscape/${cinema.exterior} 1774w`;
   exterior.fetchPriority = 'high';
   exterior.decoding = 'async';
@@ -74,7 +74,6 @@ function initGame() {
         else if (control.type === 'radio') control.checked = control.value === draft[control.name];
         else if (typeof draft[control.name] === 'string') control.value = draft[control.name];
       }
-      draftStatus.textContent = '已載入這家戲院的上次配置';
       saved = true;
     }
   } catch { /* This preview also works when browser storage is unavailable. */ }
@@ -89,7 +88,6 @@ function initGame() {
     }
     const featured = form.querySelector('input[name="featuredFilm"]:checked');
     document.querySelector('#next-week').disabled = !featured;
-    document.querySelector('#next-week-hint').textContent = featured ? '本週選片已完成' : '請先至「選片」設定本週主打片';
     const share = document.querySelector('#featured-share');
     share.disabled = !featured;
     document.querySelector('#share-output').textContent = featured ? `${share.value}%` : '—';

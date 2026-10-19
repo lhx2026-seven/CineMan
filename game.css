@@ -376,3 +376,20 @@ body[data-cinema="arthouse"] .counter-shade { background:linear-gradient(0deg,#0
 body[data-cinema="baogong"] .counter-scene > img { height:260px; object-position:center top; }
 body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#030302a8,transparent 55%); }
 @media(max-width:760px) { body[data-cinema="baogong"] .counter-scene > img { height:140px; } }
+
+/* Cinema identity and a narrower ledger share the desktop overview. */
+.logo a { color:inherit; text-decoration:none; }
+.cinema-overview { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:14px; align-items:stretch; }
+.cinema-overview .cinema-hero { min-width:0; grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(260px,1fr) auto; }
+.cinema-overview .cinema-hero > img { height:100%; min-height:260px; aspect-ratio:auto; object-position:center; }
+.cinema-overview .hero-caption { padding:16px 18px; }
+.cinema-overview .financial-report { min-width:0; margin:0; }
+.workspace-bar { justify-content:flex-end; }
+.next-week-area { justify-content:flex-end; }
+.draft-status:empty { display:none; }
+@media(max-width:760px) {
+  .cinema-overview { grid-template-columns:minmax(0,1fr); gap:8px; }
+  .cinema-overview .cinema-hero { grid-template-rows:auto auto; }
+  .cinema-overview .cinema-hero > img { height:auto; min-height:0; aspect-ratio:2/1; }
+  .cinema-overview .hero-caption { padding:12px 14px; }
+}
