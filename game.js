@@ -20,10 +20,17 @@ function initGame() {
   document.querySelector('#cinema-name').textContent = cinema.name;
   document.querySelector('#cinema-type').textContent = cinema.type;
   const exterior = document.querySelector('#cinema-exterior');
+  exterior.sizes = '160px';
+  exterior.srcset = `assets/cinemas/optimized/${cinema.exterior.replace('.webp', '-640.webp')} 640w, assets/cinemas/landscape/${cinema.exterior} 1774w`;
+  exterior.fetchPriority = 'high';
+  exterior.decoding = 'async';
   exterior.src = `assets/cinemas/landscape/${cinema.exterior}`;
   exterior.alt = `${cinema.name}外觀`;
   const counter = document.querySelector('#cinema-counter');
   const counterVersion = id === 'C02' ? '' : id === 'C01' ? '-v3' : '-v2';
+  counter.sizes = '(max-width: 760px) calc(100vw - 32px), 960px';
+  counter.srcset = `assets/cinemas/optimized/${cinema.slug}-counter${counterVersion}-960.webp 960w, assets/cinemas/counters/${cinema.slug}-counter${counterVersion}.webp ${id === 'C01' ? 2048 : 1774}w`;
+  counter.decoding = 'async';
   counter.src = `assets/cinemas/counters/${cinema.slug}-counter${counterVersion}.webp`;
   document.body.dataset.cinema = cinema.slug;
   counter.alt = `${cinema.name}售票櫃台`;
@@ -122,7 +129,7 @@ function initGame() {
   });
   const reveal = () => {
     document.body.classList.add('reveal');
-    setTimeout(() => document.body.classList.remove('page-entering', 'reveal'), 900);
+    setTimeout(() => document.body.classList.remove('page-entering', 'reveal'), 500);
   };
-  Promise.race([exterior.decode().catch(() => {}), new Promise(resolve => setTimeout(resolve, 1500))]).then(reveal);
+  Promise.race([exterior.decode().catch(() => {}), new Promise(resolve => setTimeout(resolve, 350))]).then(reveal);
 }

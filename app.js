@@ -24,6 +24,24 @@ try {
   localStorage.removeItem('cineman.confirmedCinema');
 } catch { /* Storage may be unavailable. */ }
 
+// Warm only the chosen destination; never preload all five game screens.
+const preparedGames = new Set();
+function prepareGame(id) {
+  if (navigator.connection?.saveData || preparedGames.has(id)) return;
+  preparedGames.add(id);
+  for (const [href, as] of [
+    [`game.html?cinema=${encodeURIComponent(id)}&v=entry-fast-v7`, 'document'],
+    ['game.css?v=entry-fast-v7', 'style'],
+    ['game.js?v=entry-fast-v7', 'script'],
+  ]) {
+    const link = document.createElement('link');
+    link.rel = as === 'document' ? 'prefetch' : 'preload';
+    link.href = href;
+    link.as = as;
+    document.head.append(link);
+  }
+}
+
 let enteringGame = false;
 confirmButton.addEventListener('click', () => {
   const cinema = definitions.find(([id]) => id === selectedId);
@@ -32,11 +50,12 @@ confirmButton.addEventListener('click', () => {
   confirmedId = selectedId;
   try { localStorage.setItem('cineman.confirmedCinema', confirmedId); } catch { /* The URL also carries the selected cinema. */ }
   confirmButton.disabled = true;
-  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=chandelier-scale-v6`;
+  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=entry-fast-v7`;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     location.assign(destination);
     return;
   }
+  document.body.classList.add('entering-game');
   const transition = document.createElement('div');
   transition.className = 'entry-transition';
   transition.setAttribute('role', 'status');
@@ -44,7 +63,7 @@ confirmButton.addEventListener('click', () => {
   transition.querySelector('p').textContent = `歡迎來到${cinema[2]}`;
   document.body.append(transition);
   requestAnimationFrame(() => requestAnimationFrame(() => transition.classList.add('closing')));
-  setTimeout(() => location.assign(destination), 700);
+  setTimeout(() => location.assign(destination), 480);
 });
 window.addEventListener('pageshow', event => {
   if (event.persisted) location.reload();
@@ -129,7 +148,7 @@ async function init() {
       card.dataset.cinemaId = id;
       card.innerHTML = `
         <figure class="cinema-visual">
-          <img draggable="false" src="assets/cinemas/landscape/${slug}-exterior${id === 'C02' || id === 'C03' || id === 'C04' ? '-v2' : ''}.webp" alt="${name}外觀示意" width="1774" height="887">
+          <img draggable="false" src="assets/cinemas/landscape/${slug}-exterior${id === 'C02' || id === 'C03' || id === 'C04' ? '-v2' : ''}.webp" srcset="assets/cinemas/optimized/${slug}-exterior${['C02','C03','C04'].includes(id) ? '-v2' : ''}-640.webp 640w, assets/cinemas/landscape/${slug}-exterior${['C02','C03','C04'].includes(id) ? '-v2' : ''}.webp 1774w" sizes="320px" decoding="async" alt="${name}外觀示意" width="1774" height="887">
         </figure>
         <div class="card-content">
           <h2>${name}</h2><div class="type">${type}</div>
@@ -137,7 +156,7 @@ async function init() {
           <button type="button" class="select-button" aria-pressed="false">選擇${name}</button>
         </div>
         <figure class="cinema-visual">
-          <img draggable="false" src="assets/cinemas/landscape/${slug}-interior.webp" alt="${name}內裝示意" width="1774" height="887" loading="lazy">
+          <img draggable="false" src="assets/cinemas/landscape/${slug}-interior.webp" srcset="assets/cinemas/optimized/${slug}-interior-640.webp 640w, assets/cinemas/landscape/${slug}-interior.webp 1774w" sizes="320px" decoding="async" alt="${name}內裝示意" width="1774" height="887" loading="lazy">
         </figure>`;
       const choose = () => {
         if (selectedId !== id) {
@@ -145,6 +164,7 @@ async function init() {
           try { localStorage.removeItem('cineman.confirmedCinema'); } catch { /* Storage may be unavailable. */ }
         }
         selectedId = id;
+        prepareGame(id);
         try { localStorage.setItem('cineman.selectedCinema', id); } catch { /* Keep the in-memory selection. */ }
         container.querySelectorAll('.cinema-card').forEach(other => {
           const active = other.dataset.cinemaId === id;
