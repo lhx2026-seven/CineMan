@@ -345,3 +345,25 @@ input::placeholder { font-size:12px; }
   .next-week-area .gold-button { min-height:44px; padding:10px 17px; font-size:13px; }
   .next-week-area .gold-button > span { margin-left:10px; }
 }
+
+/* A persistent weekly ledger sits above the three configuration tabs. */
+.financial-report { margin:10px 0; border-radius:6px; background:#100e0bbf; }
+.financial-report .section-heading { border-bottom:1px solid #a1875359; padding-bottom:10px; margin-bottom:0; }
+.ledger-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:12px; font-variant-numeric:tabular-nums; }
+.ledger-table th, .ledger-table td { padding:6px 10px; border-bottom:1px solid #ffffff0a; }
+.ledger-table th:first-child { width:54%; text-align:left; }
+.ledger-table th { font-weight:400; color:#b8ac96; }
+.ledger-table td, .ledger-table thead th:not(:first-child) { text-align:right; }
+.ledger-table td { font-family:ui-monospace,monospace; color:#dfc48e; }
+.ledger-table thead { background:#b9934a0b; }
+.ledger-table thead th { color:#bda67b; font-size:11px; }
+.ledger-table .not-applicable { color:#514a3d; }
+.ledger-table .expense-start > * { border-top:1px solid #a1875340; }
+.ledger-table tfoot > tr > * { border-top:1px solid #a1875366; border-bottom:3px double #a187534f; padding-top:8px; padding-bottom:8px; color:#e5ce9f; }
+.ledger-balance { display:flex; align-items:center; gap:12px; padding:11px 10px 3px; color:#e8d2ac; font-size:13px; }
+.ledger-balance strong { margin-left:auto; font:20px ui-monospace,monospace; color:#ffd47c; }
+.ledger-balance .pending-tag { font-size:10px; padding:3px 7px; }
+.financial-report .report-note { margin:8px 10px 0; font-size:10px; }
+.management-tabs { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.gold-button:disabled, .gold-button:disabled:hover { background:#302d28; border-color:#655d4f; color:#a59b8b; opacity:.75; box-shadow:none; cursor:not-allowed; }
+@media(max-width:760px) { .financial-report { padding:12px; margin:8px 0; } .ledger-table th, .ledger-table td { padding:6px 7px; } .ledger-balance { padding-left:7px; padding-right:7px; } .financial-report .report-note { margin-left:7px; margin-right:7px; } }

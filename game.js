@@ -79,6 +79,8 @@ function initGame() {
       form.elements[`${item}Enabled`].setAttribute('aria-expanded', String(enabled));
     }
     const featured = form.querySelector('input[name="featuredFilm"]:checked');
+    document.querySelector('#next-week').disabled = !featured;
+    document.querySelector('#next-week-hint').textContent = featured ? '本週選片已完成' : '請先至「選片」設定本週主打片';
     const share = document.querySelector('#featured-share');
     share.disabled = !featured;
     document.querySelector('#share-output').textContent = featured ? `${share.value}%` : '—';
@@ -111,6 +113,7 @@ function initGame() {
   form.addEventListener('change', () => { updateControls(); saveDraft(); });
   updateControls();
   document.querySelector('#next-week').addEventListener('click', () => {
+    if (!form.querySelector('input[name="featuredFilm"]:checked')) return;
     saveDraft();
     document.querySelector('#dialog-save-status').textContent = saved ? '你的配置已保留，可以繼續調整。' : '目前配置僅保留在本頁，請勿關閉頁面。';
     document.querySelector('#week-dialog').showModal();

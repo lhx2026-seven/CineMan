@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=compact-dashboard-v3">
-<script src="game.js?v=compact-dashboard-v3" defer></script>
+<link rel="stylesheet" href="game.css?v=report-gate-v4">
+<script src="game.js?v=report-gate-v4" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -18,12 +18,30 @@
     <div class="hero-shade"></div>
     <div class="hero-caption"><div><p class="overline">你的電影院</p><h2 id="cinema-name"></h2><p id="cinema-type"></p></div></div>
   </section>
+  <section class="panel finance-panel financial-report" id="financial-report" aria-labelledby="finance-title">
+    <div class="section-heading"><h2 id="finance-title">財務報表</h2><span class="section-note">第 01 週 · NT$</span></div>
+    <table class="ledger-table">
+      <caption class="sr-only">第 01 週收支報表，結算規則尚未設定，金額均待結算</caption>
+      <thead><tr><th scope="col">項目</th><th scope="col">收入</th><th scope="col">支出</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">電影票房</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
+        <tr><th scope="row">餐飲收入</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
+        <tr><th scope="row">獨家商品收入</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
+        <tr class="expense-start"><th scope="row">租金</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
+        <tr><th scope="row">硬體維護</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
+        <tr><th scope="row">人力</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
+        <tr><th scope="row">稅</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
+      </tbody>
+      <tfoot><tr><th scope="row">本週合計</th><td>—</td><td>—</td></tr></tfoot>
+    </table>
+    <div class="ledger-balance"><span>本週損益</span><strong>—</strong><span class="pending-tag">尚未結算</span></div>
+    <p class="report-note">「—」待結算；「·」不適用。結算規則尚未設定。</p>
+  </section>
   <div class="workspace-bar"><a href="index.html" class="back-link">‹ 返回戲院選擇</a><div class="workspace-meta"><span class="week-badge">第 01 週</span><span class="preview-badge">介面預覽</span></div></div>
   <div class="management-tabs" role="tablist" aria-label="營運配置">
     <button type="button" role="tab" id="tab-budget" aria-controls="panel-budget" aria-selected="true" tabindex="0">預算配置</button>
     <button type="button" role="tab" id="tab-pricing" aria-controls="panel-pricing" aria-selected="false" tabindex="-1">定價</button>
     <button type="button" role="tab" id="tab-films" aria-controls="panel-films" aria-selected="false" tabindex="-1">選片</button>
-    <button type="button" role="tab" id="tab-finance" aria-controls="panel-finance" aria-selected="false" tabindex="-1">財務報表</button>
   </div>
   <form id="management-form" autocomplete="off">
     <section class="panel" id="panel-budget" role="tabpanel" aria-labelledby="tab-budget" tabindex="0">
@@ -67,12 +85,9 @@
       <div class="old-films-heading"><h3>持續上映</h3><span class="muted">既定片單 · 不可調整</span></div>
       <div class="old-films"><article class="old-film"><span class="mini-poster" aria-hidden="true">01</span><div><h4>舊片 01</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article><article class="old-film"><span class="mini-poster" aria-hidden="true">02</span><div><h4>舊片 02</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article><article class="old-film"><span class="mini-poster" aria-hidden="true">03</span><div><h4>舊片 03</h4><p>片名與電影資訊待補</p></div><span class="locked-label">固定</span></article></div>
     </section>
-    <section class="panel finance-panel" id="panel-finance" role="tabpanel" aria-labelledby="tab-finance" tabindex="0" hidden><div class="section-heading"><div><p class="overline">THE WEEK IN NUMBERS</p><h2 id="finance-title">財務報表</h2></div><span class="pending-tag">尚未結算</span></div>
-      <div class="finance-summary"><div><span>本週收入</span><strong>—</strong><small>NT$</small></div><div><span>本週支出</span><strong>—</strong><small>NT$</small></div><div><span>本週損益</span><strong>—</strong><small>NT$</small></div></div>
-      <dl class="report-lines"><div><dt>電影票房</dt><dd>待設定</dd></div><div><dt>餐飲收入</dt><dd>待設定</dd></div><div><dt>獨家商品收入</dt><dd>待設定</dd></div><div><dt>營運支出</dt><dd>待設定</dd></div></dl><p class="report-note">營收與損益將在結算規則設定後顯示。</p>
-    </section>
+
   </form>
-  <section class="counter-scene" aria-label="電影院售票櫃台"><img id="cinema-counter" width="1774" height="887" alt="" loading="lazy"><div class="counter-shade"></div><div class="next-week-area"><span class="overline">下一場好戲，等你開場。</span><button type="button" id="next-week" class="gold-button">下一週 <span aria-hidden="true">→</span></button></div></section>
+  <section class="counter-scene" aria-label="電影院售票櫃台"><img id="cinema-counter" width="1774" height="887" alt="" loading="lazy"><div class="counter-shade"></div><div class="next-week-area"><span class="overline" id="next-week-hint" aria-live="polite">請先至「選片」設定本週主打片</span><button type="button" id="next-week" class="gold-button" aria-describedby="next-week-hint" disabled>下一週 <span aria-hidden="true">→</span></button></div></section>
   <p id="draft-status" class="draft-status" role="status"></p>
 </main>
 <dialog id="week-dialog"><form method="dialog"><p class="overline">CineMan</p><h2>下一週，敬請期待</h2><p>目前先開放本週配置預覽，週結算尚未開放。</p><p id="dialog-save-status"></p><button class="gold-button" value="close">繼續調整</button></form></dialog>

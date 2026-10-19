@@ -32,7 +32,7 @@ confirmButton.addEventListener('click', () => {
   confirmedId = selectedId;
   try { localStorage.setItem('cineman.confirmedCinema', confirmedId); } catch { /* The URL also carries the selected cinema. */ }
   confirmButton.disabled = true;
-  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=compact-dashboard-v3`;
+  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=report-gate-v4`;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     location.assign(destination);
     return;
