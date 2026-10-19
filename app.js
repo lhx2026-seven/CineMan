@@ -134,7 +134,7 @@ async function init() {
           other.classList.toggle('selected', active);
           const button = other.querySelector('.select-button');
           button.setAttribute('aria-pressed', String(active));
-          button.textContent = `${active ? '已選擇' : '選擇'}${other.querySelector('h2').textContent}`;
+          button.textContent = `${active ? '選擇' : '選擇'}${other.querySelector('h2').textContent}`;
         });
         centerIndex = stageOrder.indexOf(id);
         selection.hidden = false;
