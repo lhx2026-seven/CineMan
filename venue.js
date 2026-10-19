@@ -17,12 +17,12 @@
       const label = screen.name.replace(/\s*\([^)]*\)$/, '');
       extras.set(label, (extras.get(label) || 0) + 1);
     }
-    document.querySelector('#venue-extra-count').textContent = allocation.counts.EXTRA;
-    document.querySelector('#venue-extra-names').textContent = extras.size ? Array.from(extras, ([name,n]) => `${name} × ${n}`).join('、') : '無特殊廳';
+    document.querySelector('#venue-extra-names').textContent = extras.size ? `含 ${allocation.counts.EXTRA} 個特殊廳：${Array.from(extras, ([name,n]) => `${name}廳 × ${n}`).join('、')}` : '無特殊廳';
     document.querySelector('#venue-details-title').textContent = `影廳明細（${allocation.screenCount} 廳）`;
     const rows = allocation.screens.map((screen,index) => {
       const tr = document.createElement('tr');
-      for (const value of [`${index+1} 廳`, screen.type === 'EXTRA' ? screen.name.replace(/\s*\([^)]*\)$/, '') : `${screen.type} 級一般廳`, screen.size.toLocaleString('zh-TW')]) {
+      const label = screen.type === 'EXTRA' ? `${index+1}廳（${screen.name.replace(/\s*\([^)]*\)$/, '')}廳）` : `${index+1}廳`;
+      for (const value of [label, screen.size.toLocaleString('zh-TW')]) {
         const cell = document.createElement('td'); cell.textContent = value; tr.append(cell);
       }
       return tr;
