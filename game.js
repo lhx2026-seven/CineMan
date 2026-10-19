@@ -281,7 +281,14 @@ function initGame() {
   window.addEventListener('pagehide',()=>saveDraft());
   document.querySelector('.logo a').addEventListener('click',async event=>{
     if(event.button!==0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)return;
-    const destination=event.currentTarget.href;event.preventDefault();await saveDraft();location.assign(destination);
+    const destination=event.currentTarget.href;event.preventDefault();
+    // A blocked storage transaction must never trap the player on this page.
+    let navigationTimeout;
+    try {
+      await Promise.race([saveDraft(),new Promise(resolve=>{navigationTimeout=setTimeout(resolve,1200);})]);
+    } finally {
+      clearTimeout(navigationTimeout);location.assign(destination);
+    }
   });
   document.querySelector('#next-week').addEventListener('click', async () => {
     if (!venueReady || !form.querySelector('input[name="featuredFilm"]:checked')) return;
