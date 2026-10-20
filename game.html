@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=second-run-v28">
+<link rel="stylesheet" href="game.css?v=box-office-v34">
 <script src="autosave.js?v=autosave-v31" defer></script>
 <script src="assignment-rules.js?v=autosave-v23" defer></script>
 <script src="data/cinemas.js?v=entry-v31" defer></script>
@@ -141,17 +141,17 @@
       <h3 class="subheading">本週新片</h3>
       <div class="film-carousel" id="film-carousel" role="region" aria-roledescription="旋轉木馬" aria-label="本週新片" tabindex="0">
         <div class="film-orbit">
-          <article class="film-option" data-film-value="new-01"><input type="radio" name="featuredFilm" value="new-01" hidden><div class="film-poster film-poster-1" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54M7 16h7m-7 11h7M7 38h7M7 49h7M34 16h7M34 27h7M34 38h7M34 49h7"/></svg></div><div class="film-info"><h4>新片 01</h4><button class="film-select" type="button" aria-pressed="false">選為主打片</button></div></article>
-          <article class="film-option" data-film-value="new-02"><input type="radio" name="featuredFilm" value="new-02" hidden><div class="film-poster film-poster-2" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54M7 16h7m-7 11h7M7 38h7M7 49h7M34 16h7M34 27h7M34 38h7M34 49h7"/></svg></div><div class="film-info"><h4>新片 02</h4><button class="film-select" type="button" aria-pressed="false">選為主打片</button></div></article>
+          <article class="film-option" data-film-value="new-01"><input type="radio" name="featuredFilm" value="new-01" hidden><div class="film-poster film-poster-1" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54M7 16h7m-7 11h7M7 38h7M7 49h7M34 16h7M34 27h7M34 38h7M34 49h7"/></svg></div><div class="film-info"><h4>新片 01</h4><p class="film-box-office"><span>本院累計票房</span><span>NT$ <output data-box-office="new-01" aria-label="新片 01本院累計票房，尚未結算">—</output></span></p><button class="film-select" type="button" aria-pressed="false">選為主打片</button></div></article>
+          <article class="film-option" data-film-value="new-02"><input type="radio" name="featuredFilm" value="new-02" hidden><div class="film-poster film-poster-2" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54M7 16h7m-7 11h7M7 38h7M7 49h7M34 16h7M34 27h7M34 38h7M34 49h7"/></svg></div><div class="film-info"><h4>新片 02</h4><p class="film-box-office"><span>本院累計票房</span><span>NT$ <output data-box-office="new-02" aria-label="新片 02本院累計票房，尚未結算">—</output></span></p><button class="film-select" type="button" aria-pressed="false">選為主打片</button></div></article>
         </div>
         <div class="film-carousel-controls"><button type="button" id="previous-film" aria-label="上一部新片">‹</button><span id="film-position" aria-live="polite">1 / 2</span><button type="button" id="next-film" aria-label="下一部新片">›</button></div>
       </div>
       <div class="showtime-control" id="featured-settings" hidden><div><label for="featured-share" id="featured-heading">場次占比</label><p id="share-hint" class="sr-only">調整本週主打電影的場次占比。</p></div><output id="share-output" for="featured-share">—</output><input type="range" id="featured-share" name="featuredSlots" min="0" max="1" step="1" value="0" aria-describedby="share-hint" disabled><div class="range-labels"><span>0%</span><span>100%</span></div></div>
       <div class="old-films-heading"><h3>同步上映中</h3></div>
       <div class="old-films">
-        <article class="old-film" data-movie-id="MV0001"><div class="old-film-poster old-film-poster-1" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>魔猴</h4></article>
-        <article class="old-film" data-movie-id="MV0002"><div class="old-film-poster old-film-poster-2" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>恐怖速食店</h4></article>
-        <article class="old-film" data-movie-id="MV0003"><div class="old-film-poster old-film-poster-3" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>酆都</h4></article>
+        <article class="old-film" data-movie-id="MV0001"><div class="old-film-poster old-film-poster-1" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>魔猴</h4><p class="film-box-office"><span>本院累計票房</span><span>NT$ <output data-box-office="MV0001" aria-label="魔猴本院累計票房，尚未結算">—</output></span></p></article>
+        <article class="old-film" data-movie-id="MV0002"><div class="old-film-poster old-film-poster-2" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>恐怖速食店</h4><p class="film-box-office"><span>本院累計票房</span><span>NT$ <output data-box-office="MV0002" aria-label="恐怖速食店本院累計票房，尚未結算">—</output></span></p></article>
+        <article class="old-film" data-movie-id="MV0003"><div class="old-film-poster old-film-poster-3" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>酆都</h4><p class="film-box-office"><span>本院累計票房</span><span>NT$ <output data-box-office="MV0003" aria-label="酆都本院累計票房，尚未結算">—</output></span></p></article>
       </div>
       <fieldset class="special-screenings"><legend>特別場</legend>
         <input type="hidden" name="specialCount" value="1">
