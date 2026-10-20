@@ -605,3 +605,12 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 
 .hero-caption #property-summary { display:flex; align-items:center; gap:5px; }
 .location-icon { width:14px; height:14px; flex:none; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+
+/* Keep ticket currencies and amounts together within equally sized ticket cells. */
+#standard-ticket-pricing .ticket-amount { justify-content:flex-start; gap:3px; }
+#standard-ticket-pricing .ticket-amount .amount-value { margin-left:0; text-align:left; }
+#standard-ticket-pricing .input-wrap:not(.amount-slider) { justify-content:flex-start; gap:3px; }
+#standard-ticket-pricing .input-wrap input[readonly] { flex:0 0 5ch; width:5ch; min-width:0; text-align:left; }
+#second-run-pricing .amount-slider, #special-ticket-fields .amount-slider { grid-template-columns:max-content minmax(0,1fr); gap:0 3px; }
+#second-run-pricing .amount-value, #special-ticket-fields .amount-value { text-align:left; }
+#standard-ticket-pricing .field { row-gap:4px; }
