@@ -599,6 +599,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 @media(max-width:380px) { .featured-summary #featured-heading { font-size:12px; } .featured-summary #share-output { font-size:16px; } }
 
 .hero-caption #property-summary { margin:5px 0 0; color:#bda67b; font-size:11px; }
-.activation-field .budget-label { font-size:12px; }
+.activation-field .budget-label { font-size:12px; grid-column:1/-1; }
+.activation-field > .input-wrap { grid-column:1/-1; }
 .activation-field .budget-icon { width:16px; height:16px; }
 .activation-kind { grid-column:1/-1; color:#a99d86; font-size:10px; margin:-4px 0 5px; }

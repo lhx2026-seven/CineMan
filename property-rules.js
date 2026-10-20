@@ -1,11 +1,11 @@
 'use strict';
 (function(root) {
   const ACTIVITIES=Object.freeze({
-    mall:{name:'商場櫃位租金',unit:'每月租金',min:20000,max:100000,step:5000},
-    claw:{name:'娃娃機台租金',unit:'每月租金',min:10000,max:100000,step:2000},
-    parking:{name:'停車場收費',unit:'每小時收費',min:10,max:100,step:5},
-    billboard:{name:'電子看板廣告費',unit:'每秒收費',min:0.5,max:3,step:0.5},
-    hotel:{name:'旅社房間收費',unit:'每晚收費',min:500,max:10000,step:500}
+    mall:{name:'商場櫃位租金',unit:'單位/月',min:20000,max:100000,step:5000},
+    claw:{name:'娃娃機台租金',unit:'單位/月',min:10000,max:100000,step:2000},
+    parking:{name:'停車場收費',unit:'單位/小時',min:10,max:100,step:5},
+    billboard:{name:'電子看板廣告費',unit:'單位/秒',min:0.5,max:3,step:0.5},
+    hotel:{name:'電影院主題旅社收費',unit:'單位/夜',min:500,max:10000,step:500}
   });
   const COMMON=['mall','claw','parking','billboard'];
   const hotelEligible=id=>['C01','C02'].includes(id);
