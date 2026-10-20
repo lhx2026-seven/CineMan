@@ -81,7 +81,7 @@ function initGame() {
       console.error('Venue allocation failed:', error);
     }
   }
-  venueRetry.addEventListener('click', () => bootFailed ? bootstrap() : loadVenue());
+  venueRetry.addEventListener('click', () => bootFailed ? startGame() : loadVenue());
 
   document.title = `CineMan｜${cinema.name}・本週營運配置`;
   document.documentElement.style.setProperty('--accent', cinema.color);
@@ -217,7 +217,7 @@ function initGame() {
     try {
       const [settings,record] = freshEntry ? [{enabled:null},null] : await Promise.all([
         CinemaSave.getSettings(),
-        CinemaSave.getByRun(runId).catch(error=>{if(runUrl.searchParams.get('resume')==='1')throw error;return null;})
+        CinemaSave.getByRun(runId)
       ]);
       checkpoint = record?.cinemaID === id && record.runId === runId ? record : null;
       if (runUrl.searchParams.get('resume') === '1' && !checkpoint) throw Error('找不到這一局的存檔');
@@ -264,12 +264,12 @@ function initGame() {
       draftStatus.textContent=settings.enabled===false?'自動存檔 OFF':'';
     } catch(error) {
       storeAvailable=false;
-      if(runUrl.searchParams.get('resume')==='1' || checkpoint) {
+      if(!freshEntry || checkpoint) {
         bootFailed=true;venueRetry.hidden=false;
         document.querySelector('#venue-loading').hidden=false;
         document.querySelector('#venue-loading').textContent='無法讀取存檔，請重試或返回首頁。';
         draftStatus.textContent='存檔尚未讀取，沒有重新分派場地。';
-        form.inert=false;return;
+        form.inert=true;return;
       }
       if(!property){property=CinemaProperty.draw(CinemaDatabase,id,runId);renderProperty();}
       draftStatus.textContent='自動存檔暫時無法使用，本次設定尚未保存。';
@@ -328,8 +328,7 @@ function initGame() {
   form.addEventListener('submit', event => event.preventDefault());
   form.addEventListener('input', () => { updateControls(); saveDraft(); });
   form.addEventListener('change', () => { updateControls(); saveDraft(); });
-  updateControls();
-  const ready=bootstrap();
+  startGame();
   const homePrefetch=document.createElement('link');homePrefetch.rel='prefetch';homePrefetch.as='document';homePrefetch.href=document.querySelector('.logo a').href;document.head.append(homePrefetch);
   for (const list of [tabList,reportTabList]) {
     list.addEventListener('click',()=>saveDraft());
@@ -350,9 +349,20 @@ function initGame() {
     document.querySelector('#dialog-save-status').textContent = saved ? '你的配置已保留，可以繼續調整。' : '目前配置僅保留在本頁，請勿關閉頁面。';
     document.querySelector('#week-dialog').showModal();
   });
-  const reveal = () => {
-    document.body.classList.add('reveal');
-    setTimeout(() => document.body.classList.remove('page-entering', 'reveal'), matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 500);
-  };
-  ready.then(reveal);
+  async function startGame() {
+    try {
+      await bootstrap();
+    } catch(error) {
+      bootFailed=true;restoring=true;venueReady=false;form.inert=true;
+      venueRetry.hidden=false;
+      const message=document.querySelector('#venue-loading');
+      message.hidden=false;message.textContent='遊戲資料暫時無法載入，請重試或點選 CineMan 返回首頁。';
+      draftStatus.textContent='本次載入失敗，既有存檔未變更。';
+      console.error('Game initialization failed:',error);
+    } finally {
+      // Errors must never leave the retry control trapped behind the curtains.
+      document.body.classList.add('reveal');
+      setTimeout(() => document.body.classList.remove('page-entering', 'reveal'), matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 500);
+    }
+  }
 }

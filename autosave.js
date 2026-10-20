@@ -28,7 +28,9 @@
   async function read(store,key) {
     const db=await open();return new Promise((resolve,reject)=>{
       const tx=db.transaction(store,'readonly'),request=tx.objectStore(store).get(key);
-      tx.oncomplete=()=>resolve(request.result);tx.onabort=tx.onerror=()=>reject(tx.error||Error('讀取存檔失敗'));
+      const timeout=setTimeout(()=>{reject(Error('讀取存檔逾時'));try{tx.abort();}catch{}},4000);
+      tx.oncomplete=()=>{clearTimeout(timeout);resolve(request.result);};
+      tx.onabort=tx.onerror=()=>{clearTimeout(timeout);reject(tx.error||Error('讀取存檔失敗'));};
     });
   }
   function valid(record) {
