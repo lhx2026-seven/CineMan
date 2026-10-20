@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=tickets-v25">
+<link rel="stylesheet" href="game.css?v=special-v26">
 <script src="autosave.js?v=autosave-v23" defer></script>
 <script src="assignment-rules.js?v=autosave-v23" defer></script>
 <script src="venue.js?v=autosave-v23" defer></script>
 <script src="weekly-events.js?v=autosave-v23" defer></script>
-<script src="films.js?v=autosave-v23" defer></script>
-<script src="game.js?v=home-link-v24" defer></script>
+<script src="films.js?v=special-v26" defer></script>
+<script src="game.js?v=special-v26" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -147,10 +147,28 @@
         <article class="old-film" data-movie-id="MV0003"><div class="old-film-poster old-film-poster-3" aria-hidden="true"><svg viewBox="0 0 48 64"><rect x="7" y="5" width="34" height="54" rx="2"/><path d="M14 5v54M34 5v54"/></svg></div><h4>酆都</h4></article>
       </div>
       <fieldset class="special-screenings"><legend>特別場</legend>
+        <input type="hidden" name="specialCount" value="1">
         <div class="special-screening">
-          <label class="special-film-picker"><span class="sr-only">特別場電影</span><select name="specialMovie" aria-controls="special-price"><option value="">選擇電影</option><option value="new-01">新片 01</option><option value="new-02">新片 02</option><option value="MV0001">魔猴</option><option value="MV0002">恐怖速食店</option><option value="MV0003">酆都</option></select></label>
-          <label class="special-film-price" id="special-price" hidden><span>票價（單一票種）</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label>
+          <label class="special-film-picker"><span class="sr-only">第1場電影</span><select name="specialMovie" aria-controls="special-price"><option value="">選擇電影</option><option value="new-01">新片 01</option><option value="new-02">新片 02</option><option value="MV0001">魔猴</option><option value="MV0002">恐怖速食店</option><option value="MV0003">酆都</option></select></label>
+          <label class="special-film-price" id="special-price" hidden><span>第1場票價（單一票種）</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label>
         </div>
+        <div class="special-screening" hidden>
+          <label class="special-film-picker"><span class="sr-only">第2場電影</span><select name="specialMovie2" aria-controls="special-price-2"><option value="">選擇電影</option><option value="new-01">新片 01</option><option value="new-02">新片 02</option><option value="MV0001">魔猴</option><option value="MV0002">恐怖速食店</option><option value="MV0003">酆都</option></select></label>
+          <label class="special-film-price" id="special-price-2" hidden><span>第2場票價（單一票種）</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice2" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label>
+        </div>
+        <div class="special-screening" hidden>
+          <label class="special-film-picker"><span class="sr-only">第3場電影</span><select name="specialMovie3" aria-controls="special-price-3"><option value="">選擇電影</option><option value="new-01">新片 01</option><option value="new-02">新片 02</option><option value="MV0001">魔猴</option><option value="MV0002">恐怖速食店</option><option value="MV0003">酆都</option></select></label>
+          <label class="special-film-price" id="special-price-3" hidden><span>第3場票價（單一票種）</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice3" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label>
+        </div>
+        <div class="special-screening" hidden>
+          <label class="special-film-picker"><span class="sr-only">第4場電影</span><select name="specialMovie4" aria-controls="special-price-4"><option value="">選擇電影</option><option value="new-01">新片 01</option><option value="new-02">新片 02</option><option value="MV0001">魔猴</option><option value="MV0002">恐怖速食店</option><option value="MV0003">酆都</option></select></label>
+          <label class="special-film-price" id="special-price-4" hidden><span>第4場票價（單一票種）</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice4" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label>
+        </div>
+        <div class="special-screening" hidden>
+          <label class="special-film-picker"><span class="sr-only">第5場電影</span><select name="specialMovie5" aria-controls="special-price-5"><option value="">選擇電影</option><option value="new-01">新片 01</option><option value="new-02">新片 02</option><option value="MV0001">魔猴</option><option value="MV0002">恐怖速食店</option><option value="MV0003">酆都</option></select></label>
+          <label class="special-film-price" id="special-price-5" hidden><span>第5場票價（單一票種）</span><span class="input-wrap"><span>NT$</span><input type="number" name="specialPrice5" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label>
+        </div>
+        <button type="button" id="add-special-screening" hidden>加一場</button>
       </fieldset>
     </section>
 

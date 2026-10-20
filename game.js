@@ -40,6 +40,7 @@ function initGame() {
       CinemaVenue.render(allocation);
       renderSpecialPricing(allocation);
       venueScreenCount = allocation.screenCount;
+      films.setVenue(venueScreenCount,gameDate.week);
       const share = document.querySelector('#featured-share');
       const capacity = CinemaFilms.screeningCapacity(venueScreenCount);
       let slots = capacity / 2;

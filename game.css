@@ -509,7 +509,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 #panel-films .old-film .old-film-poster-2 { background:linear-gradient(145deg,#34232360,#0b0907); }
 #panel-films .old-film .old-film-poster-3 { background:linear-gradient(145deg,#26342d50,#0b0907); }
 #panel-films .old-film h4 { font-size:12px; text-align:center; margin:0; }
-.special-screenings { margin-top:18px; border-top:1px solid var(--line); padding-top:12px; }
+.special-screenings { margin-top:18px; border:0; padding-top:12px; }
 .special-screenings > legend { color:#cbbb9e; font-size:13px; padding:12px 0 0; }
 .special-screening { display:grid; grid-template-columns:minmax(0,1fr) 150px; align-items:end; gap:12px; min-height:48px; }
 @keyframes film-float { 50% { translate:0 -4px; } }
@@ -538,3 +538,6 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
   .standard-ticket-grid input[type="number"] { appearance:textfield; -moz-appearance:textfield; font-size:12px; }
   .standard-ticket-grid input::-webkit-inner-spin-button, .standard-ticket-grid input::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
 }
+
+.special-screening + .special-screening { margin-top:10px; }
+#add-special-screening { margin-top:10px; padding:5px 10px; border:1px solid var(--line); border-radius:5px; background:transparent; color:#cbbb9e; font:inherit; font-size:12px; cursor:pointer; }

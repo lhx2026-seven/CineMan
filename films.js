@@ -46,6 +46,15 @@
     const previous = document.querySelector('#previous-film'), next = document.querySelector('#next-film');
     const midpoint = (cards.length - 1) / 2;
     let center = midpoint, pointer = null, swiped = false;
+    const specialRows=[...form.querySelectorAll('.special-screening')];
+    const add=document.querySelector('#add-special-screening');
+    add.addEventListener('click',()=>{
+      const count=Number(form.elements.specialCount.value);
+      if(count>=5 || !specialRows[count-1].querySelector('select').value)return;
+      form.elements.specialCount.value=String(count+1);update();
+      specialRows[count].querySelector('select').focus();
+      form.elements.specialCount.dispatchEvent(new Event('change',{bubbles:true}));
+    });
     function update() {
       carousel.classList.toggle('is-overview', center === midpoint);
       cards.forEach((card,index)=>{
@@ -61,9 +70,16 @@
       });
       previous.disabled = center === 0;next.disabled = center === cards.length-1;
       document.querySelector('#film-position').textContent = center === midpoint ? '2 部新片' : `${center+1} / ${cards.length}`;
-      const selectedMovie = form.elements.specialMovie.value;
-      document.querySelector('#special-price').hidden = !selectedMovie;
-      form.elements.specialPrice.disabled = !selectedMovie;
+      let count=Math.max(1,Math.min(5,Number(form.elements.specialCount.value)||1));
+      specialRows.forEach((row,index)=>{if(row.querySelector('select').value)count=Math.max(count,index+1);});
+      form.elements.specialCount.value=String(count);
+      specialRows.forEach((row,index)=>{
+        row.hidden=index>=count;
+        const selected=!!row.querySelector('select').value;
+        row.querySelector('.special-film-price').hidden=!selected;
+        row.querySelector('input').disabled=!selected;
+      });
+      add.hidden=count>=5 || !specialRows[count-1].querySelector('select').value;
     }
     function browse(index) { center = Math.max(0,Math.min(cards.length-1,index));update(); }
     previous.addEventListener('click',()=>browse(center-1));next.addEventListener('click',()=>browse(center+1));
@@ -88,7 +104,16 @@
       if(!pointer)return;const dx=event.clientX-pointer.x,dy=event.clientY-pointer.y;pointer=null;
       if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3){swiped=true;browse(center+(dx<0?1:-1));setTimeout(()=>{swiped=false;},0);}
     });
-    return {update,restoreView(){const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?midpoint:selected);},
+    return {update,setVenue(screenCount,week){
+      const exclude=screenCount===1 && week===1;
+      document.querySelector('.old-films-heading').hidden=exclude;
+      document.querySelector('.old-films').hidden=exclude;
+      specialRows.forEach(row=>{
+        const select=row.querySelector('select');
+        [...select.options].forEach(option=>{if(OLD_FILMS.some(movie=>movie.id===canonicalId(option.value))){option.hidden=exclude;option.disabled=exclude;if(exclude&&option.selected)select.value='';}});
+      });
+      update();
+    },restoreView(){const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?midpoint:selected);},
       titleFor(value){return cards.find(card=>card.dataset.filmValue===value)?.querySelector('h4').textContent||'';}};
   }
   root.CinemaFilms = {OLD_FILMS,pickNewMovies,screeningCapacity,sharePercentage,retirementPool,drawRetirements,init};
