@@ -75,7 +75,7 @@
         form.elements.specialCount.value='0';
         specialRows.forEach(row=>{
           row.querySelector('select').value='';
-          const price=row.querySelector('input');price.value='';price.disabled=true;
+          const price=row.querySelector('input');price.value=price.type==='range'?price.min:'';price.disabled=true;
         });
         add.hidden=true;
         return;

@@ -273,6 +273,23 @@
     const rule=forControl(input.name,cinemaID);if(!rule)return;
     for(const key of ['min','max','step'])input[key]=String(rule[key]);
   }
+  function makeSlider(input) {
+    if(!input.parentElement || !input.min || !input.max)return;
+    const value=input.value || input.min;
+    input.type='range';input.classList.add('amount-range');input.value=value;
+    const wrap=input.parentElement;wrap.classList.add('amount-slider');
+    const output=document.createElement('output');output.className='amount-value';
+    input.id ||= `amount-${input.name}`;output.htmlFor=input.id;
+    const label=input.closest('label');if(label)label.htmlFor=input.id;
+    wrap.insertBefore(output,input);
+    syncSlider(input);
+  }
+  function syncSlider(input) {
+    const value=Number(input.value).toLocaleString('zh-TW');
+    input.parentElement.querySelector('.amount-value').textContent=value;
+    input.setAttribute('aria-valuetext',`NT$ ${value}`);
+  }
+  function syncSliders(form) { form.querySelectorAll('.amount-range').forEach(syncSlider); }
   const DERIVED_TICKETS=Object.freeze(['ticketDiscount','ticketMorning','ticketAccessible']);
   function isDerived(name) { return DERIVED_TICKETS.includes(name); }
   function apply(form,cinemaID) {
@@ -280,7 +297,7 @@
       applyTo(input,cinemaID);
       if(isDerived(input.name)) {
         input.readOnly=true;input.value='';input.title='依全票票價計算';
-      }
+      } else if(forControl(input.name,cinemaID))makeSlider(input);
     }
   }
   function derive(fullPrice) {
@@ -295,6 +312,6 @@
       input.value=prices && !input.matches(':disabled') ? String(prices[name]) : '';
     }
   }
-  const api={DATA,forControl,applyTo,apply,DERIVED_TICKETS,isDerived,derive,updateDerived};
+  const api={DATA,forControl,applyTo,apply,DERIVED_TICKETS,isDerived,derive,updateDerived,makeSlider,syncSliders};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaParameters=api;
 })(globalThis);

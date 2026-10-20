@@ -552,3 +552,10 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .film-carousel { height:366px; }
 .film-orbit { height:321px; }
 @media(max-width:760px) { .film-carousel { height:328px; } .film-orbit { height:283px; } }
+
+/* Monetary settings: visible amount above a bounded slider, no text entry. */
+.input-wrap.amount-slider { display:grid; grid-template-columns:auto minmax(0,1fr); gap:0 5px; padding:5px 8px 2px; }
+.amount-slider .amount-value { min-width:0; color:#f4dfb9; font-size:12px; line-height:1.5; text-align:right; font-variant-numeric:tabular-nums; }
+.input-wrap.amount-slider input.amount-range { grid-column:1/-1; width:100%; min-width:0; min-height:24px; margin:0; padding:0; accent-color:var(--gold); cursor:pointer; }
+.amount-slider:has(input:disabled) { opacity:.6; }
+@media(max-width:760px) { .input-wrap.amount-slider input.amount-range { min-height:28px; } .standard-ticket-grid .amount-slider { padding:4px 4px 0; gap:0 2px; } .standard-ticket-grid .amount-value { font-size:11px; } }

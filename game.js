@@ -154,7 +154,7 @@ function initGame() {
       input.min = '0'; input.step = '1'; input.placeholder = '—'; input.inputMode = 'numeric';
       CinemaParameters.applyTo(input,id);
       if (typeof restoredDraft?.[input.name] === 'string') input.value = restoredDraft[input.name];
-      wrap.append(currency, input); label.append(title, wrap); return label;
+      wrap.append(currency, input);CinemaParameters.makeSlider(input); label.append(title, wrap);label.htmlFor=input.id; return label;
     });
     document.querySelector('#special-ticket-fields').replaceChildren(...fields);
     document.querySelector('#special-ticket-group').hidden = !formats.length;
@@ -223,7 +223,7 @@ function initGame() {
           if (!control.name || CinemaParameters.isDerived(control.name) || !Object.hasOwn(restoredDraft,control.name)) continue;
           if (control.type==='checkbox') control.checked=restoredDraft[control.name]===true;
           else if(control.type==='radio')control.checked=control.value===restoredDraft[control.name];
-          else if(typeof restoredDraft[control.name]==='string')control.value=restoredDraft[control.name];
+          else if(typeof restoredDraft[control.name]==='string')control.value=control.classList.contains('amount-range') && restoredDraft[control.name]==='' ? control.min : restoredDraft[control.name];
         }
       }
       setBudgetLocks(checkpoint?.budgetLocks || {});
@@ -252,6 +252,7 @@ function initGame() {
 
   function updateControls() {
     CinemaParameters.updateDerived(form);
+    CinemaParameters.syncSliders(form);
     for (const item of ['poster', 'figure']) {
       const enabled = form.elements[`${item}Enabled`].checked;
       const settings = document.querySelector(`#${item}-settings`);
