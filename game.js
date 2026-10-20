@@ -141,7 +141,7 @@ function initGame() {
     if(property.hasSpace){
       const activity=CinemaProperty.ACTIVITIES[property.activationType];
       document.querySelector('#activation-name').textContent=activity.name;
-      document.querySelector('#activation-kind').textContent=`（${activity.unit}）`;
+      input.dataset.amountUnit=activity.unit;
       for(const key of ['min','max','step'])input[key]=String(activity[key]);
       input.value=input.min;
       if(!input.classList.contains('amount-range'))CinemaParameters.makeSlider(input);

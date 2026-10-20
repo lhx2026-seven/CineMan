@@ -932,7 +932,11 @@ globalThis.CinemaDatabase={"cinemas":[{"type":"first_run","cinemaID":"C01","name
   function syncSlider(input) {
     const value=Number(input.value).toLocaleString('zh-TW');
     input.amountOutput.textContent=(input.amountOutput.parentElement.classList.contains('centered-amount')?'NT$':'')+value;
-    input.setAttribute('aria-valuetext',`NT$ ${value}`);
+    if(input.dataset.amountUnit) {
+      const unit=document.createElement('small');unit.className='amount-unit';unit.id='activation-kind';unit.textContent=`（${input.dataset.amountUnit}）`;
+      input.amountOutput.append(unit);
+    }
+    input.setAttribute('aria-valuetext',`NT$ ${value}${input.dataset.amountUnit?'，'+input.dataset.amountUnit:''}`);
   }
   function syncSliders(form) {
     form.querySelectorAll('.amount-range').forEach(syncSlider);
@@ -1110,7 +1114,7 @@ function initGame() {
     if(property.hasSpace){
       const activity=CinemaProperty.ACTIVITIES[property.activationType];
       document.querySelector('#activation-name').textContent=activity.name;
-      document.querySelector('#activation-kind').textContent=`（${activity.unit}）`;
+      input.dataset.amountUnit=activity.unit;
       for(const key of ['min','max','step'])input[key]=String(activity[key]);
       input.value=input.min;
       if(!input.classList.contains('amount-range'))CinemaParameters.makeSlider(input);

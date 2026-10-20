@@ -299,7 +299,11 @@
   function syncSlider(input) {
     const value=Number(input.value).toLocaleString('zh-TW');
     input.amountOutput.textContent=(input.amountOutput.parentElement.classList.contains('centered-amount')?'NT$':'')+value;
-    input.setAttribute('aria-valuetext',`NT$ ${value}`);
+    if(input.dataset.amountUnit) {
+      const unit=document.createElement('small');unit.className='amount-unit';unit.id='activation-kind';unit.textContent=`（${input.dataset.amountUnit}）`;
+      input.amountOutput.append(unit);
+    }
+    input.setAttribute('aria-valuetext',`NT$ ${value}${input.dataset.amountUnit?'，'+input.dataset.amountUnit:''}`);
   }
   function syncSliders(form) {
     form.querySelectorAll('.amount-range').forEach(syncSlider);
