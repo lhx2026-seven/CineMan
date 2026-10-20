@@ -61,7 +61,7 @@ function initGame() {
       films.setVenue(venueScreenCount,gameDate.week);
       const share = document.querySelector('#featured-share');
       const capacity = CinemaFilms.screeningCapacity(venueScreenCount);
-      let slots = capacity / 2;
+      let slots = capacity - 1;
       if (typeof restoredDraft?.featuredSlots === 'string' && Number.isFinite(Number(restoredDraft.featuredSlots))) {
         slots = Math.round(Number(restoredDraft.featuredSlots));
       } else if (typeof restoredDraft?.featuredShare === 'string' && Number.isFinite(Number(restoredDraft.featuredShare))) {

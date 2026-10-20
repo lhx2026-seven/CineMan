@@ -590,3 +590,10 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
   .special-screenings-grid { grid-template-columns:minmax(0,1fr); gap:10px; }
   .special-screenings-grid > .special-screening { grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); align-items:end; gap:6px; }
 }
+
+/* Keep the feature-film sentence and live percentage together, centered. */
+.showtime-control { grid-template-columns:minmax(0,1fr); }
+.featured-summary { text-align:center; }
+.featured-summary > div { display:inline; }
+.featured-summary #share-output { display:inline; margin-left:6px; white-space:nowrap; font-size:18px; line-height:1.8; }
+@media(max-width:380px) { .featured-summary #featured-heading { font-size:12px; } .featured-summary #share-output { font-size:16px; } }
