@@ -575,3 +575,9 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 #budget-total { color:#dec59b; font-variant-numeric:tabular-nums; }
 .special-screening { width:min(100%,440px); grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:8px; }
 @media(max-width:760px) { .budget-field { grid-template-columns:max-content minmax(0,1fr); gap:6px; } .special-screening { gap:6px; } }
+
+/* Budget names share the amount row; every slider uses the same left inset. */
+.budget-field { grid-template-columns:96px minmax(0,1fr); align-items:start; }
+.budget-field .budget-label { position:relative; flex-wrap:nowrap; min-height:22px; line-height:22px; margin-top:4px; }
+.budget-field .amount-value { line-height:18px; }
+.budget-field .budget-lock { position:absolute; left:29px; top:25px; padding:0 4px; line-height:12px; white-space:nowrap; }

@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=6e14e82d75f4">
-<script src="game-runtime.js?v=3e65a7f6f7ed" defer></script>
+<link rel="stylesheet" href="game.css?v=b41e2e97a619">
+<script src="game-runtime.js?v=4cc13d2f6a2e" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -123,10 +123,10 @@
       </div>
       <div class="merch-grid">
         <div class="merch-card"><label class="merch-toggle"><input type="checkbox" name="posterEnabled" aria-controls="poster-settings"><span><strong>開賣獨家海報</strong><small>讓電影的餘韻，留在生活裡。</small></span><span class="toggle-track" aria-hidden="true"></span></label>
-          <fieldset class="merch-settings" id="poster-settings" hidden disabled><legend class="sr-only">獨家海報設定</legend><label class="field"><span>印量（張）</span><input type="number" name="posterQuantity" min="0" step="1" placeholder="—" inputmode="numeric"></label><label class="field"><span>售價（NT$／張）</span><input type="number" name="posterPrice" min="0" step="1" placeholder="—" inputmode="numeric"></label></fieldset>
+          <fieldset class="merch-settings" id="poster-settings" hidden disabled><legend class="sr-only">獨家海報設定</legend><label class="field"><span>印量（張）</span><input type="number" name="posterQuantity" min="1" step="1" value="1" required inputmode="numeric"></label><label class="field"><span>售價（NT$／張）</span><input type="number" name="posterPrice" min="0" step="1" placeholder="—" inputmode="numeric"></label></fieldset>
         </div>
         <div class="merch-card"><label class="merch-toggle"><input type="checkbox" name="figureEnabled" aria-controls="figure-settings"><span><strong>開賣獨家公仔</strong><small>把喜歡的角色，帶出大銀幕。</small></span><span class="toggle-track" aria-hidden="true"></span></label>
-          <fieldset class="merch-settings" id="figure-settings" hidden disabled><legend class="sr-only">獨家公仔設定</legend><label class="field"><span>製作量（個）</span><input type="number" name="figureQuantity" min="0" step="1" placeholder="—" inputmode="numeric"></label><label class="field"><span>售價（NT$／個）</span><input type="number" name="figurePrice" min="0" step="1" placeholder="—" inputmode="numeric"></label></fieldset>
+          <fieldset class="merch-settings" id="figure-settings" hidden disabled><legend class="sr-only">獨家公仔設定</legend><label class="field"><span>製作量（個）</span><input type="number" name="figureQuantity" min="1" step="1" value="1" required inputmode="numeric"></label><label class="field"><span>售價（NT$／個）</span><input type="number" name="figurePrice" min="0" step="1" placeholder="—" inputmode="numeric"></label></fieldset>
         </div>
       </div>
     </section>

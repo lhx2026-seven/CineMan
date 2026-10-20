@@ -1162,6 +1162,10 @@ function initGame() {
           else if(typeof restoredDraft[control.name]==='string')control.value=control.classList.contains('amount-range') && restoredDraft[control.name]==='' ? control.min : restoredDraft[control.name];
         }
       }
+      for(const name of ['posterQuantity','figureQuantity']) {
+        const quantity=form.elements[name];
+        if(!Number.isInteger(quantity.valueAsNumber)||quantity.valueAsNumber<1)quantity.value='1';
+      }
       setBudgetLocks(checkpoint?.budgetLocks || {});
       if (checkpoint?.tabID) { const tab=tabs.find(t=>t.id===checkpoint.tabID);if(tab)activateTab(tab); }
       if (checkpoint?.reportTabID) { const tab=reportTabs.find(t=>t.id===checkpoint.reportTabID);if(tab)activateReport(tab); }
