@@ -1021,7 +1021,7 @@ function initGame() {
   let property = null;
   let checkpoint = null, currentAllocation = null, restoring = true, bootFailed = false, storeAvailable = true;
   let saveQueue = Promise.resolve(false), saveRevision = 0;
-  const gameDate = {year:2026,week:1};
+  const gameDate = {year:2022,week:1};
   let venueReady = false;
   let venueScreenCount = 0;
   const venueRetry = document.querySelector('#venue-retry');
