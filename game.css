@@ -581,3 +581,12 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .budget-field .budget-label { position:relative; flex-wrap:nowrap; min-height:22px; line-height:22px; margin-top:4px; }
 .budget-field .amount-value { line-height:18px; }
 .budget-field .budget-lock { position:absolute; left:29px; top:25px; padding:0 4px; line-height:12px; white-space:nowrap; }
+
+/* Put each screening's film above its price; available width sets columns. */
+.special-screenings-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr)); gap:12px; align-items:start; }
+.special-screenings-grid > .special-screening { width:100%; min-width:0; grid-template-columns:minmax(0,1fr); align-items:start; gap:8px; margin:0; }
+.special-slot-title { color:#cbbb9e; line-height:1.4; }
+@media(max-width:380px) {
+  .special-screenings-grid { grid-template-columns:minmax(0,1fr); gap:10px; }
+  .special-screenings-grid > .special-screening { grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); align-items:end; gap:6px; }
+}
