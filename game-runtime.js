@@ -1237,7 +1237,7 @@ function initGame() {
   });
   const reveal = () => {
     document.body.classList.add('reveal');
-    setTimeout(() => document.body.classList.remove('page-entering', 'reveal'), matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180);
+    setTimeout(() => document.body.classList.remove('page-entering', 'reveal'), matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 500);
   };
   ready.then(reveal);
 }

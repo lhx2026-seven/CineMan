@@ -36,8 +36,8 @@ function prepareGame(id) {
   preparedGames.add(id);
   for (const [href, as] of [
     [`game.html?cinema=${encodeURIComponent(id)}&fresh=1&v=entry-v39&run=${preparedRuns.get(id)}`, 'document'],
-    ['game.css?v=ccab4405429b', 'style'],
-    ['game-runtime.js?v=ce348d57d6eb', 'script'],
+    ['game.css?v=f71880fa6ef6', 'style'],
+    ['game-runtime.js?v=1d187c88ad1e', 'script'],
   ]) {
     const link = document.createElement('link');
     link.rel = as === 'document' ? 'prefetch' : 'preload';
@@ -64,10 +64,12 @@ confirmButton.addEventListener('click', () => {
   document.body.classList.add('entering-game');
   const transition = document.createElement('div');
   transition.className = 'entry-transition';
-  transition.setAttribute('aria-hidden', 'true');
+  transition.setAttribute('role', 'status');
+  transition.innerHTML = '<div class="entry-curtain entry-left"></div><div class="entry-curtain entry-right"></div><div class="entry-title"><span>CineMan</span><p></p></div>';
+  transition.querySelector('p').textContent = `歡迎來到${cinema[2]}`;
   document.body.append(transition);
   requestAnimationFrame(() => requestAnimationFrame(() => transition.classList.add('closing')));
-  setTimeout(() => location.assign(destination), 180);
+  setTimeout(() => location.assign(destination), 480);
 });
 window.addEventListener('pageshow', event => {
   if (event.persisted) location.reload();
