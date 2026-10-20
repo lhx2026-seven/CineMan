@@ -472,7 +472,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 #panel-pricing .price-group .field { display:flex; flex-direction:column; align-items:stretch; gap:6px; border:0; min-width:0; min-height:0; font-size:12px; }
 #panel-pricing .price-group legend { margin-bottom:10px; }
 .food-label { display:flex; align-items:center; gap:7px; }
-.sales-icon { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.sales-icon, .budget-icon { width:22px; height:22px; color:#bfb4a2; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
 @media(max-width:760px) {
   #panel-pricing .ticket-grid { gap:7px; }
   #panel-pricing .price-group .field { font-size:11px; }
@@ -530,7 +530,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 @media(max-width:760px) { .film-carousel.is-overview { --film-step:132px; --film-card-width:124px; } }
 
 /* Compact budget symbols and four standard ticket prices. */
-.budget-icon { width:15px; height:15px; flex:none; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; color:#b6a07b; }
+.budget-icon { flex:none; }
 #panel-pricing .standard-ticket-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
 @media(max-width:480px) {
   .standard-ticket-grid .input-wrap { padding:0 4px; gap:3px; }
