@@ -43,6 +43,7 @@ function initGame() {
   CinemaEvents.render({events:[]});
   let restoredDraft = null;
   let exclusiveFood = null;
+  let property = null;
   let checkpoint = null, currentAllocation = null, restoring = true, bootFailed = false, storeAvailable = true;
   let saveQueue = Promise.resolve(false), saveRevision = 0;
   const gameDate = {year:2026,week:1};
@@ -129,6 +130,23 @@ function initGame() {
   const form = document.querySelector('#management-form');
   CinemaParameters.apply(form,id);
   const films = CinemaFilms.init(form);
+  function renderProperty() {
+    const location=CinemaDatabase.locations.find(location=>location.locationID===property.locationID);
+    const summary=document.querySelector('#property-summary');
+    summary.textContent=`${location.name} · ${property.tenure==='owned'?'自有土地':'承租場地'}`;summary.hidden=false;
+    const report=document.querySelector('#financial-report');
+    report.dataset.rentalActive=String(property.rentalActive);report.dataset.realEstateTaxActive=String(property.realEstateTaxActive);
+    const field=document.querySelector('#activation-field'),input=form.elements.activationRate;
+    field.hidden=!property.hasSpace;input.disabled=!property.hasSpace;
+    if(property.hasSpace){
+      const activity=CinemaProperty.ACTIVITIES[property.activationType];
+      document.querySelector('#activation-kind').textContent=`${activity.name} · ${activity.unit}`;
+      for(const key of ['min','max','step'])input[key]=String(activity[key]);
+      input.value=input.min;
+      if(!input.classList.contains('amount-range'))CinemaParameters.makeSlider(input);
+      input.setAttribute('aria-label',`${activity.name}，${activity.unit}`);
+    }
+  }
   function setBudgetLocks(locks = {}) {
     for (const name of ['maintenance','consumables']) {
       const control = form.elements[name], reason = locks[name];
@@ -202,6 +220,8 @@ function initGame() {
       ]);
       checkpoint = record?.cinemaID === id && record.runId === runId ? record : null;
       if (runUrl.searchParams.get('resume') === '1' && !checkpoint) throw Error('找不到這一局的存檔');
+      property=CinemaProperty.resolve(CinemaDatabase,id,runId,checkpoint?.property);
+      renderProperty();
       exclusiveFood=checkpoint && Object.hasOwn(checkpoint,'exclusiveFood') ? checkpoint.exclusiveFood : CinemaFood.draw(`${id}/${runId}`);
       if(exclusiveFood!==null && !CinemaFood.PRODUCTS.includes(exclusiveFood))throw Error('獨家餐飲存檔無法讀取');
       document.querySelector('#exclusive-food').hidden=exclusiveFood===null;
@@ -243,13 +263,14 @@ function initGame() {
       draftStatus.textContent=settings.enabled===false?'自動存檔 OFF':'';
     } catch(error) {
       storeAvailable=false;
-      if(runUrl.searchParams.get('resume')==='1') {
+      if(runUrl.searchParams.get('resume')==='1' || checkpoint) {
         bootFailed=true;venueRetry.hidden=false;
         document.querySelector('#venue-loading').hidden=false;
         document.querySelector('#venue-loading').textContent='無法讀取存檔，請重試或返回首頁。';
         draftStatus.textContent='存檔尚未讀取，沒有重新分派場地。';
         form.inert=false;return;
       }
+      if(!property){property=CinemaProperty.draw(CinemaDatabase,id,runId);renderProperty();}
       draftStatus.textContent='自動存檔暫時無法使用，本次設定尚未保存。';
     }
     restoring=false;form.inert=false;
@@ -282,14 +303,14 @@ function initGame() {
     if(restoring || !venueReady || !storeAvailable)return saveQueue;
     const values = {};
     for (const control of form.elements) {
-      if (!control.name || CinemaParameters.isDerived(control.name) || control.closest('.special-screenings')?.disabled) continue;
+      if (!control.name || CinemaParameters.isDerived(control.name) || control.closest('.special-screenings')?.disabled || (control.name==='activationRate'&&!property?.hasSpace)) continue;
       if (control.type==='checkbox')values[control.name]=control.checked;
       else if(control.type==='radio'){if(control.checked)values[control.name]=control.value;}
       else values[control.name]=control.value;
     }
     const budgetLocks=Object.fromEntries(['maintenance','consumables'].map(name=>[name,form.elements[name].disabled ? document.querySelector(`#${name}-lock`).title || true : false]));
     const snapshot={cinemaID:id,cinemaName:cinema.name,runId,year:gameDate.year,week:gameDate.week,
-      values,allocation:currentAllocation,exclusiveFood,budgetLocks,
+      values,allocation:currentAllocation,exclusiveFood,property,budgetLocks,
       tabID:tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       reportTabID:reportTabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};

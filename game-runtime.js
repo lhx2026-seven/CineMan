@@ -595,6 +595,40 @@ globalThis.CinemaDatabase={"cinemas":[{"type":"first_run","cinemaID":"C01","name
 })(globalThis);
 
 ;
+// Source: property-rules.js
+'use strict';
+(function(root) {
+  const ACTIVITIES=Object.freeze({
+    mall:{name:'商場櫃位租金',unit:'每月租金',min:20000,max:100000,step:5000},
+    claw:{name:'娃娃機台租金',unit:'每月租金',min:10000,max:100000,step:2000},
+    parking:{name:'停車場收費',unit:'每小時收費',min:10,max:100,step:5},
+    billboard:{name:'電子看板廣告費',unit:'每秒收費',min:0.5,max:3,step:0.5},
+    hotel:{name:'旅社房間收費',unit:'每晚收費',min:500,max:10000,step:500}
+  });
+  const COMMON=['mall','claw','parking','billboard'];
+  const hotelEligible=id=>['C01','C02'].includes(id);
+  function locations(database,cinemaID){return database.locations.filter(location=>location[`cinemaID_${cinemaID}_applicable`]===true);}
+  function draw(database,cinemaID,runId) {
+    const eligible=locations(database,cinemaID);if(!eligible.length)throw Error('沒有適用地點');
+    const random=key=>root.CinemaRules.seededRandom(`property/v1/${cinemaID}/${runId}/${key}`);
+    const location=eligible[Math.floor(random('location')()*eligible.length)];
+    const owned=random('tenure')()<0.05,hasSpace=random('space')()<0.33;
+    let activationType=null;
+    if(hasSpace){const type=random('activity');activationType=hotelEligible(cinemaID)&&type()<0.01?'hotel':COMMON[Math.floor(type()*COMMON.length)];}
+    return {version:1,cinemaID,runId,locationID:location.locationID,tenure:owned?'owned':'rented',hasSpace,activationType,rentalActive:!owned,realEstateTaxActive:owned};
+  }
+  function validate(record,database,cinemaID,runId){
+    if(!record||record.version!==1||record.cinemaID!==cinemaID||record.runId!==runId||!locations(database,cinemaID).some(location=>location.locationID===record.locationID))throw Error('場地首抽存檔不相容');
+    if(!['owned','rented'].includes(record.tenure)||typeof record.hasSpace!=='boolean'||record.rentalActive!==(record.tenure==='rented')||record.realEstateTaxActive!==(record.tenure==='owned'))throw Error('土地權屬存檔不相容');
+    if(record.hasSpace?(!Object.hasOwn(ACTIVITIES,record.activationType)||(record.activationType==='hotel'&&!hotelEligible(cinemaID))):record.activationType!==null)throw Error('空間活化存檔不相容');
+    return record;
+  }
+  function resolve(database,cinemaID,runId,saved){return saved===undefined?draw(database,cinemaID,runId):validate(saved,database,cinemaID,runId);}
+  const api={ACTIVITIES,COMMON,hotelEligible,locations,draw,validate,resolve};
+  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaProperty=api;
+})(globalThis);
+
+;
 // Source: parameter-rules.js
 'use strict';
 // Parameter.xlsx, imported 2026-10-20; guarantee step corrected by user to 5000.
@@ -977,6 +1011,7 @@ function initGame() {
   CinemaEvents.render({events:[]});
   let restoredDraft = null;
   let exclusiveFood = null;
+  let property = null;
   let checkpoint = null, currentAllocation = null, restoring = true, bootFailed = false, storeAvailable = true;
   let saveQueue = Promise.resolve(false), saveRevision = 0;
   const gameDate = {year:2026,week:1};
@@ -1063,6 +1098,23 @@ function initGame() {
   const form = document.querySelector('#management-form');
   CinemaParameters.apply(form,id);
   const films = CinemaFilms.init(form);
+  function renderProperty() {
+    const location=CinemaDatabase.locations.find(location=>location.locationID===property.locationID);
+    const summary=document.querySelector('#property-summary');
+    summary.textContent=`${location.name} · ${property.tenure==='owned'?'自有土地':'承租場地'}`;summary.hidden=false;
+    const report=document.querySelector('#financial-report');
+    report.dataset.rentalActive=String(property.rentalActive);report.dataset.realEstateTaxActive=String(property.realEstateTaxActive);
+    const field=document.querySelector('#activation-field'),input=form.elements.activationRate;
+    field.hidden=!property.hasSpace;input.disabled=!property.hasSpace;
+    if(property.hasSpace){
+      const activity=CinemaProperty.ACTIVITIES[property.activationType];
+      document.querySelector('#activation-kind').textContent=`${activity.name} · ${activity.unit}`;
+      for(const key of ['min','max','step'])input[key]=String(activity[key]);
+      input.value=input.min;
+      if(!input.classList.contains('amount-range'))CinemaParameters.makeSlider(input);
+      input.setAttribute('aria-label',`${activity.name}，${activity.unit}`);
+    }
+  }
   function setBudgetLocks(locks = {}) {
     for (const name of ['maintenance','consumables']) {
       const control = form.elements[name], reason = locks[name];
@@ -1136,6 +1188,8 @@ function initGame() {
       ]);
       checkpoint = record?.cinemaID === id && record.runId === runId ? record : null;
       if (runUrl.searchParams.get('resume') === '1' && !checkpoint) throw Error('找不到這一局的存檔');
+      property=CinemaProperty.resolve(CinemaDatabase,id,runId,checkpoint?.property);
+      renderProperty();
       exclusiveFood=checkpoint && Object.hasOwn(checkpoint,'exclusiveFood') ? checkpoint.exclusiveFood : CinemaFood.draw(`${id}/${runId}`);
       if(exclusiveFood!==null && !CinemaFood.PRODUCTS.includes(exclusiveFood))throw Error('獨家餐飲存檔無法讀取');
       document.querySelector('#exclusive-food').hidden=exclusiveFood===null;
@@ -1177,13 +1231,14 @@ function initGame() {
       draftStatus.textContent=settings.enabled===false?'自動存檔 OFF':'';
     } catch(error) {
       storeAvailable=false;
-      if(runUrl.searchParams.get('resume')==='1') {
+      if(runUrl.searchParams.get('resume')==='1' || checkpoint) {
         bootFailed=true;venueRetry.hidden=false;
         document.querySelector('#venue-loading').hidden=false;
         document.querySelector('#venue-loading').textContent='無法讀取存檔，請重試或返回首頁。';
         draftStatus.textContent='存檔尚未讀取，沒有重新分派場地。';
         form.inert=false;return;
       }
+      if(!property){property=CinemaProperty.draw(CinemaDatabase,id,runId);renderProperty();}
       draftStatus.textContent='自動存檔暫時無法使用，本次設定尚未保存。';
     }
     restoring=false;form.inert=false;
@@ -1216,14 +1271,14 @@ function initGame() {
     if(restoring || !venueReady || !storeAvailable)return saveQueue;
     const values = {};
     for (const control of form.elements) {
-      if (!control.name || CinemaParameters.isDerived(control.name) || control.closest('.special-screenings')?.disabled) continue;
+      if (!control.name || CinemaParameters.isDerived(control.name) || control.closest('.special-screenings')?.disabled || (control.name==='activationRate'&&!property?.hasSpace)) continue;
       if (control.type==='checkbox')values[control.name]=control.checked;
       else if(control.type==='radio'){if(control.checked)values[control.name]=control.value;}
       else values[control.name]=control.value;
     }
     const budgetLocks=Object.fromEntries(['maintenance','consumables'].map(name=>[name,form.elements[name].disabled ? document.querySelector(`#${name}-lock`).title || true : false]));
     const snapshot={cinemaID:id,cinemaName:cinema.name,runId,year:gameDate.year,week:gameDate.week,
-      values,allocation:currentAllocation,exclusiveFood,budgetLocks,
+      values,allocation:currentAllocation,exclusiveFood,property,budgetLocks,
       tabID:tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       reportTabID:reportTabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};

@@ -15,7 +15,7 @@
 - preferences：key 為 autoSave，保存 enabled。
 - saves：key 為 runId，各局保存最新完整 checkpoint。相容舊版 latest 紀錄，列表按 runId 去重；同局再次保存時移除舊 latest 鍵。
 
-checkpoint 含存檔版本、cinemaID／cinemaName、runId、遊戲年／週、savedAt、完整場地 allocation、獨家餐飲 exclusiveFood（產品名稱或 null）、表單 values、兩項預算鎖定狀態、營運頁籤、財報頁籤及影廳明細展開狀態。表單包含行政管理、一般／特殊廳票價、餐飲／商品設定、主打片及整數場次、特別場選片與價格。
+checkpoint 含存檔版本、cinemaID／cinemaName、runId、遊戲年／週、savedAt、完整場地 allocation、地點／權屬／活化空間 property、獨家餐飲 exclusiveFood（產品名稱或 null）、表單 values、兩項預算鎖定狀態、營運頁籤、財報頁籤及影廳明細展開狀態。表單包含行政管理、一般／特殊廳票價、餐飲／商品設定、主打片及整數場次、特別場選片與價格。
 
 讀回時檢查版本與必要欄位。場地使用已存快照，並依目前資料庫規則驗證，不依新 seed 重新生成。規則不相容、存檔損壞或讀取失敗時，繼續經營顯示錯誤及重試入口；不藉由重抽來偽裝讀檔成功。新局的場地資料成功取得後才建立新 checkpoint。
 
@@ -70,3 +70,5 @@ checkpoint 含存檔版本、cinemaID／cinemaName、runId、遊戲年／週、s
 移除原本攔截連結、等待存檔（最久 1200ms）的流程。離開前以 sessionStorage 的 cineman.navigationCheckpoint 暫交最新快照，首頁立即載入介面，並背景完成 IndexedDB 寫入。成功（或 OFF 不寫入）後移除緩衝；失敗則保留供重新整理重試並顯示錯誤。清空紀錄也清除此緩衝。此緩衝不是額外的永久存檔。若瀏覽器禁止 sessionStorage，仍可立即返回，原頁原有的存檔交易持續嘗試，無法保證強制離頁前未完成的寫入。
 
 `CINEMAN_BASE_URL=http://127.0.0.1:8000 node tests/home-navigation-browser.cjs` 人為卡住原頁 save promise，檢查原生連結未被攔截、立即回首頁、最後金額完成還原、OFF 不寫入與緩衝移除。
+
+地點、土地與空間首抽機率及收費設定見 [property-draw.md](property-draw.md)。舊存檔補入新欄位時不重抽原影廳。
