@@ -49,6 +49,7 @@
     const specialRows=[...form.querySelectorAll('.special-screening')];
     const add=document.querySelector('#add-special-screening');
     add.addEventListener('click',()=>{
+      if(add.closest('fieldset').disabled)return;
       const count=Number(form.elements.specialCount.value);
       if(count>=5 || !specialRows[count-1].querySelector('select').value)return;
       form.elements.specialCount.value=String(count+1);update();
@@ -70,6 +71,15 @@
       });
       previous.disabled = center === 0;next.disabled = center === cards.length-1;
       document.querySelector('#film-position').textContent = center === midpoint ? '2 部新片' : `${center+1} / ${cards.length}`;
+      if(add.closest('fieldset').disabled) {
+        form.elements.specialCount.value='0';
+        specialRows.forEach(row=>{
+          row.querySelector('select').value='';
+          const price=row.querySelector('input');price.value='';price.disabled=true;
+        });
+        add.hidden=true;
+        return;
+      }
       let count=Math.max(1,Math.min(5,Number(form.elements.specialCount.value)||1));
       specialRows.forEach((row,index)=>{if(row.querySelector('select').value)count=Math.max(count,index+1);});
       form.elements.specialCount.value=String(count);

@@ -15,6 +15,9 @@ if (!cinema) {
 }
 
 function initGame() {
+  const specialScreenings=document.querySelector('.special-screenings');
+  specialScreenings.hidden=['C02','C05'].includes(id);
+  specialScreenings.disabled=specialScreenings.hidden;
   const secondRun=cinema.releaseType==='second_run';
   const standardPricing=document.querySelector('#standard-ticket-pricing');
   const secondRunPricing=document.querySelector('#second-run-pricing');
@@ -269,7 +272,7 @@ function initGame() {
     if(restoring || !venueReady || !storeAvailable)return saveQueue;
     const values = {};
     for (const control of form.elements) {
-      if (!control.name) continue;
+      if (!control.name || control.closest('.special-screenings')?.disabled) continue;
       if (control.type==='checkbox')values[control.name]=control.checked;
       else if(control.type==='radio'){if(control.checked)values[control.name]=control.value;}
       else values[control.name]=control.value;
