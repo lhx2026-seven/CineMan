@@ -30,6 +30,7 @@ function initGame() {
   // Week 1 has no events. Future weekly progression supplies its event list here.
   CinemaEvents.render({events:[]});
   let restoredDraft = null;
+  let exclusiveFood = null;
   let checkpoint = null, currentAllocation = null, restoring = true, bootFailed = false, storeAvailable = true;
   let saveQueue = Promise.resolve(false), saveRevision = 0;
   const gameDate = {year:2026,week:1};
@@ -185,6 +186,11 @@ function initGame() {
       try { record = await CinemaSave.getByRun(runId); } catch(error) { if(runUrl.searchParams.get('resume')==='1')throw error; }
       checkpoint = record?.cinemaID === id && record.runId === runId ? record : null;
       if (runUrl.searchParams.get('resume') === '1' && !checkpoint) throw Error('找不到這一局的存檔');
+      exclusiveFood=checkpoint && Object.hasOwn(checkpoint,'exclusiveFood') ? checkpoint.exclusiveFood : CinemaFood.draw(`${id}/${runId}`);
+      if(exclusiveFood!==null && !CinemaFood.PRODUCTS.includes(exclusiveFood))throw Error('獨家餐飲存檔無法讀取');
+      document.querySelector('#exclusive-food').hidden=exclusiveFood===null;
+      document.querySelector('#exclusive-food-name').textContent=exclusiveFood || '';
+      form.elements.exclusiveFoodPrice.disabled=exclusiveFood===null;
       restoredDraft = checkpoint?.values || null;
       if (!restoredDraft && settings.enabled) {
         // One-time compatibility read; all new writes go exclusively to IndexedDB.
@@ -260,7 +266,7 @@ function initGame() {
     }
     const budgetLocks=Object.fromEntries(['maintenance','consumables'].map(name=>[name,form.elements[name].disabled ? document.querySelector(`#${name}-lock`).title || true : false]));
     const snapshot={cinemaID:id,cinemaName:cinema.name,runId,year:gameDate.year,week:gameDate.week,
-      values,allocation:currentAllocation,budgetLocks,
+      values,allocation:currentAllocation,exclusiveFood,budgetLocks,
       tabID:tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       reportTabID:reportTabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};

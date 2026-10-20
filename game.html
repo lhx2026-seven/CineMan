@@ -10,7 +10,8 @@
 <script src="venue.js?v=autosave-v23" defer></script>
 <script src="weekly-events.js?v=autosave-v23" defer></script>
 <script src="films.js?v=special-v26" defer></script>
-<script src="game.js?v=second-run-v28" defer></script>
+<script src="food-rules.js?v=exclusive-food-v29" defer></script>
+<script src="game.js?v=exclusive-food-v29" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -123,6 +124,7 @@
         <fieldset class="price-group"><legend>餐飲售價</legend><div class="food-grid">
           <label class="field"><span class="food-label"><svg class="sales-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 9 2 12h10l2-12ZM8 10l1 10m7-10-1 10M12 10v10M5 9a3 3 0 0 1-1-5 3 3 0 0 1 5-2 3 3 0 0 1 6 0 3 3 0 0 1 5 2 3 3 0 0 1-1 5"/></svg>爆米花</span><span class="input-wrap"><span>NT$</span><input type="number" name="popcornPrice" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
           <label class="field"><span class="food-label"><svg class="sales-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 7 2 14h10l2-14ZM4 7h16M13 7l2-5h4M8 11h8"/></svg>飲料</span><span class="input-wrap"><span>NT$</span><input type="number" name="drinkPrice" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+          <label class="field" id="exclusive-food" hidden><span class="food-label"><svg class="sales-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span id="exclusive-food-name"></span></span><span class="input-wrap"><span>NT$</span><input type="number" name="exclusiveFoodPrice" min="0" step="1" placeholder="—" inputmode="numeric" disabled></span></label>
         </div></fieldset>
       </div>
       <div class="merch-grid">

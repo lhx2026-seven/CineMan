@@ -15,7 +15,7 @@
 - preferences：key 為 autoSave，保存 enabled。
 - saves：key 為 runId，各局保存最新完整 checkpoint。相容舊版 latest 紀錄，列表按 runId 去重；同局再次保存時移除舊 latest 鍵。
 
-checkpoint 含存檔版本、cinemaID／cinemaName、runId、遊戲年／週、savedAt、完整場地 allocation、表單 values、兩項預算鎖定狀態、營運頁籤、財報頁籤及影廳明細展開狀態。表單包含行政管理、一般／特殊廳票價、餐飲／商品設定、主打片及整數場次、特別場選片與價格。
+checkpoint 含存檔版本、cinemaID／cinemaName、runId、遊戲年／週、savedAt、完整場地 allocation、獨家餐飲 exclusiveFood（產品名稱或 null）、表單 values、兩項預算鎖定狀態、營運頁籤、財報頁籤及影廳明細展開狀態。表單包含行政管理、一般／特殊廳票價、餐飲／商品設定、主打片及整數場次、特別場選片與價格。
 
 讀回時檢查版本與必要欄位。場地使用已存快照，並依目前資料庫規則驗證，不依新 seed 重新生成。規則不相容、存檔損壞或讀取失敗時，繼續經營顯示錯誤及重試入口；不藉由重抽來偽裝讀檔成功。新局的場地資料成功取得後才建立新 checkpoint。
 
@@ -36,3 +36,9 @@ checkpoint 含存檔版本、cinemaID／cinemaName、runId、遊戲年／週、s
 已驗證 ON 保存完整配置與繼續、原場地不重抽、OFF 偏好重整保留、OFF 不覆寫、重新選戲院新 run／新配置、跨分頁 OFF 禁止寫入、320／390／1440px 首頁位置及無水平溢出，以及 IndexedDB 被禁止時的新局可操作／讀檔失敗不重抽。
 
 另外以持久化 browser profile 實測完整關閉瀏覽器再開啟仍可讀回配置、頁籤與鎖定狀態；模擬存檔 put 寫入失敗，確認顯示失敗、沒有未處理錯誤且上一筆完整紀錄不變。既有場地與排片測試已配合非同步存檔，等 transaction 完成後才進行還原驗證。
+
+## 獨家餐飲
+
+每次新開局用獨立的 `exclusive-food/v1/{cinemaID}/{runId}` 亂數流，以 50% 機率抽取一種產品，再從十二種產品等機率抽選。結果與獨家餐飲售價一併保存；讀檔優先還原已保存的產品（含未抽中 null）。舊存檔缺少此欄位時，以同局種子補齊，重新整理不變；與影廳分派亂數互不影響。未抽中時隱藏商品並停用售價欄位。
+
+`node tests/food-rules.cjs` 檢查各戲院 20,000 局的抽中率、產品分布與可重現性；`CINEMAN_BASE_URL=http://127.0.0.1:8000 node tests/food-browser.cjs` 驗證五家戲院抽中／未抽中、定價保存、重整、繼續經營與手機版無溢出。
