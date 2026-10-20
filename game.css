@@ -566,3 +566,12 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 #standard-ticket-pricing .ticket-amount { display:flex; padding:0 8px; gap:5px; }
 .ticket-amount .amount-value { margin-left:auto; }
 .standard-ticket-grid > .amount-range { grid-column:1/-1; min-height:28px; width:100%; margin:0; padding:0; accent-color:var(--gold); cursor:pointer; }
+
+/* Compact labels, longer budget sliders, centered currency and amount. */
+.budget-field { grid-template-columns:max-content minmax(0,1fr); gap:8px; }
+.input-wrap.centered-amount { grid-template-columns:minmax(0,1fr); }
+.centered-amount > span { display:none; }
+.centered-amount .amount-value { grid-column:1/-1; width:100%; text-align:center; }
+#budget-total { color:#dec59b; font-variant-numeric:tabular-nums; }
+.special-screening { width:min(100%,440px); grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:8px; }
+@media(max-width:760px) { .budget-field { grid-template-columns:max-content minmax(0,1fr); gap:6px; } .special-screening { gap:6px; } }

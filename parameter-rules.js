@@ -267,7 +267,7 @@
   const fields={staffing:'salary_budget',foodCost:'food&drink_buy',marketing:'marketing_fee',maintenance:'maintenance_fee',consumables:'petty_cash',secondRunPrice:'second_run_ticket price',popcornPrice:'popcorn_price',drinkPrice:'drink_price',exclusiveFoodPrice:'special_food_price',ticketExtra_IMAX:'IMAX_ticket_price',ticketExtra_4DX:'4DX_ticket_price',ticketExtra_VIP:'VIP_ticket_price'};
   function forControl(name,cinemaID) {
     const key=name==='ticketFull' ? (cinemaID==='C05'?'arthouse_ticket price':'first_run_ticket price') : /^specialPrice(?:[2-5])?$/.test(name) ? 'special_show_price' : fields[name];
-    return key ? DATA.playerControl[key] : null;
+    return key ? DATA.playerControl[key] : name==='posterPrice' ? {min:0,max:1000,step:1} : name==='figurePrice' ? {min:0,max:10000,step:1} : null;
   }
   function applyTo(input,cinemaID) {
     const rule=forControl(input.name,cinemaID);if(!rule)return;
@@ -277,7 +277,14 @@
     if(!input.parentElement || !input.min || !input.max)return;
     const value=input.value || input.min;
     input.type='range';input.classList.add('amount-range');input.value=value;
-    const wrap=input.parentElement;wrap.classList.add('amount-slider');
+    let wrap=input.parentElement;
+    if(!wrap.classList.contains('input-wrap')) {
+      wrap=document.createElement('span');wrap.className='input-wrap';
+      const currency=document.createElement('span');currency.textContent='NT$';wrap.append(currency);
+      input.before(wrap);wrap.append(input);
+    }
+    wrap.classList.add('amount-slider');
+    if(input.closest('.budget-field,.food-grid,.merch-settings'))wrap.classList.add('centered-amount');
     const output=document.createElement('output');output.className='amount-value';
     input.id ||= `amount-${input.name}`;output.htmlFor=input.id;
     const label=input.closest('label');if(label)label.htmlFor=input.id;
@@ -291,10 +298,14 @@
   }
   function syncSlider(input) {
     const value=Number(input.value).toLocaleString('zh-TW');
-    input.amountOutput.textContent=value;
+    input.amountOutput.textContent=(input.amountOutput.parentElement.classList.contains('centered-amount')?'NT$':'')+value;
     input.setAttribute('aria-valuetext',`NT$ ${value}`);
   }
-  function syncSliders(form) { form.querySelectorAll('.amount-range').forEach(syncSlider); }
+  function syncSliders(form) {
+    form.querySelectorAll('.amount-range').forEach(syncSlider);
+    const total=['staffing','foodCost','maintenance','marketing','consumables'].reduce((sum,name)=>sum+Number(form.elements[name].value||0),0);
+    form.querySelector('#budget-total').textContent=`NT$${total.toLocaleString('zh-TW')}`;
+  }
   const DERIVED_TICKETS=Object.freeze(['ticketDiscount','ticketMorning','ticketAccessible']);
   function isDerived(name) { return DERIVED_TICKETS.includes(name); }
   function apply(form,cinemaID) {
