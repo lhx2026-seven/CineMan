@@ -532,3 +532,9 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 /* Compact budget symbols and four standard ticket prices. */
 .budget-icon { width:15px; height:15px; flex:none; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; color:#b6a07b; }
 #panel-pricing .standard-ticket-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+@media(max-width:480px) {
+  .standard-ticket-grid .input-wrap { padding:0 4px; gap:3px; }
+  .standard-ticket-grid .input-wrap > span { font-size:8px; }
+  .standard-ticket-grid input[type="number"] { appearance:textfield; -moz-appearance:textfield; font-size:12px; }
+  .standard-ticket-grid input::-webkit-inner-spin-button, .standard-ticket-grid input::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+}
