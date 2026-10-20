@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=autosave-v23">
+<link rel="stylesheet" href="game.css?v=tickets-v25">
 <script src="autosave.js?v=autosave-v23" defer></script>
 <script src="assignment-rules.js?v=autosave-v23" defer></script>
 <script src="venue.js?v=autosave-v23" defer></script>
@@ -100,21 +100,22 @@
     <section class="panel" id="panel-budget" role="tabpanel" aria-labelledby="tab-budget" tabindex="0">
       <p class="panel-unit">NT$／週</p>
       <div class="budget-grid">
-        <label class="budget-field"><span class="budget-label">人力預算</span><span class="input-wrap"><span>NT$</span><input type="number" name="staffing" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
-        <label class="budget-field"><span class="budget-label">餐飲成本</span><span class="input-wrap"><span>NT$</span><input type="number" name="foodCost" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
-        <label class="budget-field"><span class="budget-label">硬體維護<span class="budget-lock" id="maintenance-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="maintenance" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
-        <label class="budget-field"><span class="budget-label">行銷宣傳</span><span class="input-wrap"><span>NT$</span><input type="number" name="marketing" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
-        <label class="budget-field"><span class="budget-label">雜支<span class="budget-lock" id="consumables-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="consumables" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="budget-label"><svg class="budget-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M18 8a3 3 0 0 1 0 6m1 3a4 4 0 0 1 3 4"/></svg>人力預算</span><span class="input-wrap"><span>NT$</span><input type="number" name="staffing" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="budget-label"><svg class="budget-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M18 21V3c-4 3-4 10 0 10"/></svg>餐飲成本</span><span class="input-wrap"><span>NT$</span><input type="number" name="foodCost" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="budget-label"><svg class="budget-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6 4 4M3 21l8-8a7 7 0 0 1 9-9l-5 5 2 2 5-5a7 7 0 0 1-9 9l-8 8Z"/></svg>硬體維護<span class="budget-lock" id="maintenance-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="maintenance" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="budget-label"><svg class="budget-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 16-6v16L3 14ZM7 15l2 6h3l-2-5M22 9v6"/></svg>行銷宣傳</span><span class="input-wrap"><span>NT$</span><input type="number" name="marketing" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="budget-label"><svg class="budget-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2ZM9 7h6M9 11h6M9 15h3"/></svg>雜支<span class="budget-lock" id="consumables-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="consumables" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
       </div>
     </section>
     <section class="panel" id="panel-pricing" role="tabpanel" aria-labelledby="tab-pricing" tabindex="0" hidden>
       <div class="pricing-columns">
-        <fieldset class="price-group"><legend>電影票價</legend><div class="ticket-grid">
+        <fieldset class="price-group"><legend>電影票價</legend><div class="ticket-grid standard-ticket-grid">
           <label class="field"><span>全票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketFull" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
           <label class="field"><span>學生軍警票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketDiscount" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
           <label class="field"><span>早場優惠票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketMorning" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+          <label class="field"><span>愛心票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketAccessible" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
         </div></fieldset>
-        <fieldset class="price-group special-ticket-group" id="special-ticket-group" hidden><legend>特殊廳</legend><div class="ticket-grid" id="special-ticket-fields"></div></fieldset>
+        <fieldset class="price-group special-ticket-group" id="special-ticket-group" hidden><legend class="sr-only">特殊廳票價</legend><div class="ticket-grid" id="special-ticket-fields"></div></fieldset>
         <fieldset class="price-group"><legend>餐飲售價</legend><div class="food-grid">
           <label class="field"><span class="food-label"><svg class="sales-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 9 2 12h10l2-12ZM8 10l1 10m7-10-1 10M12 10v10M5 9a3 3 0 0 1-1-5 3 3 0 0 1 5-2 3 3 0 0 1 6 0 3 3 0 0 1 5 2 3 3 0 0 1-1 5"/></svg>爆米花</span><span class="input-wrap"><span>NT$</span><input type="number" name="popcornPrice" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
           <label class="field"><span class="food-label"><svg class="sales-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 7 2 14h10l2-14ZM4 7h16M13 7l2-5h4M8 11h8"/></svg>飲料</span><span class="input-wrap"><span>NT$</span><input type="number" name="drinkPrice" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>

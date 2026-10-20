@@ -528,3 +528,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .special-film-picker select { width:100%; min-width:0; min-height:44px; padding:8px 10px; border:1px solid #a893702e; border-radius:5px; color:#e5cea0; background:#0b0907; font:inherit; }
 .special-screening .input-wrap input { min-height:44px; }
 @media(max-width:760px) { .film-carousel.is-overview { --film-step:132px; --film-card-width:124px; } }
+
+/* Compact budget symbols and four standard ticket prices. */
+.budget-icon { width:15px; height:15px; flex:none; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; color:#b6a07b; }
+#panel-pricing .standard-ticket-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
