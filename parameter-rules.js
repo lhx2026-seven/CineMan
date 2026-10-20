@@ -1,5 +1,6 @@
 'use strict';
-// Parameter.xlsx, imported 2026-10-20. Compute values are retained, not activated.
+// Parameter.xlsx, imported 2026-10-20; guarantee step corrected by user to 5000.
+// Negative compute deductions reduce box office; calculation is not activated.
 (function(root) {
   const DATA={
   "playerControl": {
@@ -186,7 +187,7 @@
       "attribute": "boxoffice_deduction",
       "min": -50000.0,
       "max": -100000.0,
-      "step": 0.05,
+      "step": 5000,
       "gapWeeks": null
     },
     "second_run_hit_film_pay": {
@@ -272,7 +273,28 @@
     const rule=forControl(input.name,cinemaID);if(!rule)return;
     for(const key of ['min','max','step'])input[key]=String(rule[key]);
   }
-  function apply(form,cinemaID) { for(const input of form.querySelectorAll('input[type="number"]'))applyTo(input,cinemaID); }
-  const api={DATA,forControl,applyTo,apply};
+  const DERIVED_TICKETS=Object.freeze(['ticketDiscount','ticketMorning','ticketAccessible']);
+  function isDerived(name) { return DERIVED_TICKETS.includes(name); }
+  function apply(form,cinemaID) {
+    for(const input of form.querySelectorAll('input[type="number"]')) {
+      applyTo(input,cinemaID);
+      if(isDerived(input.name)) {
+        input.readOnly=true;input.value='';input.title='依全票票價計算';
+      }
+    }
+  }
+  function derive(fullPrice) {
+    return {ticketDiscount:fullPrice-30,ticketMorning:fullPrice-60,ticketAccessible:fullPrice*0.5};
+  }
+  function updateDerived(form) {
+    const full=form.elements.ticketFull;
+    const ready=!full.matches(':disabled') && full.value!=='' && full.validity.valid;
+    const prices=ready ? derive(Number(full.value)) : null;
+    for(const name of DERIVED_TICKETS) {
+      const input=form.elements[name];
+      input.value=prices && !input.matches(':disabled') ? String(prices[name]) : '';
+    }
+  }
+  const api={DATA,forControl,applyTo,apply,DERIVED_TICKETS,isDerived,derive,updateDerived};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaParameters=api;
 })(globalThis);

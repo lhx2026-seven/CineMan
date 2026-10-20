@@ -1,6 +1,6 @@
 # Parameter.xlsx 介面參數
 
-來源為 `data/source/Parameter.xlsx`（2026-10-20 提供）。`parameter-rules.js` 原樣保存兩張表的參數 ID、顯示名稱、attribute、min、max、step、gapWeeks，並將 player control 的明確對應項目套至 number input。compute 僅保存，不啟用抽值、計費或財報計算。
+來源為 `data/source/Parameter.xlsx`（2026-10-20 提供）。`parameter-rules.js` 保存兩張表的參數 ID、顯示名稱、attribute、min、max、step、gapWeeks，並將 player control 的明確對應項目套至 number input。原始附件不改寫；下列使用者後續更正優先於原始 Excel。compute 僅保存，不啟用抽值、計費或財報計算。
 
 | 介面欄位 | min | max | step |
 | --- | ---: | ---: | ---: |
@@ -26,10 +26,10 @@ min/max/step 使用瀏覽器原生數值限制與步進；step 從 min 起算。
 
 ## 待補充
 
-- 學生軍警票、早場優惠票、愛心票未列 min/max/step，維持原設定。
+- 學生軍警票、早場優惠票、愛心票由全票公式生成，改為唯讀。公式為學生軍警票＝全票−30、早場優惠票＝全票−60、愛心票＝全票×0.5。即時計算並保留精確金額，不額外取整；全票未填或不符限制時顯示「—」。不帶入或保存舊版手動輸入值，讀檔後依全票重算。世紀無此三票種，公會堂僅計算愛心票。
 - 海報與公仔的數量、售價未列限制，維持原設定。
-- compute 多個負值區間的 min 大於 max，例如 -0.5 至 -0.65，原樣保存，需確認抽樣方向／上下限語意。
-- bomb_film_distributor_guarantee 的 -50,000 至 -100,000 搭配 step=0.05，需確認是否誤填。
+- 使用者已確認 compute 負值代表從票房扣除，區間表達扣多／扣少，例如 -0.5 至 -0.65。原始端點保留，不當作 HTML 輸入上下限；未啟用抽樣或財報扣款。
+- 使用者更正 bomb_film_distributor_guarantee 的 step 為 5,000；程式已更新，原始 Excel 的 0.05 僅保留作來源紀錄。
 - gapWeeks 原樣保留，尚未套用扣款週期。
 
 ## 驗證

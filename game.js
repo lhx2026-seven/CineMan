@@ -220,7 +220,7 @@ function initGame() {
       }
       if (restoredDraft) {
         for (const control of form.elements) {
-          if (!control.name || !Object.hasOwn(restoredDraft,control.name)) continue;
+          if (!control.name || CinemaParameters.isDerived(control.name) || !Object.hasOwn(restoredDraft,control.name)) continue;
           if (control.type==='checkbox') control.checked=restoredDraft[control.name]===true;
           else if(control.type==='radio')control.checked=control.value===restoredDraft[control.name];
           else if(typeof restoredDraft[control.name]==='string')control.value=restoredDraft[control.name];
@@ -251,6 +251,7 @@ function initGame() {
   }
 
   function updateControls() {
+    CinemaParameters.updateDerived(form);
     for (const item of ['poster', 'figure']) {
       const enabled = form.elements[`${item}Enabled`].checked;
       const settings = document.querySelector(`#${item}-settings`);
@@ -274,7 +275,7 @@ function initGame() {
     if(restoring || !venueReady || !storeAvailable)return saveQueue;
     const values = {};
     for (const control of form.elements) {
-      if (!control.name || control.closest('.special-screenings')?.disabled) continue;
+      if (!control.name || CinemaParameters.isDerived(control.name) || control.closest('.special-screenings')?.disabled) continue;
       if (control.type==='checkbox')values[control.name]=control.checked;
       else if(control.type==='radio'){if(control.checked)values[control.name]=control.value;}
       else values[control.name]=control.value;
