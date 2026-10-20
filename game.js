@@ -20,6 +20,13 @@ function initGame() {
   const secondRunPricing=document.querySelector('#second-run-pricing');
   standardPricing.hidden=secondRun;standardPricing.disabled=secondRun;
   secondRunPricing.hidden=!secondRun;secondRunPricing.disabled=!secondRun;
+  if(id==='C05') {
+    for(const name of ['ticketDiscount','ticketMorning']) {
+      const input=standardPricing.querySelector(`[name="${name}"]`);
+      input.disabled=true;input.closest('label').hidden=true;
+    }
+    standardPricing.querySelector('.standard-ticket-grid').style.gridTemplateColumns='repeat(2,minmax(0,1fr))';
+  }
   const runUrl = new URL(location.href);
   let runId = runUrl.searchParams.get('run');
   if (!runId || runId.length > 256) {
