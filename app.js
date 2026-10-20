@@ -37,7 +37,7 @@ function prepareGame(id) {
   for (const [href, as] of [
     [`game.html?cinema=${encodeURIComponent(id)}&fresh=1&v=entry-v39&run=${preparedRuns.get(id)}`, 'document'],
     ['game.css?v=5709d0abd8b3', 'style'],
-    ['game-runtime.js?v=64e78ec3e4a0', 'script'],
+    ['game-runtime.js?v=499001e3982e', 'script'],
   ]) {
     const link = document.createElement('link');
     link.rel = as === 'document' ? 'prefetch' : 'preload';
