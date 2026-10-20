@@ -329,7 +329,7 @@ function initGame() {
   });
   const reveal = () => {
     document.body.classList.add('reveal');
-    setTimeout(() => document.body.classList.remove('page-entering', 'reveal'), 500);
+    setTimeout(() => document.body.classList.remove('page-entering', 'reveal'), matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180);
   };
-  Promise.all([ready,Promise.race([exterior.decode().catch(() => {}), new Promise(resolve => setTimeout(resolve, 350))])]).then(reveal);
+  ready.then(reveal);
 }

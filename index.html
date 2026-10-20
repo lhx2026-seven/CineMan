@@ -382,17 +382,9 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 .site-footer a { color:#e8cfa4; text-decoration:underline; text-underline-offset:3px; }
 .site-footer a:hover { color:#ffd47c; }
 .site-footer a:focus-visible { outline:2px solid #ffd47c; outline-offset:4px; }
-.entry-transition { position:fixed; inset:0; z-index:1000; overflow:hidden; }
-.entry-curtain { position:absolute; inset-block:0; width:50.2%; background:repeating-linear-gradient(90deg,#180b08 0,#381b13 8%,#1c0e0a 17%,#30160e 25%); box-shadow:0 0 50px #000c; transition:transform .45s cubic-bezier(.35,0,.15,1); }
-.entry-left { left:0; transform:translateX(-102%); }
-.entry-right { right:0; transform:translateX(102%); }
-.entry-transition.closing .entry-curtain { transform:translateX(0); }
-.entry-title { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#ffd47c; opacity:0; transition:opacity .15s .2s; }
-.entry-title > span { font:bold 48px Georgia,serif; text-shadow:0 0 24px #ff9d0080; }
-.entry-title p { font-size:14px; letter-spacing:.1em; color:#e8cfa4; }
-.entry-transition.closing .entry-title { opacity:1; }
+.entry-transition { position:fixed; inset:0; z-index:1000; background:#090909; opacity:0; transition:opacity .15s linear; pointer-events:all; }
+.entry-transition.closing { opacity:1; }
 .entering-game .cinema-card, .entering-game .card-shadow { animation-play-state:paused; }
-.entry-curtain { will-change:transform; }
 .home-playbar { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:8px; width:min(850px,calc(100% - 32px)); margin:5px auto; }
 .home-playbar .status { margin:0; text-align:center; }
 #auto-save-toggle { justify-self:start; display:flex; align-items:center; gap:3px; min-height:20px; padding:0; background:none; border:0; color:#a99d86; font:inherit; font-size:9px; cursor:pointer; }
@@ -443,6 +435,6 @@ button:focus-visible { outline:3px solid white; outline-offset:4px; }
 <script src="autosave.js?v=autosave-v31" defer></script>
 <script src="home-save.js?v=autosave-v23" defer></script>
 <script src="data/cinemas.js?v=entry-v31" defer></script>
-<script src="app.js?v=df3a317cb79c" defer></script>
+<script src="app.js?v=b956beaa7850" defer></script>
 </body>
 </html>
