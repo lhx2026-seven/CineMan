@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=8c52b358cf31">
-<script src="game-runtime.js?v=9e08ea5e40fe" defer></script>
+<link rel="stylesheet" href="game.css?v=5709d0abd8b3">
+<script src="game-runtime.js?v=64e78ec3e4a0" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -17,7 +17,7 @@
   <section class="cinema-hero" aria-labelledby="cinema-name">
     <img id="cinema-exterior" width="1774" height="887" alt="">
     <div class="hero-shade"></div>
-    <div class="hero-caption"><div><p class="overline">你的電影院</p><h2 id="cinema-name"></h2><p id="cinema-type"></p><p id="property-summary" hidden></p></div></div>
+    <div class="hero-caption"><div><p class="overline">你的電影院</p><h2 id="cinema-name"></h2><p id="cinema-type"></p><p id="property-summary" hidden><svg class="location-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span id="property-summary-text"></span></p></div></div>
     <section class="venue-profile" id="venue-profile" aria-label="影廳與座位">
       <p id="venue-loading" role="status" hidden></p>
       <div id="venue-data" hidden>
@@ -100,7 +100,7 @@
         <label class="budget-field"><span class="budget-label"><svg class="budget-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6 4 4M3 21l8-8a7 7 0 0 1 9-9l-5 5 2 2 5-5a7 7 0 0 1-9 9l-8 8Z"/></svg>硬體維護<span class="budget-lock" id="maintenance-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="maintenance" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
         <label class="budget-field"><span class="budget-label"><svg class="budget-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 16-6v16L3 14ZM7 15l2 6h3l-2-5M22 9v6"/></svg>行銷宣傳</span><span class="input-wrap"><span>NT$</span><input type="number" name="marketing" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
         <label class="budget-field"><span class="budget-label"><svg class="budget-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2ZM9 7h6M9 11h6M9 15h3"/></svg>雜支<span class="budget-lock" id="consumables-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="consumables" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
-        <label class="budget-field activation-field" id="activation-field" hidden><span class="budget-label"><svg class="budget-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h20v14H2ZM2 9a4 4 0 0 0 4-4m12 0a4 4 0 0 0 4 4M2 15a4 4 0 0 1 4 4m12 0a4 4 0 0 1 4-4M14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0"/></svg><span id="activation-name"></span></span><span class="input-wrap"><span>NT$</span><input type="number" name="activationRate" aria-describedby="activation-kind" disabled></span></label>
+        <label class="budget-field activation-field" id="activation-field" hidden><span class="budget-label"><svg class="budget-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 10v4m12-4v4"/></svg><span id="activation-name"></span></span><span class="input-wrap"><span>NT$</span><input type="number" name="activationRate" aria-describedby="activation-kind" disabled></span></label>
       </div>
     </section>
     <section class="panel" id="panel-pricing" role="tabpanel" aria-labelledby="tab-pricing" tabindex="0" hidden>

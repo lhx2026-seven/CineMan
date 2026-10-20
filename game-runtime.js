@@ -1108,7 +1108,7 @@ function initGame() {
   function renderProperty() {
     const location=CinemaDatabase.locations.find(location=>location.locationID===property.locationID);
     const summary=document.querySelector('#property-summary');
-    summary.textContent=`${location.name} · ${property.tenure==='owned'?'自有土地':'承租場地'}`;summary.hidden=false;
+    summary.querySelector('#property-summary-text').textContent=`${location.name} · ${property.tenure==='owned'?'自有土地':'承租場地'}`;summary.hidden=false;
     const report=document.querySelector('#financial-report');
     report.dataset.rentalActive=String(property.rentalActive);report.dataset.realEstateTaxActive=String(property.realEstateTaxActive);
     const field=document.querySelector('#activation-field'),input=form.elements.activationRate;
