@@ -31,6 +31,8 @@ function initGame() {
     standardPricing.querySelector('.standard-ticket-grid').style.gridTemplateColumns='repeat(2,minmax(0,1fr))';
   }
   const runUrl = new URL(location.href);
+  const freshEntry=runUrl.searchParams.get('fresh')==='1' && runUrl.searchParams.get('resume')!=='1';
+  if(freshEntry){runUrl.searchParams.delete('fresh');history.replaceState(null,'',runUrl);}
   let runId = runUrl.searchParams.get('run');
   if (!runId || runId.length > 256) {
     runId = CinemaRules.freshSeed();
@@ -194,7 +196,7 @@ function initGame() {
     restoring=true;form.inert=true;
     bootFailed = false;venueRetry.hidden = true;
     try {
-      const [settings,record] = await Promise.all([
+      const [settings,record] = freshEntry ? [{enabled:null},null] : await Promise.all([
         CinemaSave.getSettings(),
         CinemaSave.getByRun(runId).catch(error=>{if(runUrl.searchParams.get('resume')==='1')throw error;return null;})
       ]);
@@ -234,7 +236,7 @@ function initGame() {
         document.querySelector('#venue-details-panel').hidden=false;
       }
       storeAvailable=true;
-      draftStatus.textContent=settings.enabled?'':'自動存檔 OFF';
+      draftStatus.textContent=settings.enabled===false?'自動存檔 OFF':'';
     } catch(error) {
       storeAvailable=false;
       if(runUrl.searchParams.get('resume')==='1') {
