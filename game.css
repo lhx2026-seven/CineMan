@@ -616,3 +616,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 #standard-ticket-pricing .field { row-gap:4px; }
 .special-screening .amount-slider { grid-template-columns:max-content minmax(0,1fr); gap:0 3px; }
 .special-screening .amount-value { text-align:left; }
+
+/* Preserve the full portrait artwork in the three returning-film cards. */
+#panel-films .old-film .old-film-poster { width:min(100%,140px); height:auto; aspect-ratio:2/3; overflow:hidden; border-radius:3px; }
+.old-film-poster img { display:block; width:100%; height:100%; object-fit:contain; }
