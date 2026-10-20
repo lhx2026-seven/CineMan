@@ -9,6 +9,7 @@
   });
   const COMMON=['mall','claw','parking','billboard'];
   const hotelEligible=id=>['C01','C02'].includes(id);
+  const commonFor=id=>['C01','C02','C05'].includes(id)?COMMON.filter(type=>type!=='billboard'):COMMON;
   function locations(database,cinemaID){return database.locations.filter(location=>location[`cinemaID_${cinemaID}_applicable`]===true);}
   function draw(database,cinemaID,runId) {
     const eligible=locations(database,cinemaID);if(!eligible.length)throw Error('沒有適用地點');
@@ -16,7 +17,7 @@
     const location=eligible[Math.floor(random('location')()*eligible.length)];
     const owned=random('tenure')()<0.05,hasSpace=random('space')()<0.33;
     let activationType=null;
-    if(hasSpace){const type=random('activity');activationType=hotelEligible(cinemaID)&&type()<0.01?'hotel':COMMON[Math.floor(type()*COMMON.length)];}
+    if(hasSpace){const type=random('activity'),pool=commonFor(cinemaID);activationType=hotelEligible(cinemaID)&&type()<0.01?'hotel':pool[Math.floor(type()*pool.length)];}
     return {version:1,cinemaID,runId,locationID:location.locationID,tenure:owned?'owned':'rented',hasSpace,activationType,rentalActive:!owned,realEstateTaxActive:owned};
   }
   function validate(record,database,cinemaID,runId){
@@ -26,6 +27,6 @@
     return record;
   }
   function resolve(database,cinemaID,runId,saved){return saved===undefined?draw(database,cinemaID,runId):validate(saved,database,cinemaID,runId);}
-  const api={ACTIVITIES,COMMON,hotelEligible,locations,draw,validate,resolve};
+  const api={ACTIVITIES,COMMON,commonFor,hotelEligible,locations,draw,validate,resolve};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaProperty=api;
 })(globalThis);
