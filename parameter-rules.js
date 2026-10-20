@@ -281,12 +281,17 @@
     const output=document.createElement('output');output.className='amount-value';
     input.id ||= `amount-${input.name}`;output.htmlFor=input.id;
     const label=input.closest('label');if(label)label.htmlFor=input.id;
-    wrap.insertBefore(output,input);
+    wrap.insertBefore(output,input);input.amountOutput=output;
+    if(input.name==='ticketFull') {
+      wrap.classList.add('ticket-amount');
+      input.closest('.standard-ticket-grid').append(input);
+      input.setAttribute('aria-label','全票票價，同步計算其他票種');
+    }
     syncSlider(input);
   }
   function syncSlider(input) {
     const value=Number(input.value).toLocaleString('zh-TW');
-    input.parentElement.querySelector('.amount-value').textContent=value;
+    input.amountOutput.textContent=value;
     input.setAttribute('aria-valuetext',`NT$ ${value}`);
   }
   function syncSliders(form) { form.querySelectorAll('.amount-range').forEach(syncSlider); }
