@@ -44,7 +44,8 @@ function prepareGame(id) {
     ['weekly-events.js?v=autosave-v23', 'script'],
     ['films.js?v=screenings-v33', 'script'],
     ['food-rules.js?v=exclusive-food-v30', 'script'],
-    ['game.js?v=screenings-v33', 'script'],
+    ['parameter-rules.js?v=parameters-v35', 'script'],
+    ['game.js?v=parameters-v35', 'script'],
   ]) {
     const link = document.createElement('link');
     link.rel = as === 'document' ? 'prefetch' : 'preload';

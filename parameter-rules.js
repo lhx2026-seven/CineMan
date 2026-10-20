@@ -1,0 +1,278 @@
+'use strict';
+// Parameter.xlsx, imported 2026-10-20. Compute values are retained, not activated.
+(function(root) {
+  const DATA={
+  "playerControl": {
+    "salary_budget": {
+      "displayName": "人力預算",
+      "attribute": "expense",
+      "min": 20000.0,
+      "max": 400000.0,
+      "step": 1000.0,
+      "gapWeeks": 1.0
+    },
+    "food&drink_buy": {
+      "displayName": "餐飲成本",
+      "attribute": "expense",
+      "min": 0.0,
+      "max": 100000.0,
+      "step": 1000.0,
+      "gapWeeks": 1.0
+    },
+    "marketing_fee": {
+      "displayName": "行銷宣傳",
+      "attribute": "expense",
+      "min": 0.0,
+      "max": 100000.0,
+      "step": 5000.0,
+      "gapWeeks": 1.0
+    },
+    "maintenance_fee": {
+      "displayName": "硬體維護",
+      "attribute": "expense",
+      "min": 10000.0,
+      "max": 200000.0,
+      "step": 1000.0,
+      "gapWeeks": 1.0
+    },
+    "petty_cash": {
+      "displayName": "雜支",
+      "attribute": "expense",
+      "min": 0.0,
+      "max": 200000.0,
+      "step": 1000.0,
+      "gapWeeks": 1.0
+    },
+    "first_run_ticket price": {
+      "displayName": "全票",
+      "attribute": "boxoffice_weight",
+      "min": 250.0,
+      "max": 400.0,
+      "step": 10.0,
+      "gapWeeks": null
+    },
+    "second_run_ticket price": {
+      "displayName": "票價",
+      "attribute": "boxoffice_weight",
+      "min": 60.0,
+      "max": 200.0,
+      "step": 10.0,
+      "gapWeeks": null
+    },
+    "arthouse_ticket price": {
+      "displayName": "全票",
+      "attribute": "boxoffice_weight",
+      "min": 20.0,
+      "max": 250.0,
+      "step": 10.0,
+      "gapWeeks": null
+    },
+    "IMAX_ticket_price": {
+      "displayName": "票價",
+      "attribute": "boxoffice_weight",
+      "min": 400.0,
+      "max": 600.0,
+      "step": 10.0,
+      "gapWeeks": null
+    },
+    "4DX_ticket_price": {
+      "displayName": "票價",
+      "attribute": "boxoffice_weight",
+      "min": 500.0,
+      "max": 600.0,
+      "step": 10.0,
+      "gapWeeks": null
+    },
+    "VIP_ticket_price": {
+      "displayName": "票價",
+      "attribute": "boxoffice_weight",
+      "min": 300.0,
+      "max": 1000.0,
+      "step": 10.0,
+      "gapWeeks": null
+    },
+    "special_show_price": {
+      "displayName": "票價",
+      "attribute": "boxoffice_weight",
+      "min": 400.0,
+      "max": 600.0,
+      "step": 10.0,
+      "gapWeeks": null
+    },
+    "popcorn_price": {
+      "displayName": "爆米花",
+      "attribute": "revenue_weight",
+      "min": 20.0,
+      "max": 200.0,
+      "step": 10.0,
+      "gapWeeks": null
+    },
+    "drink_price": {
+      "displayName": "飲料",
+      "attribute": "revenue_weight",
+      "min": 20.0,
+      "max": 100.0,
+      "step": 10.0,
+      "gapWeeks": null
+    },
+    "special_food_price": {
+      "displayName": "獨家餐飲",
+      "attribute": "revenue_weight",
+      "min": 20.0,
+      "max": 200.0,
+      "step": 10.0,
+      "gapWeeks": null
+    }
+  },
+  "compute": {
+    "rental": {
+      "displayName": "房租",
+      "attribute": "expense",
+      "min": 300000.0,
+      "max": 5000000.0,
+      "step": 10000.0,
+      "gapWeeks": 4.0
+    },
+    "manage_fee": {
+      "displayName": "管理費",
+      "attribute": "expense",
+      "min": 10000.0,
+      "max": 1000000.0,
+      "step": 10000.0,
+      "gapWeeks": 4.0
+    },
+    "tax_about_real_estate": {
+      "displayName": "不動產稅",
+      "attribute": "expense",
+      "min": 500000.0,
+      "max": 10000000.0,
+      "step": 500000.0,
+      "gapWeeks": 50.0
+    },
+    "utility_bill": {
+      "displayName": "公共事業帳單",
+      "attribute": "expense",
+      "min": 100000.0,
+      "max": 1000000.0,
+      "step": 5000.0,
+      "gapWeeks": 8.0
+    },
+    "hit_film_distributor_share": {
+      "displayName": null,
+      "attribute": "boxoffice_deduction",
+      "min": -0.5,
+      "max": -0.65,
+      "step": 0.05,
+      "gapWeeks": null
+    },
+    "bomb_film_distributor_share": {
+      "displayName": null,
+      "attribute": "boxoffice_deduction",
+      "min": -0.5,
+      "max": -0.6,
+      "step": 0.05,
+      "gapWeeks": null
+    },
+    "average_film_distributor_share": {
+      "displayName": null,
+      "attribute": "boxoffice_deduction",
+      "min": -0.35,
+      "max": -0.5,
+      "step": 0.05,
+      "gapWeeks": null
+    },
+    "bomb_film_distributor_guarantee": {
+      "displayName": null,
+      "attribute": "boxoffice_deduction",
+      "min": -50000.0,
+      "max": -100000.0,
+      "step": 0.05,
+      "gapWeeks": null
+    },
+    "second_run_hit_film_pay": {
+      "displayName": null,
+      "attribute": "boxoffice_deduction",
+      "min": -20000.0,
+      "max": -30000.0,
+      "step": 1000.0,
+      "gapWeeks": null
+    },
+    "second_run_bomb_film_pay": {
+      "displayName": null,
+      "attribute": "boxoffice_deduction",
+      "min": -5000.0,
+      "max": -20000.0,
+      "step": 1000.0,
+      "gapWeeks": null
+    },
+    "second_run_average_film_pay": {
+      "displayName": null,
+      "attribute": "boxoffice_deduction",
+      "min": -5000.0,
+      "max": -10000.0,
+      "step": 1000.0,
+      "gapWeeks": null
+    },
+    "hit_film_attendence_rate": {
+      "displayName": null,
+      "attribute": "boxoffice_weight",
+      "min": 0.5,
+      "max": 1.0,
+      "step": 0.01,
+      "gapWeeks": null
+    },
+    "bomb_film_attendence_rate": {
+      "displayName": null,
+      "attribute": "boxoffice_weight",
+      "min": 0.01,
+      "max": 0.1,
+      "step": 0.01,
+      "gapWeeks": null
+    },
+    "average_film_attendence_rate": {
+      "displayName": null,
+      "attribute": "boxoffice_weight",
+      "min": 0.01,
+      "max": 0.5,
+      "step": 0.01,
+      "gapWeeks": null
+    },
+    "w2_attendence_decline": {
+      "displayName": null,
+      "attribute": "boxoffice_weight",
+      "min": -0.5,
+      "max": 0.0,
+      "step": 0.01,
+      "gapWeeks": null
+    },
+    "w3_attendence_decline": {
+      "displayName": null,
+      "attribute": "boxoffice_weight",
+      "min": -0.75,
+      "max": -0.5,
+      "step": 0.01,
+      "gapWeeks": null
+    },
+    "w4_attendence_decline": {
+      "displayName": null,
+      "attribute": "boxoffice_weight",
+      "min": -0.99,
+      "max": -0.5,
+      "step": 0.01,
+      "gapWeeks": null
+    }
+  }
+};
+  const fields={staffing:'salary_budget',foodCost:'food&drink_buy',marketing:'marketing_fee',maintenance:'maintenance_fee',consumables:'petty_cash',secondRunPrice:'second_run_ticket price',popcornPrice:'popcorn_price',drinkPrice:'drink_price',exclusiveFoodPrice:'special_food_price',ticketExtra_IMAX:'IMAX_ticket_price',ticketExtra_4DX:'4DX_ticket_price',ticketExtra_VIP:'VIP_ticket_price'};
+  function forControl(name,cinemaID) {
+    const key=name==='ticketFull' ? (cinemaID==='C05'?'arthouse_ticket price':'first_run_ticket price') : /^specialPrice(?:[2-5])?$/.test(name) ? 'special_show_price' : fields[name];
+    return key ? DATA.playerControl[key] : null;
+  }
+  function applyTo(input,cinemaID) {
+    const rule=forControl(input.name,cinemaID);if(!rule)return;
+    for(const key of ['min','max','step'])input[key]=String(rule[key]);
+  }
+  function apply(form,cinemaID) { for(const input of form.querySelectorAll('input[type="number"]'))applyTo(input,cinemaID); }
+  const api={DATA,forControl,applyTo,apply};
+  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaParameters=api;
+})(globalThis);

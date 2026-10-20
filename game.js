@@ -125,6 +125,7 @@ function initGame() {
     activateReport(reportTabs[target], true);
   });
   const form = document.querySelector('#management-form');
+  CinemaParameters.apply(form,id);
   const films = CinemaFilms.init(form);
   function setBudgetLocks(locks = {}) {
     for (const name of ['maintenance','consumables']) {
@@ -151,6 +152,7 @@ function initGame() {
       const input = document.createElement('input'); input.type = 'number';
       input.name = `ticketExtra_${format.replace(/[^a-zA-Z0-9]/g, '')}`;
       input.min = '0'; input.step = '1'; input.placeholder = '—'; input.inputMode = 'numeric';
+      CinemaParameters.applyTo(input,id);
       if (typeof restoredDraft?.[input.name] === 'string') input.value = restoredDraft[input.name];
       wrap.append(currency, input); label.append(title, wrap); return label;
     });
