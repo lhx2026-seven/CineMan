@@ -40,7 +40,7 @@ function initGame() {
   async function loadVenue() {
     venueRetry.hidden = true;
     const message = document.querySelector('#venue-loading');
-    message.textContent = '正在分派影廳…';
+    message.hidden = true;
     try {
       const allocation = await CinemaVenue.assign(id, runId, checkpoint?.allocation);
       CinemaVenue.render(allocation);
@@ -62,6 +62,7 @@ function initGame() {
       updateControls();
       saveDraft();
     } catch (error) {
+      message.hidden = false;
       message.textContent = '影廳資料暫時無法載入，請重試。';
       venueRetry.hidden = false;
       console.error('Venue allocation failed:', error);
@@ -181,9 +182,10 @@ function initGame() {
     restoring=true;form.inert=true;
     bootFailed = false;venueRetry.hidden = true;
     try {
-      const settings = await CinemaSave.getSettings();
-      let record = null;
-      try { record = await CinemaSave.getByRun(runId); } catch(error) { if(runUrl.searchParams.get('resume')==='1')throw error; }
+      const [settings,record] = await Promise.all([
+        CinemaSave.getSettings(),
+        CinemaSave.getByRun(runId).catch(error=>{if(runUrl.searchParams.get('resume')==='1')throw error;return null;})
+      ]);
       checkpoint = record?.cinemaID === id && record.runId === runId ? record : null;
       if (runUrl.searchParams.get('resume') === '1' && !checkpoint) throw Error('找不到這一局的存檔');
       exclusiveFood=checkpoint && Object.hasOwn(checkpoint,'exclusiveFood') ? checkpoint.exclusiveFood : CinemaFood.draw(`${id}/${runId}`);
@@ -225,6 +227,7 @@ function initGame() {
       storeAvailable=false;
       if(runUrl.searchParams.get('resume')==='1') {
         bootFailed=true;venueRetry.hidden=false;
+        document.querySelector('#venue-loading').hidden=false;
         document.querySelector('#venue-loading').textContent='無法讀取存檔，請重試或返回首頁。';
         draftStatus.textContent='存檔尚未讀取，沒有重新分派場地。';
         form.inert=false;return;
@@ -232,7 +235,7 @@ function initGame() {
       draftStatus.textContent='自動存檔暫時無法使用，本次設定尚未保存。';
     }
     restoring=false;form.inert=false;
-    films.restoreView();updateControls();loadVenue();
+    films.restoreView();updateControls();await loadVenue();
   }
 
   function updateControls() {
@@ -283,7 +286,7 @@ function initGame() {
   form.addEventListener('input', () => { updateControls(); saveDraft(); });
   form.addEventListener('change', () => { updateControls(); saveDraft(); });
   updateControls();
-  bootstrap();
+  const ready=bootstrap();
   for (const list of [tabList,reportTabList]) {
     list.addEventListener('click',()=>saveDraft());
     list.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key))saveDraft();});
@@ -312,5 +315,5 @@ function initGame() {
     document.body.classList.add('reveal');
     setTimeout(() => document.body.classList.remove('page-entering', 'reveal'), 500);
   };
-  Promise.race([exterior.decode().catch(() => {}), new Promise(resolve => setTimeout(resolve, 350))]).then(reveal);
+  Promise.all([ready,Promise.race([exterior.decode().catch(() => {}), new Promise(resolve => setTimeout(resolve, 350))])]).then(reveal);
 }

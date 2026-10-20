@@ -50,7 +50,12 @@
     return [...runs.values()];
   }
   async function getLatest() { return (await list())[0] || null; }
-  async function getByRun(runId) { return (await list()).find(record=>record.runId===runId) || null; }
+  async function getByRun(runId) {
+    const [current,legacy]=await Promise.all([read('saves',runId),read('saves','latest')]);
+    const record=current || (legacy?.runId===runId ? legacy : null);
+    if(record && !valid(record))throw Error('存檔格式不支援或已損壞');
+    return record;
+  }
   async function clear() {
     const db=await open();await new Promise((resolve,reject)=>{
       const tx=db.transaction('saves','readwrite');tx.objectStore('saves').clear();

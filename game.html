@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
 <link rel="stylesheet" href="game.css?v=second-run-v28">
-<script src="autosave.js?v=autosave-v23" defer></script>
+<script src="autosave.js?v=autosave-v31" defer></script>
 <script src="assignment-rules.js?v=autosave-v23" defer></script>
-<script src="venue.js?v=autosave-v23" defer></script>
+<script src="data/cinemas.js?v=entry-v31" defer></script>
+<script src="venue.js?v=entry-v31" defer></script>
 <script src="weekly-events.js?v=autosave-v23" defer></script>
 <script src="films.js?v=special-v26" defer></script>
 <script src="food-rules.js?v=exclusive-food-v30" defer></script>
-<script src="game.js?v=exclusive-food-v29" defer></script>
+<script src="game.js?v=entry-v31" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -25,7 +26,7 @@
     <div class="hero-shade"></div>
     <div class="hero-caption"><div><p class="overline">你的電影院</p><h2 id="cinema-name"></h2><p id="cinema-type"></p></div></div>
     <section class="venue-profile" id="venue-profile" aria-label="影廳與座位">
-      <p id="venue-loading" role="status">正在分派影廳…</p>
+      <p id="venue-loading" role="status" hidden></p>
       <div id="venue-data" hidden>
         <dl class="venue-totals"><div><dt><svg class="venue-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4Q12 7 21 4v12Q12 19 3 16ZM6 21h12"/></svg>影廳數</dt><dd><strong id="venue-screen-count">—</strong><span>廳</span></dd></div><div><dt><svg class="venue-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 13V6a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v7M5 10H3v8h18v-8h-2M6 13h12v5M6 18v3m12-3v3"/></svg>總座位數</dt><dd><strong id="venue-seat-count">—</strong><span>席</span></dd></div></dl>
         <p class="venue-extras" id="venue-extra-names"></p>

@@ -42,3 +42,11 @@ checkpoint 含存檔版本、cinemaID／cinemaName、runId、遊戲年／週、s
 每次新開局用獨立的 `exclusive-food/v1/{cinemaID}/{runId}` 亂數流，以 50% 機率抽取一種產品，再從十五種產品等機率抽選。結果與獨家餐飲售價一併保存；讀檔優先還原已保存的產品（含未抽中 null）。舊存檔缺少此欄位時，以同局種子補齊，重新整理不變；與影廳分派亂數互不影響。未抽中時隱藏商品並停用售價欄位。
 
 `node tests/food-rules.cjs` 檢查各戲院 20,000 局的抽中率、產品分布與可重現性；`CINEMAN_BASE_URL=http://127.0.0.1:8000 node tests/food-browser.cjs` 驗證五家戲院抽中／未抽中、定價保存、重整、繼續經營與手機版無溢出。
+
+## 遊戲進場資料載入
+
+首頁與遊戲頁共用 `data/cinemas.js`，由原始 `data/cinemas.json` 產生，並以相同版本網址重用快取，遊戲啟動不再另發 JSON 請求。更新原始資料後執行 `node scripts/build-cinema-data.cjs`，一併提交產物。進場測試會比較產物與來源，避免漏更新。
+
+單局還原使用 runId 直接查詢 IndexedDB（另讀舊版 latest 相容紀錄），不讀取全部存檔。偏好與單局查詢並行。轉場等待配置與還原完成才開幕；外觀解碼最多等待 350ms，圖片不會阻擋開幕。正常流程不顯示分派提示；真正失敗仍保留錯誤與重試。
+
+`CINEMAN_BASE_URL=http://127.0.0.1:8000 node tests/entry-performance-browser.cjs` 刻意延遲單局查詢 1100ms，確認開幕前配置完成、沒有分派提示或額外 JSON 請求，且預載網址與實際資源版本一致。測試中的本機耗時只供開發比對，不代表正式網路速度。

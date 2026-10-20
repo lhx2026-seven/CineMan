@@ -1,9 +1,8 @@
 'use strict';
 (function(root) {
   async function assign(cinemaID, runId, savedAllocation = null) {
-    const response = await fetch('data/cinemas.json');
-    if (!response.ok) throw Error('無法讀取戲院資料');
-    const database = await response.json();
+    const database = root.CinemaDatabase;
+    if (!database) throw Error('無法讀取戲院資料');
     // The run in the URL keeps refreshes stable. A new homepage confirmation
     // creates a fresh run and therefore a new field allocation and form draft.
     if (savedAllocation) {

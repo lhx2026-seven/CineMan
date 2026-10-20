@@ -35,14 +35,16 @@ function prepareGame(id) {
   if (navigator.connection?.saveData || preparedGames.has(id)) return;
   preparedGames.add(id);
   for (const [href, as] of [
-    [`game.html?cinema=${encodeURIComponent(id)}&v=autosave-v22&run=${preparedRuns.get(id)}`, 'document'],
-    ['game.css?v=autosave-v22', 'style'],
-    ['autosave.js?v=autosave-v22', 'script'],
-    ['assignment-rules.js?v=autosave-v22', 'script'],
-    ['venue.js?v=autosave-v22', 'script'],
-    ['weekly-events.js?v=autosave-v22', 'script'],
-    ['films.js?v=autosave-v22', 'script'],
-    ['game.js?v=autosave-v22', 'script'],
+    [`game.html?cinema=${encodeURIComponent(id)}&v=entry-v31&run=${preparedRuns.get(id)}`, 'document'],
+    ['game.css?v=second-run-v28', 'style'],
+    ['autosave.js?v=autosave-v31', 'script'],
+    ['assignment-rules.js?v=autosave-v23', 'script'],
+    ['data/cinemas.js?v=entry-v31', 'script'],
+    ['venue.js?v=entry-v31', 'script'],
+    ['weekly-events.js?v=autosave-v23', 'script'],
+    ['films.js?v=special-v26', 'script'],
+    ['food-rules.js?v=exclusive-food-v30', 'script'],
+    ['game.js?v=entry-v31', 'script'],
   ]) {
     const link = document.createElement('link');
     link.rel = as === 'document' ? 'prefetch' : 'preload';
@@ -61,7 +63,7 @@ confirmButton.addEventListener('click', () => {
   try { localStorage.setItem('cineman.confirmedCinema', confirmedId); } catch { /* The URL also carries the selected cinema. */ }
   confirmButton.disabled = true;
   const run = preparedRuns.get(selectedId) || newRunId();
-  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=autosave-v22&run=${run}`;
+  const destination = `game.html?cinema=${encodeURIComponent(selectedId)}&v=entry-v31&run=${run}`;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     location.assign(destination);
     return;
@@ -148,9 +150,8 @@ window.addEventListener('resize', updateOrbit);
 
 async function init() {
   try {
-    const response = await fetch('data/cinemas.json');
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
+    const data = globalThis.CinemaDatabase;
+    if (!data) throw Error('Missing cinema database');
     for (const [id, slug, name, type, description] of definitions) {
       const rules = data.cinemas.filter(row => row.cinemaID === id);
       if (!rules.length) throw new Error(`Missing rules: ${id}`);
