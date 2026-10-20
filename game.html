@@ -45,12 +45,14 @@
         <caption class="sr-only">2026 W1 週報，結算規則尚未設定，金額均待結算</caption>
         <thead><tr><th scope="col">項目</th><th scope="col">收入</th><th scope="col">支出</th></tr></thead>
         <tbody>
-          <tr><th scope="row">電影票房</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
+          <tr><th scope="row">電影票房（拆帳前）</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
+          <tr><th scope="row">電影票房（拆帳後）</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">餐飲週邊</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
-          <tr class="expense-start"><th scope="row">人事雜費</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
+          <tr class="expense-start"><th scope="row">人事</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">商品成本</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">硬體維護</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">行銷宣傳</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
+          <tr><th scope="row">雜費</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">公共事業帳單</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">租金、管理費</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
         </tbody>
@@ -66,10 +68,11 @@
           <tr><th scope="row">電影票房</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">餐飲週邊</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">其它</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
-          <tr class="expense-start"><th scope="row">人事雜費</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
+          <tr class="expense-start"><th scope="row">人事</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">商品成本</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">硬體維護</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">行銷宣傳</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
+          <tr><th scope="row">雜費</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">公共事業帳單</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">租金、管理費</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
         </tbody>
@@ -100,6 +103,7 @@
         <label class="budget-field"><span class="budget-label">人力預算</span><span class="input-wrap"><span>NT$</span><input type="number" name="staffing" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
         <label class="budget-field"><span class="budget-label">餐飲成本</span><span class="input-wrap"><span>NT$</span><input type="number" name="foodCost" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
         <label class="budget-field"><span class="budget-label">硬體維護<span class="budget-lock" id="maintenance-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="maintenance" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
+        <label class="budget-field"><span class="budget-label">行銷宣傳</span><span class="input-wrap"><span>NT$</span><input type="number" name="marketing" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
         <label class="budget-field"><span class="budget-label">雜支<span class="budget-lock" id="consumables-lock" hidden>鎖定</span></span><span class="input-wrap"><span>NT$</span><input type="number" name="consumables" min="0" step="100" placeholder="尚未設定" inputmode="numeric"></span></label>
       </div>
     </section>
