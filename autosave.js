@@ -59,7 +59,7 @@
   async function clear() {
     const db=await open();await new Promise((resolve,reject)=>{
       const tx=db.transaction('saves','readwrite');tx.objectStore('saves').clear();
-      tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(tx.error||Error('清空紀錄失敗'));
+      tx.oncomplete=()=>{try{root.sessionStorage.removeItem(HANDOFF_KEY);}catch{}resolve();};tx.onerror=tx.onabort=()=>reject(tx.error||Error('清空紀錄失敗'));
     });notify();
   }
   async function getSettings() { const pref=await read('preferences','autoSave');return {enabled:pref?.enabled===true}; }
@@ -83,7 +83,22 @@
       tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(writeError||tx.error||Error('自動存檔失敗'));
     });if(written)notify();return written;
   }
-  root.CinemaSave={DB_NAME,SAVE_VERSION,getSettings,setEnabled,getLatest,getByRun,list,clear,save,
+  const HANDOFF_KEY='cineman.navigationCheckpoint';
+  function stageNavigation(snapshot) {
+    if(!valid({...snapshot,version:SAVE_VERSION}))return false;
+    try { root.sessionStorage.setItem(HANDOFF_KEY,JSON.stringify(snapshot));return true; } catch { return false; }
+  }
+  async function flushNavigation() {
+    let raw;
+    try {raw=root.sessionStorage.getItem(HANDOFF_KEY);} catch {return false;}
+    if(!raw)return false;
+    const snapshot=JSON.parse(raw);
+    // save() checks the actual preference inside its atomic transaction.
+    const written=await save(snapshot);
+    if(root.sessionStorage.getItem(HANDOFF_KEY)===raw)root.sessionStorage.removeItem(HANDOFF_KEY);
+    return written;
+  }
+  root.CinemaSave={DB_NAME,SAVE_VERSION,getSettings,setEnabled,getLatest,getByRun,list,clear,save,stageNavigation,flushNavigation,
     label:record=>`${record.cinemaName} ${record.year}年${record.week}週`,
     subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn);}};
 })(globalThis);

@@ -274,7 +274,7 @@ function initGame() {
     if (featured) document.querySelector('#featured-heading').textContent = `選擇${films.titleFor(featured.value)}為本週主打，場次占比`;
     films.update();
   }
-  function saveDraft() {
+  function saveDraft(stageForNavigation=false) {
     if(restoring || !venueReady || !storeAvailable)return saveQueue;
     const values = {};
     for (const control of form.elements) {
@@ -289,6 +289,7 @@ function initGame() {
       tabID:tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       reportTabID:reportTabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};
+    if(stageForNavigation===true)CinemaSave.stageNavigation(snapshot);
     const revision=++saveRevision;
     draftStatus.textContent='自動存檔中…';
     // Start the transaction immediately, including before navigation/refresh.
@@ -303,6 +304,7 @@ function initGame() {
   form.addEventListener('change', () => { updateControls(); saveDraft(); });
   updateControls();
   const ready=bootstrap();
+  const homePrefetch=document.createElement('link');homePrefetch.rel='prefetch';homePrefetch.as='document';homePrefetch.href=document.querySelector('.logo a').href;document.head.append(homePrefetch);
   for (const list of [tabList,reportTabList]) {
     list.addEventListener('click',()=>saveDraft());
     list.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key))saveDraft();});
@@ -310,16 +312,11 @@ function initGame() {
   document.querySelector('#venue-details-title').addEventListener('click',()=>saveDraft());
   document.addEventListener('visibilitychange',()=>{if(document.hidden)saveDraft();});
   window.addEventListener('pagehide',()=>saveDraft());
-  document.querySelector('.logo a').addEventListener('click',async event=>{
+  document.querySelector('.logo a').addEventListener('click',event=>{
     if(event.button!==0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)return;
-    const destination=event.currentTarget.href;event.preventDefault();
-    // A blocked storage transaction must never trap the player on this page.
-    let navigationTimeout;
-    try {
-      await Promise.race([saveDraft(),new Promise(resolve=>{navigationTimeout=setTimeout(resolve,1200);})]);
-    } finally {
-      clearTimeout(navigationTimeout);location.assign(destination);
-    }
+    // Let the native link navigate immediately. The homepage can finish the
+    // checkpoint if this page's in-flight IndexedDB transaction is interrupted.
+    saveDraft(true);
   });
   document.querySelector('#next-week').addEventListener('click', async () => {
     if (!venueReady || !form.querySelector('input[name="featuredFilm"]:checked')) return;

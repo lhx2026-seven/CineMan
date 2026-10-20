@@ -23,7 +23,7 @@ checkpoint 含存檔版本、cinemaID／cinemaName、runId、遊戲年／週、s
 
 表單 input／change、頁籤切換、影廳明細切換、預算鎖定變動會保存；進入有效的新局也保存初始場地。pref 與 checkpoint 在同一個 readwrite transaction 內讀取／寫入，每次重新檢查是否 ON，避免另一分頁切 OFF 後，舊遊戲分頁仍依快取設定寫入。
 
-「已自動存檔」只在 transaction 完成後顯示；處理中及寫入失敗各有獨立狀態，不樂觀宣稱成功。點 LOGO 返回首頁與按下一週預覽會等待當前保存工作完成。頁面隱藏／離開亦嘗試保存，但強制關閉或刷新時尚未完成的非同步 transaction 不保證完成；應以已自動存檔狀態為準。失敗時 IndexedDB 原子性保留上一筆完整 checkpoint，不會把半筆狀態當成可繼續紀錄。
+「已自動存檔」只在 transaction 完成後顯示；處理中及寫入失敗各有獨立狀態，不樂觀宣稱成功。按下一週預覽會等待當前保存工作完成。點 LOGO 則立即使用原生連結返回首頁，不等待 IndexedDB；最新快照先交給同分頁的暫存緩衝，由首頁完成寫入，仍依交易當下的 ON/OFF 設定決定是否保存。頁面隱藏／離開亦嘗試保存，但強制關閉或刷新時尚未完成的非同步 transaction 不保證完成；應以已自動存檔狀態為準。失敗時 IndexedDB 原子性保留上一筆完整 checkpoint，不會把半筆狀態當成可繼續紀錄。
 
 以 BroadcastChannel 通知首頁紀錄與偏好變動，不支援時首頁重新取得焦點也會更新。DB 被禁止或不可用時，首頁停用繼續經營並說明原因；新遊戲仍可操作但不假裝存檔成功。開關 OFF 仍會保存開關偏好本身，不寫遊戲 checkpoint。
 
@@ -64,3 +64,9 @@ checkpoint 含存檔版本、cinemaID／cinemaName、runId、遊戲年／週、s
 ### 恢復窗簾視覺
 
 依使用者要求恢復原 CSS 雙片條紋窗簾、陰影與歡迎文字，首頁約 480ms 關幕後導頁，配置就緒後開幕並於 500ms 清除。單一 runtime、內容雜湊同步、新局不等待存檔，以及不等待圖片解碼均保留。動畫不是已證實的主要瓶頸；減少動態效果時直接切換。
+
+### LOGO 返回首頁
+
+移除原本攔截連結、等待存檔（最久 1200ms）的流程。離開前以 sessionStorage 的 cineman.navigationCheckpoint 暫交最新快照，首頁立即載入介面，並背景完成 IndexedDB 寫入。成功（或 OFF 不寫入）後移除緩衝；失敗則保留供重新整理重試並顯示錯誤。清空紀錄也清除此緩衝。此緩衝不是額外的永久存檔。若瀏覽器禁止 sessionStorage，仍可立即返回，原頁原有的存檔交易持續嘗試，無法保證強制離頁前未完成的寫入。
+
+`CINEMAN_BASE_URL=http://127.0.0.1:8000 node tests/home-navigation-browser.cjs` 人為卡住原頁 save promise，檢查原生連結未被攔截、立即回首頁、最後金額完成還原、OFF 不寫入與緩衝移除。
