@@ -541,3 +541,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 
 .special-screening + .special-screening { margin-top:10px; }
 #add-special-screening { margin-top:10px; padding:5px 10px; border:1px solid var(--line); border-radius:5px; background:transparent; color:#cbbb9e; font:inherit; font-size:12px; cursor:pointer; }
+
+.second-run-ticket-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:end; gap:10px; }
+.second-run-ticket-grid select { width:100%; min-width:0; min-height:34px; padding:6px 8px; border:1px solid #a893702e; border-radius:5px; color:#bfb4a2; background:#0b0907; font:inherit; }
+@media(max-width:760px) { .second-run-ticket-grid select { min-height:44px; } }

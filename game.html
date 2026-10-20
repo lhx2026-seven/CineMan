@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=icons-v27">
+<link rel="stylesheet" href="game.css?v=second-run-v28">
 <script src="autosave.js?v=autosave-v23" defer></script>
 <script src="assignment-rules.js?v=autosave-v23" defer></script>
 <script src="venue.js?v=autosave-v23" defer></script>
 <script src="weekly-events.js?v=autosave-v23" defer></script>
 <script src="films.js?v=special-v26" defer></script>
-<script src="game.js?v=special-v26" defer></script>
+<script src="game.js?v=second-run-v28" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -109,11 +109,15 @@
     </section>
     <section class="panel" id="panel-pricing" role="tabpanel" aria-labelledby="tab-pricing" tabindex="0" hidden>
       <div class="pricing-columns">
-        <fieldset class="price-group"><legend>電影票價</legend><div class="ticket-grid standard-ticket-grid">
+        <fieldset class="price-group" id="standard-ticket-pricing"><legend>電影票價</legend><div class="ticket-grid standard-ticket-grid">
           <label class="field"><span>全票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketFull" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
           <label class="field"><span>學生軍警票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketDiscount" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
           <label class="field"><span>早場優惠票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketMorning" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
           <label class="field"><span>愛心票</span><span class="input-wrap"><span>NT$</span><input type="number" name="ticketAccessible" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
+        </div></fieldset>
+        <fieldset class="price-group" id="second-run-pricing" hidden disabled><legend>電影票價</legend><div class="second-run-ticket-grid">
+          <label class="field"><span class="sr-only">售票方式</span><select name="secondRunMode" aria-label="售票方式"><option value="single">一票單片</option><option value="double">一票二片</option><option value="unlimited">一票看到底</option></select></label>
+          <label class="field"><span>票價</span><span class="input-wrap"><span>NT$</span><input type="number" name="secondRunPrice" min="0" step="1" placeholder="—" inputmode="numeric"></span></label>
         </div></fieldset>
         <fieldset class="price-group special-ticket-group" id="special-ticket-group" hidden><legend class="sr-only">特殊廳票價</legend><div class="ticket-grid" id="special-ticket-fields"></div></fieldset>
         <fieldset class="price-group"><legend>餐飲售價</legend><div class="food-grid">

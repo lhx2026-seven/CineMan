@@ -1,7 +1,7 @@
 'use strict';
 const cinemas = {
   C01: { slug:'baogong', name:'寶宮戲院', type:'歷史悠久的大戲院', color:'#ff493d', exterior:'baogong-exterior.webp' },
-  C02: { slug:'century', name:'世紀戲院', type:'碩果僅存的老牌二輪戲院', color:'#f57418', exterior:'century-exterior-v2.webp' },
+  C02: { releaseType:'second_run', slug:'century', name:'世紀戲院', type:'碩果僅存的老牌二輪戲院', color:'#f57418', exterior:'century-exterior-v2.webp' },
   C03: { slug:'broadway', name:'布洛威影城', type:'小規模連鎖影城', color:'#cd47d6', exterior:'broadway-exterior-v2.webp' },
   C04: { slug:'ylc', name:'YLC影城', type:'結合商場的大型連鎖影城', color:'#338cff', exterior:'ylc-exterior-v2.webp' },
   C05: { slug:'arthouse', name:'公會堂電影中心', type:'公部門支持的藝術電影院', color:'#58c96b', exterior:'arthouse-exterior.webp' },
@@ -15,6 +15,11 @@ if (!cinema) {
 }
 
 function initGame() {
+  const secondRun=cinema.releaseType==='second_run';
+  const standardPricing=document.querySelector('#standard-ticket-pricing');
+  const secondRunPricing=document.querySelector('#second-run-pricing');
+  standardPricing.hidden=secondRun;standardPricing.disabled=secondRun;
+  secondRunPricing.hidden=!secondRun;secondRunPricing.disabled=!secondRun;
   const runUrl = new URL(location.href);
   let runId = runUrl.searchParams.get('run');
   if (!runId || runId.length > 256) {
