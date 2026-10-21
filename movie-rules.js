@@ -1,22 +1,23 @@
 'use strict';
 (function(root){
+  const WEEKS_PER_YEAR=50;
   const POOLS=[['average','special'],['hit','bomb','special']];
   const eventText='地產商原有意收購戲院土地，但影迷熱情發動連署，戲院所有人決定拒絕與地產商簽約';
   const indexes=new WeakMap(),plans=new Map();
   const index=database=>{if(!indexes.has(database))indexes.set(database,new Map(database.movies.map(m=>[m.id,m])));return indexes.get(database);};
   const random=(seed,key)=>root.CinemaRules.seededRandom(`movies/v1/${seed}/${key}`);
   const integer=(seed,key,min,max)=>min+Math.floor(random(seed,key)()*(max-min+1));
-  function absoluteWeek(year,week){if(!Number.isInteger(year)||!Number.isInteger(week)||week<1||week>52)throw Error('Invalid movie calendar');return(year-2022)*52+week;}
+  function absoluteWeek(year,week){if(!Number.isInteger(year)||!Number.isInteger(week)||week<1||week>WEEKS_PER_YEAR)throw Error('Invalid movie calendar');return(year-2022)*WEEKS_PER_YEAR+week;}
   function reservations(database,seed){
     const cacheKey=seed; if(plans.has(cacheKey)&&plans.get(cacheKey).database===database)return plans.get(cacheKey).result;
     const used=new Set(),result={};
     for(const m of database.movies.filter(m=>!m.initial&&m.releaseYear)){
-      const slots=[];for(let w=1;w<=52;w++)for(let p=0;p<2;p++)if(POOLS[p].includes(m.tier)&&!used.has(`${m.releaseYear}/${w}/${p}`))slots.push({year:m.releaseYear,week:w,pool:p});
+      const slots=[];for(let w=1;w<=WEEKS_PER_YEAR;w++)for(let p=0;p<2;p++)if(POOLS[p].includes(m.tier)&&!used.has(`${m.releaseYear}/${w}/${p}`))slots.push({year:m.releaseYear,week:w,pool:p});
       if(!slots.length)throw Error('Mandatory release capacity exceeded');
       const slot=slots[integer(seed,`reservation/${m.id}`,0,slots.length-1)];used.add(`${slot.year}/${slot.week}/${slot.pool}`);result[m.id]=slot;
     }if(plans.size>=100)plans.clear();plans.set(cacheKey,{database,result});return result;
   }
-  function create(seed,screenCount){return{version:1,seed,history:screenCount===1?[]:['MV0001','MV0002','MV0003'].map(id=>({id,releasedAt:1,initial:true})),current:[],lastWeek:0};}
+  function create(seed,screenCount){return{version:1,weeksPerYear:WEEKS_PER_YEAR,seed,history:screenCount===1?[]:['MV0001','MV0002','MV0003'].map(id=>({id,releasedAt:1,initial:true})),current:[],lastWeek:0};}
   function eligible(movie,state,year,week,database){
     if(movie.initial||state.history.some(h=>h.id===movie.id)||movie.releaseYear&&movie.releaseYear!==year)return false;
     const now=absoluteWeek(year,week),by=index(database);
@@ -35,7 +36,7 @@
     if(state.lastWeek===now)return state;
     if(now!==state.lastWeek+1)throw Error('Release weeks must advance sequentially');
     const next=structuredClone(state),plan=reservations(database,state.seed),pair=[];
-    const due=database.movies.filter(m=>!m.initial&&plan[m.id]?.year===year&&plan[m.id]?.week===week&&!next.history.some(h=>h.id===m.id));
+    const due=database.movies.filter(m=>!m.initial&&plan[m.id]?.year===year&&plan[m.id]?.week<=week&&!next.history.some(h=>h.id===m.id));
     for(let pool=0;pool<2;pool++){
       const mandatory=due.find(m=>plan[m.id].pool===pool);
       let candidates=database.movies.filter(m=>POOLS[pool].includes(m.tier)&&eligible(m,next,year,week,database)&&!due.some(d=>d.id===m.id&&plan[d.id].pool!==pool));
@@ -65,9 +66,16 @@
   function eventsFor(state,now){return state.history.some(h=>h.id==='MV0503'&&now-h.releasedAt+1===4)?[{id:'MV0503-week4',title:'影迷守護戲院',message:eventText}]:[];}
   function resolve(database,seed,screenCount,year,week,saved){
     const now=absoluteWeek(year,week),by=index(database);
-    if(saved!==undefined){if(saved?.version!==1||saved.seed!==seed||saved.lastWeek!==now||!Array.isArray(saved.history)||!Array.isArray(saved.current)||saved.current.length>2||new Set(saved.current).size!==saved.current.length||new Set(saved.history.map(h=>h.id)).size!==saved.history.length||saved.history.some(h=>!by.has(h.id)||h.initial!==by.get(h.id).initial||!Number.isInteger(h.releasedAt)||h.releasedAt<1||h.releasedAt>now)||saved.current.some(id=>!saved.history.some(h=>h.id===id&&h.releasedAt===now)))throw Error('Movie save is incompatible');return saved;}
-    let state=create(seed,screenCount);for(let n=1;n<=now;n++)state=releaseWeek(database,state,2022+Math.floor((n-1)/52),(n-1)%52+1);return state;
+    if(saved!==undefined){
+      if(saved?.version===1 && saved.weeksPerYear===undefined && Array.isArray(saved.history)){
+        // Previous builds used 52-week absolute dates. Preserve the actual films
+        // and order; fold the old year's final two weeks into its new W50.
+        const convert=n=>Number.isInteger(n)&&n>=1?Math.floor((n-1)/52)*WEEKS_PER_YEAR+Math.min((n-1)%52+1,WEEKS_PER_YEAR):n;
+        saved={...saved,weeksPerYear:WEEKS_PER_YEAR,lastWeek:convert(saved.lastWeek),history:saved.history.map(h=>({...h,releasedAt:convert(h.releasedAt)}))};
+      }
+      if(saved?.version!==1||saved.weeksPerYear!==WEEKS_PER_YEAR||saved.seed!==seed||saved.lastWeek!==now||!Array.isArray(saved.history)||!Array.isArray(saved.current)||saved.current.length>2||new Set(saved.current).size!==saved.current.length||new Set(saved.history.map(h=>h.id)).size!==saved.history.length||saved.history.some(h=>!by.has(h.id)||h.initial!==by.get(h.id).initial||!Number.isInteger(h.releasedAt)||h.releasedAt<1||h.releasedAt>now)||saved.current.some(id=>!saved.history.some(h=>h.id===id&&h.releasedAt===now)))throw Error('Movie save is incompatible');return saved;}
+    let state=create(seed,screenCount);for(let n=1;n<=now;n++)state=releaseWeek(database,state,2022+Math.floor((n-1)/WEEKS_PER_YEAR),(n-1)%WEEKS_PER_YEAR+1);return state;
   }
-  const api={POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,retirement,eventsFor,resolve};
+  const api={WEEKS_PER_YEAR,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,retirement,eventsFor,resolve};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMovieRules=api;
 })(globalThis);

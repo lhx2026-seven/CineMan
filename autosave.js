@@ -36,7 +36,7 @@
   function valid(record) {
     return record?.version===SAVE_VERSION && ['C01','C02','C03','C04','C05'].includes(record.cinemaID) &&
       typeof record.cinemaName==='string' && typeof record.runId==='string' && record.runId.length>0 && record.runId.length<=256 &&
-      Number.isInteger(record.year) && record.year>0 && Number.isInteger(record.week) && record.week>=1 && record.week<=53 &&
+      Number.isInteger(record.year) && record.year>0 && Number.isInteger(record.week) && record.week>=1 && record.week<=50 &&
       record.values && typeof record.values==='object' && !Array.isArray(record.values) &&
       record.allocation?.cinemaID===record.cinemaID && record.allocation?.seed===record.runId && Array.isArray(record.allocation.screens);
   }
