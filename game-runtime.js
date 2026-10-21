@@ -659,24 +659,33 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
       if(!pointer)return;const dx=event.clientX-pointer.x,dy=event.clientY-pointer.y;pointer=null;
       if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3){swiped=true;browse(center+(dx<0?1:-1));setTimeout(()=>{swiped=false;},0);}
     });
-    function setMovies(movies,values={}) {
+    function setMovies(movies,values={},retained=OLD_FILMS,totals={}) {
       const legacy={'new-01':movies[0]?.id,'new-02':movies[1]?.id};
       available=movies.length;midpoint=(available-1)/2;carousel.hidden=!available;
       cards.forEach((card,i)=>{
         const movie=movies[i];card.hidden=!movie;card.querySelector("input").disabled=!movie;if(!movie){card.querySelector("input").checked=false;return;}card.dataset.filmValue=movie.id;
         const input=card.querySelector('input');input.value=movie.id;input.checked=(legacy[values.featuredFilm]||values.featuredFilm)===movie.id;
         card.querySelector('h4').textContent=movie.title;
-        const output=card.querySelector('[data-box-office]');output.dataset.boxOffice=movie.id;output.setAttribute('aria-label',`${movie.title}本院累計票房，尚未結算`);
+        const output=card.querySelector('[data-box-office]');output.dataset.boxOffice=movie.id;output.setAttribute('aria-label',`${movie.title}本院累計票房`);output.textContent=(totals[movie.id]||0).toLocaleString('zh-TW');
       });
       specialRows.forEach(row=>{
         const select=row.querySelector('select'),saved=legacy[values[select.name]]||values[select.name]||'';
-        const options=[new Option('選擇電影',''),...[...movies,...OLD_FILMS].map(m=>new Option(m.title,m.id))];
+        const options=[new Option('選擇電影',''),...[...movies,...retained].map(m=>new Option(m.title,m.id))];
         select.replaceChildren(...options);select.value=saved;
       });
+      const oldContainer=document.querySelector('.old-films');
+      oldContainer.replaceChildren(...retained.map(movie=>{
+        const article=document.createElement('article');article.className='old-film';article.dataset.movieId=movie.id;
+        const poster=document.createElement('div');poster.className='old-film-poster';
+        if(OLD_FILMS.some(old=>old.id===movie.id)){const img=document.createElement('img');img.src=`assets/films/${movie.id}.webp`;img.width=600;img.height=900;img.alt=`《${movie.title}》電影海報`;img.loading='lazy';img.decoding='async';poster.append(img);}else{const icon=cards[0].querySelector('.film-poster svg').cloneNode(true);icon.setAttribute('aria-hidden','true');poster.append(icon);}
+        const title=document.createElement('h4');title.textContent=movie.title;
+        const report=document.createElement('p');report.className='film-box-office';const label=document.createElement('span');label.textContent='本院累計票房';const amount=document.createElement('span');amount.append('NT$ ');const output=document.createElement('output');output.dataset.boxOffice=movie.id;output.textContent=(totals[movie.id]||0).toLocaleString('zh-TW');output.setAttribute('aria-label',`${movie.title}本院累計票房`);amount.append(output);report.append(label,amount);article.append(poster,title,report);return article;
+      }));
+      oldContainer.hidden=!retained.length;document.querySelector('.old-films-heading').hidden=!retained.length;
       const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?midpoint:selected);
     }
     return {update,setMovies,setVenue(screenCount,week){
-      const exclude=screenCount===1 && week===1;
+      const exclude=!document.querySelector('.old-films').children.length;
       document.querySelector('.old-films-heading').hidden=exclude;
       document.querySelector('.old-films').hidden=exclude;
       specialRows.forEach(row=>{
@@ -1078,6 +1087,80 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
 })(globalThis);
 
 ;
+// Source: box-office.js
+'use strict';
+(function(root){
+  const R=()=>root.CinemaMovieRules;
+  const round=value=>Math.round(value+Number.EPSILON*Math.max(1,Math.abs(value))*4);
+  const amount=value=>{const n=typeof value==='number'?value:typeof value==='string'&&value.trim()!==''?Number(value):NaN;if(!Number.isFinite(n)||n<0)throw Error('票價資料不完整');return n;};
+  const format=screen=>screen.name.replace(/\s*\([^)]*\)$/, '');
+  const extraKey=screen=>'ticketExtra_'+format(screen).replace(/[^a-zA-Z0-9]/g,'');
+  function standardPrice(cinemaID,values,screenCount){
+    if(cinemaID==='C02'){const divisor={single:1,double:2,unlimited:screenCount*2}[values.secondRunMode];if(!divisor)throw Error('請選擇售票方式');return amount(values.secondRunPrice)/divisor;}
+    const full=amount(values.ticketFull);if(cinemaID==='C05')return full;
+    const derived=root.CinemaParameters.derive(full);return(full+(derived.ticketDiscount+derived.ticketMorning+derived.ticketAccessible)/3)/2;
+  }
+  function pricing(cinemaID,allocation,values){
+    const base=standardPrice(cinemaID,values,allocation.screenCount);let seatSum=0,weighted=0;const specials=[];
+    for(const screen of allocation.screens){if(!Number.isInteger(screen.size)||screen.size<=0)throw Error('影廳座位資料錯誤');const price=screen.type==='EXTRA'?amount(values[extraKey(screen)]):base;seatSum+=screen.size;weighted+=price*screen.size;if(screen.type==='EXTRA')specials.push(price);}
+    if(seatSum!==allocation.totalSeats||allocation.screens.length!==allocation.screenCount)throw Error('影廳合計資料錯誤');
+    return {averagePrice:weighted/seatSum,ticketFull:cinemaID==='C02'?undefined:amount(values.ticketFull),secondRunMode:values.secondRunMode,specialHallPrices:specials};
+  }
+  function hydrate(database,state){
+    const copy=structuredClone(state),by=new Map(database.movies.map(m=>[m.id,m]));
+    for(const h of copy.history){
+      if(h.retiredAt!==undefined&&h.retiredAt!==null&&(!Number.isInteger(h.retiredAt)||h.retiredAt<=h.releasedAt||h.retiredAt>copy.lastWeek))throw Error('下檔存檔日期錯誤');
+      if(copy.current.includes(h.id)&&h.retiredAt!==undefined&&h.retiredAt!==null)throw Error('本週新片不可已下檔');
+      if(h.retiredAt===undefined){h.retiredAt=null;for(let w=h.releasedAt+1;w<=copy.lastWeek;w++)if(R().retirement(by.get(h.id),h,w,copy.seed)){h.retiredAt=w;break;}}
+    }return copy;
+  }
+  const showing=state=>state.history.filter(h=>h.retiredAt===null||h.retiredAt===undefined);
+  function specialGross(price,rawRate){
+    price=amount(price);if(price<400||price>600||price%10!==0)throw Error('特別場票價需為400至600元，步長10元');
+    const viewers=round(price===400?100:100*rawRate*(price>500?.7:1));return {viewers,gross:viewers*price};
+  }
+  function settle({database,movies,cinemaID,locationID,allocation,values}){
+    const now=movies.lastWeek,live=showing(movies),by=new Map(database.movies.map(m=>[m.id,m]));
+    if(movies.current.length&&(!live.some(h=>h.id===values.featuredFilm)||!movies.current.includes(values.featuredFilm)))throw Error('請先選擇本週主打片');
+    const slots=amount(values.featuredSlots),capacity=allocation.screenCount*6;if(!Number.isInteger(slots)||slots>capacity)throw Error('場次占比錯誤');
+    const p=pricing(cinemaID,allocation,values),venue={cinemaID,locationID,screenCount:allocation.screenCount},featuredShare=slots/capacity,rest=live.length-1;
+    const result=live.map(h=>{
+      const movie=by.get(h.id),share=!movies.current.length?1/live.length:h.id===values.featuredFilm?featuredShare:(1-featuredShare)/rest;
+      const rawRate=R().attendance(movie,h,now,movies.seed),rate=R().effectiveAttendance(movie,h,now,movies.seed,venue,p);
+      const dailyViewers=round(rate*allocation.totalSeats*6*share);
+      return {id:h.id,rawRate,rate,share,dailyViewers,regularGross:dailyViewers*p.averagePrice*4,specialViewers:0,specialGross:0};
+    });
+    if(!['C02','C05'].includes(cinemaID))for(let i=1;i<=5;i++){
+      const suffix=i===1?'':String(i),id=values['specialMovie'+suffix];if(!id)continue;
+      const film=result.find(f=>f.id===id);if(!film)throw Error('特別場電影已下檔');
+      const extra=specialGross(values['specialPrice'+suffix],film.rawRate);film.specialViewers+=extra.viewers;film.specialGross+=extra.gross;
+    }
+    const films=result.map(f=>({...f,gross:round(f.regularGross+f.specialGross)}));return{earnedAt:now,bookedAt:now+1,total:films.reduce((s,f)=>s+f.gross,0),films};
+  }
+  function createLedger(){return{version:1,lastSettledWeek:null,receipts:[],totalsByMovie:{},byYear:{}};}
+  function resolveLedger(saved,now){
+    if(saved===undefined)return createLedger();
+    if(saved?.version!==1||!Array.isArray(saved.receipts)||typeof saved.totalsByMovie!=='object'||saved.totalsByMovie===null||typeof saved.byYear!=='object'||saved.byYear===null)throw Error('票房存檔無法讀取');
+    let previous=0;const totals={},years={};for(const receipt of saved.receipts){
+      if(!Number.isInteger(receipt.earnedAt)||receipt.earnedAt<=previous||receipt.bookedAt!==receipt.earnedAt+1||receipt.bookedAt>now||!Array.isArray(receipt.films)||new Set(receipt.films.map(f=>f.id)).size!==receipt.films.length)throw Error('票房入帳週次錯誤');
+      let total=0;for(const f of receipt.films){if(!/^MV\d{4}$/.test(f.id)||!Number.isSafeInteger(f.gross)||f.gross<0)throw Error('單片票房存檔錯誤');total+=f.gross;totals[f.id]=(totals[f.id]||0)+f.gross;}
+      if(total!==receipt.total)throw Error('票房合計錯誤');const year=2022+Math.floor((receipt.bookedAt-1)/50);years[year]=(years[year]||0)+total;previous=receipt.earnedAt;
+    }
+    if(saved.lastSettledWeek!==(previous||null)||JSON.stringify(Object.entries(totals).sort())!==JSON.stringify(Object.entries(saved.totalsByMovie).sort())||JSON.stringify(Object.entries(years).sort())!==JSON.stringify(Object.entries(saved.byYear).sort()))throw Error('票房累計存檔錯誤');return saved;
+  }
+  function advance(context,ledger){
+    const now=context.movies.lastWeek;resolveLedger(ledger,now);if(ledger.lastSettledWeek!==null&&ledger.lastSettledWeek>=now)throw Error('本週已結算');
+    const receipt=settle(context),nextNow=now+1,year=2022+Math.floor((nextNow-1)/50),week=(nextNow-1)%50+1;
+    let movies=structuredClone(context.movies);const by=new Map(context.database.movies.map(m=>[m.id,m]));
+    for(const h of showing(movies))if(R().retirement(by.get(h.id),h,nextNow,movies.seed))h.retiredAt=nextNow;
+    movies=R().releaseWeek(context.database,movies,year,week);for(const h of movies.history)h.retiredAt??=null;
+    const next=structuredClone(ledger);next.lastSettledWeek=now;next.receipts.push(receipt);next.byYear[year]=(next.byYear[year]||0)+receipt.total;for(const f of receipt.films)next.totalsByMovie[f.id]=(next.totalsByMovie[f.id]||0)+f.gross;
+    return{movies,ledger:next,year,week,receipt};
+  }
+  const api={extraKey,standardPrice,pricing,hydrate,showing,specialGross,settle,createLedger,resolveLedger,advance};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaBoxOffice=api;
+})(globalThis);
+
+;
 // Source: game.js
 'use strict';
 const cinemas = {
@@ -1120,12 +1203,13 @@ function initGame() {
     runUrl.searchParams.set('run', runId);
     history.replaceState(null, '', runUrl);
   }
-  // Week 1 has no events. Future weekly progression supplies its event list here.
+  // Start empty; loading the saved operating week supplies its movie events.
   CinemaEvents.render({events:[]});
   let restoredDraft = null;
   let exclusiveFood = null;
   let property = null;
   let movies = null;
+  let boxOffice=null,advancing=false;
   let checkpoint = null, currentAllocation = null, restoring = true, bootFailed = false, storeAvailable = true;
   let saveQueue = Promise.resolve(false), saveRevision = 0;
   const gameDate = {year:2022,week:1};
@@ -1139,8 +1223,9 @@ function initGame() {
     try {
       const allocation = await CinemaVenue.assign(id, runId, checkpoint?.allocation);
       movies=CinemaMovieRules.resolve(CinemaMovieDatabase,runId,allocation.screenCount,gameDate.year,gameDate.week,checkpoint?.movies);
-      const byID=new Map(CinemaMovieDatabase.movies.map(movie=>[movie.id,movie]));
-      films.setMovies(movies.current.map(id=>byID.get(id)),restoredDraft||{});
+      movies=CinemaBoxOffice.hydrate(CinemaMovieDatabase,movies);
+      boxOffice=CinemaBoxOffice.resolveLedger(checkpoint?.boxOffice,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week));
+      renderMovieWeek(restoredDraft||{});
       CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week))});
       CinemaVenue.render(allocation);
       renderSpecialPricing(allocation);
@@ -1159,10 +1244,11 @@ function initGame() {
       currentAllocation = allocation;
       venueReady = true;
       updateControls();
+      renderFinance();
       saveDraft();
     } catch (error) {
       message.hidden = false;
-      message.textContent = '影廳資料暫時無法載入，請重試。';
+      message.textContent = '營運資料暫時無法載入，請重試。';
       venueRetry.hidden = false;
       console.error('Venue allocation failed:', error);
     }
@@ -1216,6 +1302,21 @@ function initGame() {
   const form = document.querySelector('#management-form');
   CinemaParameters.apply(form,id);
   const films = CinemaFilms.init(form);
+  function renderMovieWeek(values={}) {
+    const byID=new Map(CinemaMovieDatabase.movies.map(movie=>[movie.id,movie]));
+    const retained=CinemaBoxOffice.showing(movies).filter(h=>!movies.current.includes(h.id)).map(h=>byID.get(h.id));
+    films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{});
+  }
+  function renderFinance(){
+    const now=CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week),receipt=boxOffice?.receipts.find(r=>r.bookedAt===now);
+    document.querySelector('.week-badge').textContent=`${gameDate.year} W${gameDate.week}`;
+    document.querySelector('#report-weekly .report-period').textContent=`${gameDate.year} W${gameDate.week}`;
+    document.querySelector('#report-annual .report-period').textContent=String(gameDate.year);
+    document.querySelector('#weekly-box-office').textContent=(receipt?.total||0).toLocaleString('zh-TW');
+    document.querySelector('#annual-box-office').textContent=(boxOffice?.byYear[gameDate.year]||0).toLocaleString('zh-TW');
+    document.querySelector('#report-weekly caption').textContent=`${gameDate.year} W${gameDate.week} 週報，上週拆帳前票房於本週入帳，其餘項目待結算`;
+    document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，拆帳前票房累計入帳，其餘項目待結算`;
+  }
   function renderProperty() {
     const location=CinemaDatabase.locations.find(location=>location.locationID===property.locationID);
     const summary=document.querySelector('#property-summary');
@@ -1375,7 +1476,7 @@ function initGame() {
       form.elements[`${item}Enabled`].setAttribute('aria-expanded', String(enabled));
     }
     const featured = form.querySelector('input[name="featuredFilm"]:checked');
-    document.querySelector('#next-week').disabled = !featured || !venueReady;
+    document.querySelector('#next-week').disabled = advancing || !venueReady || (movies?.current.length>0&&!featured);
     const share = document.querySelector('#featured-share');
     share.disabled = !featured || !venueReady;
     const percentage = venueReady ? CinemaFilms.sharePercentage(Number(share.value),venueScreenCount) : 0;
@@ -1386,8 +1487,7 @@ function initGame() {
     if (featured) document.querySelector('#featured-heading').textContent = `選擇${films.titleFor(featured.value)}為本週主打，場次占比`;
     films.update();
   }
-  function saveDraft(stageForNavigation=false) {
-    if(restoring || !venueReady || !storeAvailable)return saveQueue;
+  function formValues() {
     const values = {};
     for (const control of form.elements) {
       if (!control.name || CinemaParameters.isDerived(control.name) || control.closest('.special-screenings')?.disabled || (control.name==='activationRate'&&!property?.hasSpace)) continue;
@@ -1395,9 +1495,14 @@ function initGame() {
       else if(control.type==='radio'){if(control.checked)values[control.name]=control.value;}
       else values[control.name]=control.value;
     }
+    return values;
+  }
+  function saveDraft(stageForNavigation=false) {
+    if(restoring || !venueReady || !storeAvailable)return saveQueue;
+    const values=formValues();
     const budgetLocks=Object.fromEntries(['maintenance','consumables'].map(name=>[name,form.elements[name].disabled ? document.querySelector(`#${name}-lock`).title || true : false]));
     const snapshot={cinemaID:id,cinemaName:cinema.name,runId,year:gameDate.year,week:gameDate.week,
-      values,allocation:currentAllocation,exclusiveFood,property,movies,budgetLocks,
+      values,allocation:currentAllocation,exclusiveFood,property,movies,boxOffice,budgetLocks,
       tabID:tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       reportTabID:reportTabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};
@@ -1430,10 +1535,21 @@ function initGame() {
     saveDraft(true);
   });
   document.querySelector('#next-week').addEventListener('click', async () => {
-    if (!venueReady || !form.querySelector('input[name="featuredFilm"]:checked')) return;
-    await saveDraft();
-    document.querySelector('#dialog-save-status').textContent = saved ? '你的配置已保留，可以繼續調整。' : '目前配置僅保留在本頁，請勿關閉頁面。';
-    document.querySelector('#week-dialog').showModal();
+    if(advancing||!venueReady||(movies.current.length&&!form.querySelector('[name="featuredFilm"]:checked')))return;
+    advancing=true;updateControls();
+    try {
+      const values=formValues();
+      const next=CinemaBoxOffice.advance({database:CinemaMovieDatabase,movies,cinemaID:id,locationID:property.locationID,allocation:currentAllocation,values},boxOffice);
+      movies=next.movies;boxOffice=next.ledger;gameDate.year=next.year;gameDate.week=next.week;
+      delete values.featuredFilm;values.featuredSlots=String(6*venueScreenCount-1);values.specialCount='1';
+      for(let i=1;i<=5;i++)values['specialMovie'+(i===1?'':i)]='';
+      restoredDraft=values;renderMovieWeek(values);form.elements.specialCount.value='1';form.elements.featuredSlots.value=values.featuredSlots;
+      films.setVenue(venueScreenCount,gameDate.week);renderFinance();
+      CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,movies.lastWeek)});
+      checkpoint={...checkpoint,movies,boxOffice,allocation:currentAllocation,values,year:gameDate.year,week:gameDate.week};
+      saveDraft();
+    }catch(error){document.querySelector('#dialog-save-status').textContent=error.message;document.querySelector('#week-dialog').showModal();console.error('Weekly settlement failed:',error);}
+    finally{advancing=false;updateControls();}
   });
   async function startGame() {
     try {

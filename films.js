@@ -85,24 +85,33 @@
       if(!pointer)return;const dx=event.clientX-pointer.x,dy=event.clientY-pointer.y;pointer=null;
       if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3){swiped=true;browse(center+(dx<0?1:-1));setTimeout(()=>{swiped=false;},0);}
     });
-    function setMovies(movies,values={}) {
+    function setMovies(movies,values={},retained=OLD_FILMS,totals={}) {
       const legacy={'new-01':movies[0]?.id,'new-02':movies[1]?.id};
       available=movies.length;midpoint=(available-1)/2;carousel.hidden=!available;
       cards.forEach((card,i)=>{
         const movie=movies[i];card.hidden=!movie;card.querySelector("input").disabled=!movie;if(!movie){card.querySelector("input").checked=false;return;}card.dataset.filmValue=movie.id;
         const input=card.querySelector('input');input.value=movie.id;input.checked=(legacy[values.featuredFilm]||values.featuredFilm)===movie.id;
         card.querySelector('h4').textContent=movie.title;
-        const output=card.querySelector('[data-box-office]');output.dataset.boxOffice=movie.id;output.setAttribute('aria-label',`${movie.title}本院累計票房，尚未結算`);
+        const output=card.querySelector('[data-box-office]');output.dataset.boxOffice=movie.id;output.setAttribute('aria-label',`${movie.title}本院累計票房`);output.textContent=(totals[movie.id]||0).toLocaleString('zh-TW');
       });
       specialRows.forEach(row=>{
         const select=row.querySelector('select'),saved=legacy[values[select.name]]||values[select.name]||'';
-        const options=[new Option('選擇電影',''),...[...movies,...OLD_FILMS].map(m=>new Option(m.title,m.id))];
+        const options=[new Option('選擇電影',''),...[...movies,...retained].map(m=>new Option(m.title,m.id))];
         select.replaceChildren(...options);select.value=saved;
       });
+      const oldContainer=document.querySelector('.old-films');
+      oldContainer.replaceChildren(...retained.map(movie=>{
+        const article=document.createElement('article');article.className='old-film';article.dataset.movieId=movie.id;
+        const poster=document.createElement('div');poster.className='old-film-poster';
+        if(OLD_FILMS.some(old=>old.id===movie.id)){const img=document.createElement('img');img.src=`assets/films/${movie.id}.webp`;img.width=600;img.height=900;img.alt=`《${movie.title}》電影海報`;img.loading='lazy';img.decoding='async';poster.append(img);}else{const icon=cards[0].querySelector('.film-poster svg').cloneNode(true);icon.setAttribute('aria-hidden','true');poster.append(icon);}
+        const title=document.createElement('h4');title.textContent=movie.title;
+        const report=document.createElement('p');report.className='film-box-office';const label=document.createElement('span');label.textContent='本院累計票房';const amount=document.createElement('span');amount.append('NT$ ');const output=document.createElement('output');output.dataset.boxOffice=movie.id;output.textContent=(totals[movie.id]||0).toLocaleString('zh-TW');output.setAttribute('aria-label',`${movie.title}本院累計票房`);amount.append(output);report.append(label,amount);article.append(poster,title,report);return article;
+      }));
+      oldContainer.hidden=!retained.length;document.querySelector('.old-films-heading').hidden=!retained.length;
       const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?midpoint:selected);
     }
     return {update,setMovies,setVenue(screenCount,week){
-      const exclude=screenCount===1 && week===1;
+      const exclude=!document.querySelector('.old-films').children.length;
       document.querySelector('.old-films-heading').hidden=exclude;
       document.querySelector('.old-films').hidden=exclude;
       specialRows.forEach(row=>{

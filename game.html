@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
 <link rel="stylesheet" href="game.css?v=938cdf4eb6f5">
-<script src="game-runtime.js?v=1795cc380df8" defer></script>
+<script src="game-runtime.js?v=c06af33e98b6" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -40,7 +40,7 @@
         <caption class="sr-only">2022 W1 週報，結算規則尚未設定，金額均待結算</caption>
         <thead><tr><th scope="col">項目</th><th scope="col">收入</th><th scope="col">支出</th></tr></thead>
         <tbody>
-          <tr><th scope="row">電影票房（拆帳前）</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
+          <tr><th scope="row">電影票房（拆帳前）</th><td id="weekly-box-office">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">電影票房（拆帳後）</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">餐飲週邊</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr class="expense-start"><th scope="row">人事</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
@@ -60,7 +60,7 @@
         <caption class="sr-only">2022 年報，結算規則尚未設定，金額均待結算</caption>
         <thead><tr><th scope="col">項目</th><th scope="col">收入</th><th scope="col">支出</th></tr></thead>
         <tbody>
-          <tr><th scope="row">電影票房</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
+          <tr><th scope="row">電影票房（拆帳前）</th><td id="annual-box-office">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">餐飲週邊</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">其它</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr class="expense-start"><th scope="row">人事</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
@@ -76,7 +76,7 @@
       <div class="ledger-tax"><span>減：稅</span><strong>—</strong></div>
       <div class="ledger-balance"><span>年度損益</span><strong>—</strong><span class="pending-tag">尚未結算</span></div>
     </div>
-    <p class="report-note">「—」待結算；「·」不適用。結算規則尚未設定。</p>
+    <p class="report-note">上週票房於本週入帳；「—」為尚未啟用的結算項目；「·」不適用。</p>
   </section>
   </div>
   <section class="weekly-bulletin" id="weekly-bulletin" aria-label="本週公告">
@@ -179,7 +179,7 @@
   <section class="counter-scene" aria-label="電影院售票櫃台"><img id="cinema-counter" width="1774" height="887" alt="" loading="lazy"><div class="counter-shade"></div><div class="next-week-area"><button type="button" id="next-week" class="gold-button" disabled>下一週 <span aria-hidden="true">→</span></button></div></section>
   <p id="draft-status" class="draft-status" role="status"></p>
 </main>
-<dialog id="week-dialog"><form method="dialog"><p class="overline">CineMan</p><h2>下一週，敬請期待</h2><p>目前先開放本週配置預覽，週結算尚未開放。</p><p id="dialog-save-status"></p><button class="gold-button" value="close">繼續調整</button></form></dialog>
+<dialog id="week-dialog"><form method="dialog"><p class="overline">CineMan</p><h2>本週暫時無法結算</h2><p>請檢查本週配置後重試。</p><p id="dialog-save-status"></p><button class="gold-button" value="close">繼續調整</button></form></dialog>
 <footer class="site-footer">©2026 CineMan · Developed by <a href="https://www.facebook.com/FRONTDELIBERATIONCINEMA" target="_blank" rel="noopener noreferrer">電影解放陣線</a></footer>
 </body>
 </html>

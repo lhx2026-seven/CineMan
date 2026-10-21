@@ -13,6 +13,6 @@ Rates are decimals. Deductions are percentage points, deterministic, and cumulat
 
 The eventual formula is average ticket price × final effective attendance × total seats × 6 × film screening share. Do not multiply by location_weight or ticket_price_weight again: both are attendance adjustments, not extra gross-revenue factors. Average ticket-price rules remain separate from attendance penalties.
 
-The module is ready; financial reporting and weekly settlement remain inactive. This change does not invent box-office results.
+The module is used by weekly gross box-office settlement; see `docs/box-office.md`. After-split ticket revenue and other income/expenses remain pending.
 
 Test: `node tests/ticket-attendance.cjs`.

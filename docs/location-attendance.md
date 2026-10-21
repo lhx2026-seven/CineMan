@@ -23,6 +23,6 @@ For the eventual box-office calculation, use:
 
 Do not multiply by location_weight or ticket_price_weight again: pass pricing to effectiveAttendance so both attendance effects are included. See `docs/ticket-attendance.md`. For example, base 40% plus 50 points becomes 90%; hit 80% ×1.75 becomes 100%; average 10% minus 25 points becomes 0%.
 
-The calculation module is ready; financial reports and weekly settlement remain inactive pending the other unprovided formula parameters. No estimates or invented financial results are displayed.
+The calculation module is used by weekly gross box-office settlement; see `docs/box-office.md`. Other financial formulas remain pending, and no invented results are displayed.
 
 Test: `node tests/location-attendance.cjs`.

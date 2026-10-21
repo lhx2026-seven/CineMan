@@ -33,6 +33,6 @@ First-week hit 50–100%, bomb 1–10%, average 1–50%, inclusive integer perce
 - MV0504: opening ages W1–W4 = 100%; W5–W8 = 90%; W9–W12 = 50%; W13 onward 1% attendance and 90% retirement.
 - MV0505: opening ages W1–W4 = 100%; W5–W8 = 80%; W9–W12 = 60%; W13 onward 1% attendance and 90% retirement.
 
-These pure rules are prepared for weekly progression. This change connects actual opening-week new movies and their save data to the current interface; the existing Next Week preview remains a preview, and box-office/financial formulas remain inactive.
+Weekly progression is now active for movie opening, retirement, events and delayed gross box-office recognition. See `docs/box-office.md`. After-split income, other revenue and expense/net settlement remain pending.
 
 Tests: `node tests/movie-rules.cjs`, `node tests/films.cjs`, and `CINEMAN_BASE_URL=http://127.0.0.1:PORT node tests/movie-pool-browser.cjs`. Entry performance and property save regression tests also apply.
