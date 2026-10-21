@@ -516,6 +516,24 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"é­
     if(age===1)return base;if(age>=5)return .01;
     const limits={2:[0,50],3:[50,75],4:[50,99]}[age];return base*(1-integer(seed,`decline/${movie.id}/${now}`,limits[0],limits[1])/100);
   }
+  function locationAttendance({attendanceRate,locationID,cinemaID,tier,screenCount}) {
+    if(!Number.isFinite(attendanceRate)||attendanceRate<0||attendanceRate>1||!/^LOC0[1-8]$/.test(locationID)||!/^C0[1-5]$/.test(cinemaID)||!['hit','bomb','average','special'].includes(tier)||!Number.isInteger(screenCount)||screenCount<1)throw Error('Invalid attendance context');
+    let rate=attendanceRate;
+    switch(locationID){
+      case 'LOC01':if(['C01','C05'].includes(cinemaID))rate+=.5;break;
+      case 'LOC02':if(tier==='hit')rate*=1.75;break;
+      case 'LOC03':if(cinemaID==='C02')rate+=.25;break;
+      case 'LOC04':if(tier==='hit')rate+=.5;break;
+      case 'LOC05':if(screenCount<4&&tier==='hit')rate*=1.5;break;
+      case 'LOC06':if(['bomb','average'].includes(tier))rate*=.5;break;
+      case 'LOC07':if(tier==='average')rate-=.25;break;
+      case 'LOC08':rate*=.5;break;
+    }
+    return Math.max(0,Math.min(1,rate));
+  }
+  function effectiveAttendance(movie,record,now,seed,venue){
+    return locationAttendance({...venue,tier:movie.tier,attendanceRate:attendance(movie,record,now,seed)});
+  }
   function retirement(movie,record,now,seed){
     const age=now-record.releasedAt+1;
     if(record.initial&&movie.id==='MV0003')return now>=2;
@@ -536,7 +554,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"é­
       if(saved?.version!==1||saved.weeksPerYear!==WEEKS_PER_YEAR||saved.seed!==seed||saved.lastWeek!==now||!Array.isArray(saved.history)||!Array.isArray(saved.current)||saved.current.length>2||new Set(saved.current).size!==saved.current.length||new Set(saved.history.map(h=>h.id)).size!==saved.history.length||saved.history.some(h=>!by.has(h.id)||h.initial!==by.get(h.id).initial||!Number.isInteger(h.releasedAt)||h.releasedAt<1||h.releasedAt>now)||saved.current.some(id=>!saved.history.some(h=>h.id===id&&h.releasedAt===now)))throw Error('Movie save is incompatible');return saved;}
     let state=create(seed,screenCount);for(let n=1;n<=now;n++)state=releaseWeek(database,state,2022+Math.floor((n-1)/WEEKS_PER_YEAR),(n-1)%WEEKS_PER_YEAR+1);return state;
   }
-  const api={WEEKS_PER_YEAR,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,retirement,eventsFor,resolve};
+  const api={WEEKS_PER_YEAR,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,locationAttendance,effectiveAttendance,retirement,eventsFor,resolve};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMovieRules=api;
 })(globalThis);
 
