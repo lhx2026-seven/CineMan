@@ -520,7 +520,9 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"é­
     if(movie.id==='MV0503')return[.5,.7,.9,.99][age-1]??.5;
     if(movie.id==='MV0504'||movie.id==='MV0505')return age<=4?1:age<=8?(movie.id==='MV0504'?.9:.8):age<=12?(movie.id==='MV0504'?.5:.6):.01;
     const range={hit:[50,100],bomb:[1,10],average:[1,50]}[movie.tier];if(!range)throw Error('Missing attendance profile');
-    const base=integer(seed,`attendance/${movie.id}/${record.releasedAt}`,range[0],range[1])/100;
+    const key=`attendance/${movie.id}/${record.releasedAt}`;
+    const bounds=movie.tier==='hit'?(random(seed,`${key}/band`)()<.9?[50,79]:[80,100]):range;
+    const base=integer(seed,key,bounds[0],bounds[1])/100;
     if(age===1)return base;if(age>=5)return .01;
     const limits={2:[0,50],3:[50,75],4:[50,99]}[age];return base*(1-integer(seed,`decline/${movie.id}/${now}`,limits[0],limits[1])/100);
   }

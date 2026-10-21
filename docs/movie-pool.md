@@ -25,7 +25,7 @@ New runs draw new release pairs. Movie checkpoints record weeksPerYear=50. Older
 
 ## Attendance and retirement profiles
 
-First-week hit 50–100%, bomb 1–10%, average 1–50%, inclusive integer percentage-point steps. W2 retains 50–100% of its own first-week attendance; W3 retains 25–50%; W4 retains 1–50%. Each decline is sampled separately against the first-week base, so rebound is allowed. W5 onward: weekly retirement probability 90%, attendance 1% if retained.
+First-week hit uses a weighted two-band draw: 90% probability for 50–79%, 10% for 80–100%; integer percentage points are uniform within the chosen band, inclusive. Bomb remains uniform 1–10% and average uniform 1–50%. The band and value use independent deterministic seed keys, so reload does not reroll. This changes the computed hit base for future settlements, including unbooked weeks in existing runs; already booked receipts are never recalculated. Test: node tests/hit-attendance.cjs. W2 retains 50–100% of its own first-week attendance; W3 retains 25–50%; W4 retains 1–50%. Each decline is sampled separately against the first-week base, so rebound is allowed. W5 onward: weekly retirement probability 90%, attendance 1% if retained.
 
 - MV0001, MV0002: initial attendance fixed 50%; game W3 onward 90% retirement per week.
 - MV0003: initial 10%; forced off game W2.
