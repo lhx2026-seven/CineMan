@@ -16,11 +16,11 @@ For each film currently showing:
 2. Apply location adjustment with [0,1] clamp, then cumulative ticket penalties and clamp again.
 3. Featured film uses exactly its selected screening share; all other still-showing films equally divide the remainder. Retired films do not share it. If no new releases are available, remaining films divide sessions equally. A single featured film does not automatically override its selected share to 100%.
 4. `dailyViewers = round(effectiveAttendance × totalSeats × 6 × filmShare)`.
-5. `weeklyRegularGross = dailyViewers × weightedAveragePrice × 4`. Retain fractional money internally until final film-week rounding.
+5. `weeklyRegularGross = dailyViewers × weightedAveragePrice × 3`. Retain fractional money internally until final film-week rounding.
 
 ## Special sessions
 
-Extra sessions do not consume regular sessions. At 400: 100 viewers. At 410–500: round(100 × raw current-week attendance). At 510–600: round(100 × raw attendance × 0.70). Prices use 10-unit steps. No location adjustment, ordinary ticket penalty, hall-size cap or four-day multiplier applies. Each selected session occurs once; add up to five. C02 and C05 remain excluded from this feature.
+Extra sessions do not consume regular sessions. At 400: 100 viewers. At 410–500: round(100 × raw current-week attendance). At 510–600: round(100 × raw attendance × 0.70). Prices use 10-unit steps. No location adjustment, ordinary ticket penalty, hall-size cap or three-day multiplier applies. Each selected session occurs once; add up to five. C02 and C05 remain excluded from this feature.
 
 For each film, `weeklyGross = round(weeklyRegularGross + sum(specialSessionViewers × specialSessionPrice))`. Sum these integer film grosses for the week's gross. Rounding uses a tiny floating-point error correction so values such as 33.49999999999999 mathematically representing 33.5 round to 34.
 
@@ -45,3 +45,5 @@ The carried film takes the selected featured share; every other still-showing ti
 Older receipts without featuredID remain valid. When there are at least three films and exactly one screening-share outlier, the previous feature is recovered from the former equal-remainder rule. Equal-share or two-film cases are ambiguous and are never guessed; for those saves, the option becomes available after the next normal settlement records a known feature.
 
 Tests: `node tests/box-office.cjs` and `tests/carry-feature-browser.cjs`.
+
+The weekly regular-session multiplier is now 3 (previously 4). This applies to future settlements only; already booked receipt amounts are preserved, not recalculated.

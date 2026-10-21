@@ -1148,7 +1148,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"é­
       const movie=by.get(h.id),share=!selected?1/live.length:h.id===selected?featuredShare:(1-featuredShare)/rest;
       const rawRate=R().attendance(movie,h,now,movies.seed),rate=R().effectiveAttendance(movie,h,now,movies.seed,venue,p);
       const dailyViewers=round(rate*allocation.totalSeats*6*share);
-      return {id:h.id,rawRate,rate,share,dailyViewers,regularGross:dailyViewers*p.averagePrice*4,specialViewers:0,specialGross:0};
+      return {id:h.id,rawRate,rate,share,dailyViewers,regularGross:dailyViewers*p.averagePrice*3,specialViewers:0,specialGross:0};
     });
     if(!['C02','C05'].includes(cinemaID))for(let i=1;i<=5;i++){
       const suffix=i===1?'':String(i),id=values['specialMovie'+suffix];if(!id)continue;
