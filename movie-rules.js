@@ -69,17 +69,7 @@
   function locationAttendance({attendanceRate,locationID,cinemaID,tier,screenCount}) {
     if(!Number.isFinite(attendanceRate)||attendanceRate<0||attendanceRate>1||!/^LOC0[1-8]$/.test(locationID)||!/^C0[1-5]$/.test(cinemaID)||!['hit','bomb','average','special'].includes(tier)||!Number.isInteger(screenCount)||screenCount<1)throw Error('Invalid attendance context');
     if(tier==='special')return attendanceRate;
-    let rate=attendanceRate*LOCATION_INITIAL[locationID];
-    switch(locationID){
-      case 'LOC01':if(['C01','C05'].includes(cinemaID))rate+=.5;break;
-      case 'LOC02':if(tier==='hit')rate*=1.75;break;
-      case 'LOC03':if(cinemaID==='C02')rate+=.25;break;
-      case 'LOC04':if(tier==='hit')rate+=.5;break;
-      case 'LOC05':if(screenCount<4&&tier==='hit')rate*=1.5;break;
-      case 'LOC06':if(['bomb','average'].includes(tier))rate*=.5;break;
-      case 'LOC07':if(tier==='average')rate-=.25;break;
-      case 'LOC08':rate*=.5;break;
-    }
+    const rate=attendanceRate*LOCATION_INITIAL[locationID];
     return Math.max(0,Math.min(1,rate));
   }
   function ticketAttendance({attendanceRate,cinemaID,screenCount,ticketFull,secondRunMode,specialHallPrices=[]}) {

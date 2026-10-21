@@ -13,7 +13,7 @@ Weight standard and EXTRA hall prices by actual seat counts. EXTRA prices are en
 
 For each film currently showing:
 1. Determine its own current-week raw attendance from the saved opening date and fixed run seed.
-2. For ordinary films, apply the initial location factor, then location adjustment with [0,1] clamp, then cumulative ticket penalties and clamp again. C05 then multiplies hit by 0.5 or average by 1.5, clamping once more; bomb is unchanged. This applies to both featured and non-featured films. Special-tier films retain their raw profile and bypass all attendance modifiers.
+2. For ordinary films, apply only the initial location factor with [0,1] clamp (the eight former additional location bonuses/penalties are withdrawn), then cumulative ticket penalties and clamp again. C05 then multiplies hit by 0.5 or average by 1.5, clamping once more; bomb is unchanged. This applies to both featured and non-featured films. Special-tier films retain their raw profile and bypass all attendance modifiers.
 3. Featured film uses exactly its selected screening share; all other still-showing films equally divide the remainder. Retired films do not share it. If no new releases are available, remaining films divide sessions equally. A single featured film does not automatically override its selected share to 100%.
 4. `dailyViewers = round(effectiveAttendance × totalSeats × 6 × filmShare)`.
 5. `weeklyRegularGross = dailyViewers × weightedAveragePrice × 3`. Retain fractional money internally until final film-week rounding.
