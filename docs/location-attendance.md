@@ -1,6 +1,6 @@
 # Location attendance adjustment
 
-Attendance rates use decimals (40% = 0.4). Additions/subtractions are percentage points, not relative multipliers. Apply the location rule to the film's own current-week attendance, after its ordinary decline or special profile; then clamp to [0, 1]. Do not modify the remembered first-week base.
+Attendance rates use decimals (40% = 0.4). Additions/subtractions are percentage points, not relative multipliers. For ordinary films, multiply current-week raw attendance by the initial location factor first, then apply the adjustment below and clamp to [0, 1]. Initial factors: LOC01=1, LOC02=1, LOC03=0.8, LOC04=0.9, LOC05=0.8, LOC06=0.6, LOC07=0.7, LOC08=0.6. Even the ordinary W5+ 1% uses this factor. All six special-tier films bypass location, ticket and scheduling attendance adjustments and retain their own current-week profile. Do not modify the remembered first-week base.
 
 | Location | Condition | Adjustment |
 |---|---|---|
@@ -13,9 +13,9 @@ Attendance rates use decimals (40% = 0.4). Additions/subtractions are percentage
 | LOC07 中型城市 | average | −0.25 |
 | LOC08 小城鎮 | all films and cinema types | ×0.5 |
 
-Unmatched conditions leave the original rate unchanged. These rules are deterministic; they supersede the earlier placeholder of randomly drawing location_weight ranges. The first-draw property.locationID, cinemaID, actual allocated screenCount and movie tier are the inputs, not player-entered values.
+Unmatched conditions leave the initial-factor-adjusted rate unchanged. These rules are deterministic; they supersede the earlier placeholder of randomly drawing location_weight ranges. The first-draw property.locationID, cinemaID, actual allocated screenCount and movie tier are the inputs, not player-entered values.
 
-`CinemaMovieRules.locationAttendance(context)` applies just the adjustment. `effectiveAttendance(movie, openingRecord, absoluteWeek, runSeed, venue)` first obtains the current week's normal/special attendance and then applies location rules. No additional random draw is introduced and neither helper mutates the opening record or location.
+`CinemaMovieRules.locationAttendance(context)` applies just the adjustment. `effectiveAttendance(movie, openingRecord, absoluteWeek, runSeed, venue)` first obtains current-week attendance; special-tier profiles return directly, while ordinary films apply location rules. No additional random draw is introduced and neither helper mutates the opening record or location.
 
 For the eventual box-office calculation, use:
 

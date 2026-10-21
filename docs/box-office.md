@@ -13,7 +13,7 @@ Weight standard and EXTRA hall prices by actual seat counts. EXTRA prices are en
 
 For each film currently showing:
 1. Determine its own current-week raw attendance from the saved opening date and fixed run seed.
-2. Apply location adjustment with [0,1] clamp, then cumulative ticket penalties and clamp again.
+2. For ordinary films, apply the initial location factor, then location adjustment with [0,1] clamp, then cumulative ticket penalties and clamp again. Special-tier films retain their raw profile and bypass all attendance modifiers.
 3. Featured film uses exactly its selected screening share; all other still-showing films equally divide the remainder. Retired films do not share it. If no new releases are available, remaining films divide sessions equally. A single featured film does not automatically override its selected share to 100%.
 4. `dailyViewers = round(effectiveAttendance × totalSeats × 6 × filmShare)`.
 5. `weeklyRegularGross = dailyViewers × weightedAveragePrice × 3`. Retain fractional money internally until final film-week rounding.
@@ -40,7 +40,7 @@ Tests: `node tests/box-office.cjs`; `CINEMAN_BASE_URL=http://127.0.0.1:PORT node
 
 From operating week 2, an additional manual choice permits carrying last week's featured film, without replacing either new-release slot. It is offered only if the exact previous source-week receipt identifies that film, it remains showing, and no earlier settled receipt marks that film extended. The original opening date, attendance decline and retirement rules remain unchanged.
 
-The carried film takes the selected featured share; every other still-showing title (including both new releases) divides the remainder. Draft selection, switching away, reload and Continue do not consume the right. Only actual weekly settlement records featuredID and extendedFeatured in the receipt. The per-film right is therefore consumed at most once in the run, persists in saves and is validated when loading.
+The carried film takes the selected featured share; every other surviving title divides the remainder, subject to the Baogong cap below. Draft selection, switching away, reload and Continue do not consume the right. Only actual weekly settlement records featuredID and extendedFeatured in the receipt. The per-film right is therefore consumed at most once in the run, persists in saves and is validated when loading.
 
 Older receipts without featuredID remain valid. When there are at least three films and exactly one screening-share outlier, the previous feature is recovered from the former equal-remainder rule. Equal-share or two-film cases are ambiguous and are never guessed; for those saves, the option becomes available after the next normal settlement records a known feature.
 
@@ -65,3 +65,11 @@ C02 世紀 uses 2 share-grid units per allocated hall: each step is 100% / scree
 The same shared capacity helper drives UI percentages and settlement. Snapshots record featuredCapacity. Legacy six-unit C02 saves convert the old ratio to the nearest new grid step; an old default converts specifically to the new below-100 default. Already booked receipts are not recomputed.
 
 Tests: `node tests/films.cjs`, `tests/second-run-share-browser.cjs`.
+
+## Cinema scheduling limits
+
+C01 Baogong keeps at most three films (new and retained combined). Above 80% featured share it keeps at most two: the feature and one secondary. Keep the featured film first, then its surviving same-opening-week companion, then the newest surviving films (movie ID breaks ties). Never revive retired films or add titles just to fill the cap. Without a feature, keep the three newest. Excess films receive zero regular AND special-session gross this operating week and are permanently retired at the source week with reason baogong-focus; their zero receipt rows and retirement dates survive reload.
+
+C02 above 60% featured share halves non-featured ordinary-film attendance. C01 above 80% does the same to its surviving ordinary secondary. Exact thresholds do not trigger the penalty. Special-tier films bypass the attendance penalty, but remain subject to Baogong's structural film cap and mandatory retirement. Remaining screening share is divided only among survivors. Already booked receipts are never recalculated.
+
+Tests: node tests/scheduling-weights.cjs, plus the box-office and location/ticket suites.

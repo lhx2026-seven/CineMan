@@ -461,6 +461,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
 'use strict';
 (function(root){
   const WEEKS_PER_YEAR=50;
+  const LOCATION_INITIAL=Object.freeze({LOC01:1,LOC02:1,LOC03:.8,LOC04:.9,LOC05:.8,LOC06:.6,LOC07:.7,LOC08:.6});
   const POOLS=[['average','special'],['hit','bomb','special']];
   const eventText='地產商原有意收購戲院土地，但影迷熱情發動連署，戲院所有人決定拒絕與地產商簽約';
   const indexes=new WeakMap(),plans=new Map();
@@ -522,7 +523,8 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
   }
   function locationAttendance({attendanceRate,locationID,cinemaID,tier,screenCount}) {
     if(!Number.isFinite(attendanceRate)||attendanceRate<0||attendanceRate>1||!/^LOC0[1-8]$/.test(locationID)||!/^C0[1-5]$/.test(cinemaID)||!['hit','bomb','average','special'].includes(tier)||!Number.isInteger(screenCount)||screenCount<1)throw Error('Invalid attendance context');
-    let rate=attendanceRate;
+    if(tier==='special')return attendanceRate;
+    let rate=attendanceRate*LOCATION_INITIAL[locationID];
     switch(locationID){
       case 'LOC01':if(['C01','C05'].includes(cinemaID))rate+=.5;break;
       case 'LOC02':if(tier==='hit')rate*=1.75;break;
@@ -547,7 +549,8 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     return Math.max(0,Math.min(1,attendanceRate-penalty));
   }
   function effectiveAttendance(movie,record,now,seed,venue,pricing){
-    const rate=locationAttendance({...venue,tier:movie.tier,attendanceRate:attendance(movie,record,now,seed)});
+    const raw=attendance(movie,record,now,seed);if(movie.tier==='special')return raw;
+    const rate=locationAttendance({...venue,tier:movie.tier,attendanceRate:raw});
     return pricing===undefined?rate:ticketAttendance({...pricing,cinemaID:venue.cinemaID,screenCount:venue.screenCount,attendanceRate:rate});
   }
   function retirement(movie,record,now,seed){
@@ -570,7 +573,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
       if(saved?.version!==1||saved.weeksPerYear!==WEEKS_PER_YEAR||saved.seed!==seed||saved.lastWeek!==now||!Array.isArray(saved.history)||!Array.isArray(saved.current)||saved.current.length>2||new Set(saved.current).size!==saved.current.length||new Set(saved.history.map(h=>h.id)).size!==saved.history.length||saved.history.some(h=>!by.has(h.id)||h.initial!==by.get(h.id).initial||!Number.isInteger(h.releasedAt)||h.releasedAt<1||h.releasedAt>now)||saved.current.some(id=>!saved.history.some(h=>h.id===id&&h.releasedAt===now)))throw Error('Movie save is incompatible');return saved;}
     let state=create(seed,screenCount);for(let n=1;n<=now;n++)state=releaseWeek(database,state,2022+Math.floor((n-1)/WEEKS_PER_YEAR),(n-1)%WEEKS_PER_YEAR+1);return state;
   }
-  const api={WEEKS_PER_YEAR,screeningCapacity,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,locationAttendance,ticketAttendance,effectiveAttendance,retirement,eventsFor,resolve};
+  const api={WEEKS_PER_YEAR,LOCATION_INITIAL,screeningCapacity,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,locationAttendance,ticketAttendance,effectiveAttendance,retirement,eventsFor,resolve};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMovieRules=api;
 })(globalThis);
 
@@ -1117,7 +1120,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
   function hydrate(database,state){
     const copy=structuredClone(state),by=new Map(database.movies.map(m=>[m.id,m]));
     for(const h of copy.history){
-      if(h.retiredAt!==undefined&&h.retiredAt!==null&&(!Number.isInteger(h.retiredAt)||h.retiredAt<=h.releasedAt||h.retiredAt>copy.lastWeek))throw Error('下檔存檔日期錯誤');
+      if(h.retiredAt!==undefined&&h.retiredAt!==null&&(!Number.isInteger(h.retiredAt)||h.retiredAt<h.releasedAt||h.retiredAt>copy.lastWeek))throw Error('下檔存檔日期錯誤');
       if(copy.current.includes(h.id)&&h.retiredAt!==undefined&&h.retiredAt!==null)throw Error('本週新片不可已下檔');
       if(h.retiredAt===undefined){h.retiredAt=null;for(let w=h.releasedAt+1;w<=copy.lastWeek;w++)if(R().retirement(by.get(h.id),h,w,copy.seed)){h.retiredAt=w;break;}}
     }return copy;
@@ -1141,24 +1144,40 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     if(!id||!showing(movies).some(h=>h.id===id)||ledger.receipts.some(r=>r.featuredID===id&&r.extendedFeatured===true))return null;
     return id;
   }
+  function screeningPlan(movies,cinemaID,selected,featuredShare){
+    const live=showing(movies),featured=live.find(h=>h.id===selected);
+    const cap=cinemaID==='C01'?(featured&&featuredShare>.8?2:3):live.length;
+    const others=live.filter(h=>h.id!==selected).sort((a,b)=>Number(b.releasedAt===featured?.releasedAt&&!!b.initial===!!featured?.initial)-Number(a.releasedAt===featured?.releasedAt&&!!a.initial===!!featured?.initial)||b.releasedAt-a.releasedAt||a.id.localeCompare(b.id));
+    const kept=(featured?[featured,...others]:others).slice(0,cap),keepIDs=new Set(kept.map(h=>h.id));
+    const secondary=featured?kept.find(h=>h.id!==selected):null;
+    const removed=live.filter(h=>!keepIDs.has(h.id)).map(h=>h.id);
+    const active=kept.length;
+    const shares=Object.fromEntries(live.map(h=>[h.id,!keepIDs.has(h.id)?0:!selected?1/active:h.id===selected?featuredShare:active>1?(1-featuredShare)/(active-1):0]));
+    const penalized=!!featured&&featuredShare>(cinemaID==='C01'?.8:cinemaID==='C02'?.6:1);
+    return{shares,removed,secondaryID:secondary?.id||null,penalized};
+  }
   function settle({database,movies,cinemaID,locationID,allocation,values,ledger}){
     const now=movies.lastWeek,live=showing(movies),by=new Map(database.movies.map(m=>[m.id,m]));
     const carry=carryCandidate(movies,ledger),selected=values.featuredFilm;
     if((movies.current.length||carry)&&!selected||selected&&(!live.some(h=>h.id===selected)||!movies.current.includes(selected)&&selected!==carry))throw Error('請先選擇本週新片或可延用的上週主打片');
     const slots=amount(values.featuredSlots),capacity=R().screeningCapacity(allocation.screenCount,cinemaID);if(!Number.isInteger(slots)||slots>capacity)throw Error('場次占比錯誤');
-    const p=pricing(cinemaID,allocation,values),venue={cinemaID,locationID,screenCount:allocation.screenCount},featuredShare=slots/capacity,rest=live.length-1;
+    const p=pricing(cinemaID,allocation,values),venue={cinemaID,locationID,screenCount:allocation.screenCount},featuredShare=slots/capacity;
+    const plan=screeningPlan(movies,cinemaID,selected,featuredShare);
     const result=live.map(h=>{
-      const movie=by.get(h.id),share=!selected?1/live.length:h.id===selected?featuredShare:(1-featuredShare)/rest;
-      const rawRate=R().attendance(movie,h,now,movies.seed),rate=R().effectiveAttendance(movie,h,now,movies.seed,venue,p);
+      const movie=by.get(h.id),share=plan.shares[h.id],forcedOff=plan.removed.includes(h.id);
+      const rawRate=R().attendance(movie,h,now,movies.seed);
+      let rate=forcedOff?0:R().effectiveAttendance(movie,h,now,movies.seed,venue,p);
+      if(plan.penalized&&h.id!==selected&&movie.tier!=='special')rate*=.5;
       const dailyViewers=round(rate*allocation.totalSeats*6*share);
-      return {id:h.id,rawRate,rate,share,dailyViewers,regularGross:dailyViewers*p.averagePrice*3,specialViewers:0,specialGross:0};
+      return {id:h.id,rawRate,rate,share,forcedOff,dailyViewers,regularGross:dailyViewers*p.averagePrice*3,specialViewers:0,specialGross:0};
     });
     if(!['C02','C05'].includes(cinemaID))for(let i=1;i<=5;i++){
       const suffix=i===1?'':String(i),id=values['specialMovie'+suffix];if(!id)continue;
       const film=result.find(f=>f.id===id);if(!film)throw Error('特別場電影已下檔');
+      if(film.forcedOff)continue;
       const extra=specialGross(values['specialPrice'+suffix],film.rawRate);film.specialViewers+=extra.viewers;film.specialGross+=extra.gross;
     }
-    const films=result.map(f=>({...f,gross:round(f.regularGross+f.specialGross)}));return{earnedAt:now,bookedAt:now+1,featuredID:selected||null,extendedFeatured:selected===carry&&carry!==null,total:films.reduce((s,f)=>s+f.gross,0),films};
+    const films=result.map(f=>({...f,gross:round(f.regularGross+f.specialGross)}));return{earnedAt:now,bookedAt:now+1,featuredID:selected||null,extendedFeatured:selected===carry&&carry!==null,strategyRetirements:plan.removed,total:films.reduce((s,f)=>s+f.gross,0),films};
   }
   function createLedger(){return{version:1,lastSettledWeek:null,receipts:[],totalsByMovie:{},byYear:{}};}
   function resolveLedger(saved,now){
@@ -1187,12 +1206,13 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     const now=context.movies.lastWeek;ledger=resolveLedger(ledger,now);if(ledger.lastSettledWeek!==null&&ledger.lastSettledWeek>=now)throw Error('本週已結算');
     const receipt=settle({...context,ledger}),nextNow=now+1,year=2022+Math.floor((nextNow-1)/50),week=(nextNow-1)%50+1;
     const next=structuredClone(ledger);next.lastSettledWeek=now;next.receipts.push(receipt);next.byYear[year]=(next.byYear[year]||0)+receipt.total;for(const f of receipt.films)next.totalsByMovie[f.id]=(next.totalsByMovie[f.id]||0)+f.gross;
-    let movies=retireLowGross(context.movies,next,nextNow);movies=structuredClone(movies);const by=new Map(context.database.movies.map(m=>[m.id,m]));
+    let movies=structuredClone(context.movies);for(const h of showing(movies))if(receipt.strategyRetirements.includes(h.id)){h.retiredAt=now;h.retirementReason='baogong-focus';}
+    movies=retireLowGross(movies,next,nextNow);movies=structuredClone(movies);const by=new Map(context.database.movies.map(m=>[m.id,m]));
     for(const h of showing(movies))if(R().retirement(by.get(h.id),h,nextNow,movies.seed))h.retiredAt=nextNow;
     movies=R().releaseWeek(context.database,movies,year,week);for(const h of movies.history)h.retiredAt??=null;
     return{movies,ledger:next,year,week,receipt};
   }
-  const api={extraKey,standardPrice,pricing,hydrate,showing,specialGross,carryCandidate,settle,createLedger,resolveLedger,retireLowGross,advance};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaBoxOffice=api;
+  const api={extraKey,standardPrice,pricing,hydrate,showing,specialGross,carryCandidate,screeningPlan,settle,createLedger,resolveLedger,retireLowGross,advance};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaBoxOffice=api;
 })(globalThis);
 
 ;
