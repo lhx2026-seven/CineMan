@@ -11,40 +11,11 @@
     if (!Number.isInteger(slots) || slots < 0 || slots > capacity) throw Error('Invalid screening slots');
     return slots * 100 / capacity;
   }
-  function retirementPool(showing, week) {
-    if (!Number.isInteger(week) || week < 1) throw Error('Invalid week');
-    const forced = week >= 2 ? showing.filter(movie=>canonicalId(movie.id)==='MV0003') : [];
-    const randomPool = week >= 3 ? showing.filter(movie=>canonicalId(movie.id)!=='MV0003') : [];
-    return {forced, randomPool};
-  }
-  // Quantity must be supplied by the future week progression rules. Do not
-  // invent a weekly retirement probability or count while MoviesList is absent.
-  function drawRetirements(showing, week, count, seed) {
-    const {forced,randomPool} = retirementPool(showing,week);
-    if (!Number.isInteger(count) || count < 0 || count > randomPool.length) throw Error('Specify a valid retirement count');
-    const random = root.CinemaRules.seededRandom(seed), shuffled=randomPool.slice();
-    for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
-    return {forced,random:shuffled.slice(0,count)};
-  }
-  // Future MoviesList integration supplies the eligible new-release pool, not
-  // an assumed database schema. Keep the three fixed older titles out of it.
-  function pickNewMovies(pool, seed) {
-    const excluded = new Set(OLD_FILMS.map(movie=>movie.id));
-    const ids = new Set();
-    const eligible = pool.filter(movie=>{
-      if (!movie || typeof movie.id !== 'string' || typeof movie.title !== 'string' || ids.has(canonicalId(movie.id))) throw Error('Invalid or duplicate movie');
-      ids.add(canonicalId(movie.id)); return !excluded.has(canonicalId(movie.id));
-    });
-    if (eligible.length < 2) throw Error('At least two eligible new movies required');
-    const random = root.CinemaRules.seededRandom(seed), shuffled = eligible.slice();
-    for (let i=shuffled.length-1;i>0;i--) { const j=Math.floor(random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
-    return shuffled.slice(0,2);
-  }
   function init(form) {
     const carousel = document.querySelector('#film-carousel');
     const cards = [...carousel.querySelectorAll('.film-option')];
     const previous = document.querySelector('#previous-film'), next = document.querySelector('#next-film');
-    const midpoint = (cards.length - 1) / 2;
+    let available=cards.length, midpoint = (available - 1) / 2;
     let center = midpoint, pointer = null, swiped = false;
     const specialRows=[...form.querySelectorAll('.special-screening')];
     const add=document.querySelector('#add-special-screening');
@@ -69,8 +40,8 @@
         button.setAttribute('aria-pressed',String(selected));button.textContent = selected ? '已選擇' : '選為主打片';
         button.setAttribute('aria-label',`${selected ? '已選擇' : '選擇'}${card.querySelector('h4').textContent}`);
       });
-      previous.disabled = center === 0;next.disabled = center === cards.length-1;
-      document.querySelector('#film-position').textContent = center === midpoint ? '2 部新片' : `${center+1} / ${cards.length}`;
+      previous.disabled = center === 0;next.disabled = !available || center === available-1;
+      document.querySelector('#film-position').textContent = available<=1 || center === midpoint ? `${available} 部新片` : `${center+1} / ${available}`;
       if(add.closest('fieldset').disabled) {
         form.elements.specialCount.value='0';
         specialRows.forEach(row=>{
@@ -91,7 +62,7 @@
       });
       add.hidden=count>=5 || !specialRows[count-1].querySelector('select').value;
     }
-    function browse(index) { center = Math.max(0,Math.min(cards.length-1,index));update(); }
+    function browse(index) { center = Math.max(0,Math.min(Math.max(0,available-1),index));update(); }
     previous.addEventListener('click',()=>browse(center-1));next.addEventListener('click',()=>browse(center+1));
     cards.forEach((card,index)=>{
       card.addEventListener('click',()=>{if(!swiped)browse(index);});
@@ -114,7 +85,23 @@
       if(!pointer)return;const dx=event.clientX-pointer.x,dy=event.clientY-pointer.y;pointer=null;
       if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3){swiped=true;browse(center+(dx<0?1:-1));setTimeout(()=>{swiped=false;},0);}
     });
-    return {update,setVenue(screenCount,week){
+    function setMovies(movies,values={}) {
+      const legacy={'new-01':movies[0]?.id,'new-02':movies[1]?.id};
+      available=movies.length;midpoint=(available-1)/2;carousel.hidden=!available;
+      cards.forEach((card,i)=>{
+        const movie=movies[i];card.hidden=!movie;card.querySelector("input").disabled=!movie;if(!movie){card.querySelector("input").checked=false;return;}card.dataset.filmValue=movie.id;
+        const input=card.querySelector('input');input.value=movie.id;input.checked=(legacy[values.featuredFilm]||values.featuredFilm)===movie.id;
+        card.querySelector('h4').textContent=movie.title;
+        const output=card.querySelector('[data-box-office]');output.dataset.boxOffice=movie.id;output.setAttribute('aria-label',`${movie.title}本院累計票房，尚未結算`);
+      });
+      specialRows.forEach(row=>{
+        const select=row.querySelector('select'),saved=legacy[values[select.name]]||values[select.name]||'';
+        const options=[new Option('選擇電影',''),...[...movies,...OLD_FILMS].map(m=>new Option(m.title,m.id))];
+        select.replaceChildren(...options);select.value=saved;
+      });
+      const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?midpoint:selected);
+    }
+    return {update,setMovies,setVenue(screenCount,week){
       const exclude=screenCount===1 && week===1;
       document.querySelector('.old-films-heading').hidden=exclude;
       document.querySelector('.old-films').hidden=exclude;
@@ -126,5 +113,5 @@
     },restoreView(){const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?midpoint:selected);},
       titleFor(value){return cards.find(card=>card.dataset.filmValue===value)?.querySelector('h4').textContent||'';}};
   }
-  root.CinemaFilms = {OLD_FILMS,pickNewMovies,screeningCapacity,sharePercentage,retirementPool,drawRetirements,init};
+  root.CinemaFilms = {OLD_FILMS,screeningCapacity,sharePercentage,init};
 })(globalThis);

@@ -44,6 +44,7 @@ function initGame() {
   let restoredDraft = null;
   let exclusiveFood = null;
   let property = null;
+  let movies = null;
   let checkpoint = null, currentAllocation = null, restoring = true, bootFailed = false, storeAvailable = true;
   let saveQueue = Promise.resolve(false), saveRevision = 0;
   const gameDate = {year:2022,week:1};
@@ -56,6 +57,10 @@ function initGame() {
     message.hidden = true;
     try {
       const allocation = await CinemaVenue.assign(id, runId, checkpoint?.allocation);
+      movies=CinemaMovieRules.resolve(CinemaMovieDatabase,runId,allocation.screenCount,gameDate.year,gameDate.week,checkpoint?.movies);
+      const byID=new Map(CinemaMovieDatabase.movies.map(movie=>[movie.id,movie]));
+      films.setMovies(movies.current.map(id=>byID.get(id)),restoredDraft||{});
+      CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week))});
       CinemaVenue.render(allocation);
       renderSpecialPricing(allocation);
       venueScreenCount = allocation.screenCount;
@@ -311,7 +316,7 @@ function initGame() {
     }
     const budgetLocks=Object.fromEntries(['maintenance','consumables'].map(name=>[name,form.elements[name].disabled ? document.querySelector(`#${name}-lock`).title || true : false]));
     const snapshot={cinemaID:id,cinemaName:cinema.name,runId,year:gameDate.year,week:gameDate.week,
-      values,allocation:currentAllocation,exclusiveFood,property,budgetLocks,
+      values,allocation:currentAllocation,exclusiveFood,property,movies,budgetLocks,
       tabID:tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       reportTabID:reportTabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};
