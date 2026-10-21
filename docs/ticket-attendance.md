@@ -16,3 +16,5 @@ The eventual formula is average ticket price × final effective attendance × to
 The module is used by weekly gross box-office settlement; see `docs/box-office.md`. After-split ticket revenue and other income/expenses remain pending.
 
 Test: `node tests/ticket-attendance.cjs`.
+
+After ticket deductions, effectiveAttendance applies C05 tier multipliers (hit×0.5, average×1.5) and clamps to [0,1]. Standalone ticketAttendance remains the ticket deduction helper; special-tier profiles bypass these modifiers.

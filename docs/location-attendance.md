@@ -26,3 +26,5 @@ Do not multiply by location_weight or ticket_price_weight again: pass pricing to
 The calculation module is used by weekly gross box-office settlement; see `docs/box-office.md`. Other financial formulas remain pending, and no invented results are displayed.
 
 Test: `node tests/location-attendance.cjs`.
+
+C05 公會堂 additionally multiplies hit attendance by 0.5 and average by 1.5 in effectiveAttendance, after location and any ticket-price adjustments, then clamps to [0,1]. This applies to featured and non-featured films; bomb and special are unchanged. locationAttendance itself still represents only location rules.

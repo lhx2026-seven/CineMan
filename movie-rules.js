@@ -96,7 +96,9 @@
   function effectiveAttendance(movie,record,now,seed,venue,pricing){
     const raw=attendance(movie,record,now,seed);if(movie.tier==='special')return raw;
     const rate=locationAttendance({...venue,tier:movie.tier,attendanceRate:raw});
-    return pricing===undefined?rate:ticketAttendance({...pricing,cinemaID:venue.cinemaID,screenCount:venue.screenCount,attendanceRate:rate});
+    const priced=pricing===undefined?rate:ticketAttendance({...pricing,cinemaID:venue.cinemaID,screenCount:venue.screenCount,attendanceRate:rate});
+    const tierFactor=venue.cinemaID==='C05'?(movie.tier==='hit'?.5:movie.tier==='average'?1.5:1):1;
+    return Math.max(0,Math.min(1,priced*tierFactor));
   }
   function retirement(movie,record,now,seed){
     const age=now-record.releasedAt+1;
