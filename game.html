@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=938cdf4eb6f5">
-<script src="game-runtime.js?v=c06af33e98b6" defer></script>
+<link rel="stylesheet" href="game.css?v=217fe36fed8e">
+<script src="game-runtime.js?v=659b4fb07611" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -140,6 +140,7 @@
         </div>
         <div class="film-carousel-controls"><button type="button" id="previous-film" aria-label="上一部新片">‹</button><span id="film-position" aria-live="polite">1 / 2</span><button type="button" id="next-film" aria-label="下一部新片">›</button></div>
       </div>
+      <div id="carry-feature" class="carry-feature" hidden><input type="radio" name="featuredFilm" id="carry-film" value="" hidden disabled><button type="button" id="carry-feature-button" aria-pressed="false">延用上週主打：<span id="carry-film-title"></span></button></div>
       <div class="showtime-control" id="featured-settings" hidden><div class="featured-summary"><div><label for="featured-share" id="featured-heading">場次占比</label><p id="share-hint" class="sr-only">調整本週主打電影的場次占比。</p></div><output id="share-output" for="featured-share">—</output></div><input type="range" id="featured-share" name="featuredSlots" min="0" max="1" step="1" value="0" aria-describedby="share-hint" disabled><div class="range-labels"><span>0%</span><span>100%</span></div></div>
       <div class="old-films-heading"><h3>同步上映中</h3></div>
       <div class="old-films">

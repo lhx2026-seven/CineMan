@@ -17,6 +17,8 @@
     const previous = document.querySelector('#previous-film'), next = document.querySelector('#next-film');
     let available=cards.length, midpoint = (available - 1) / 2;
     let center = midpoint, pointer = null, swiped = false;
+    const carryRadio=form.querySelector('#carry-film'),carryButton=document.querySelector('#carry-feature-button');
+    carryButton.addEventListener('click',()=>{if(carryRadio.disabled)return;carryRadio.checked=true;carryRadio.dispatchEvent(new Event('change',{bubbles:true}));});
     const specialRows=[...form.querySelectorAll('.special-screening')];
     const add=document.querySelector('#add-special-screening');
     add.addEventListener('click',()=>{
@@ -29,6 +31,8 @@
     });
     function update() {
       carousel.classList.toggle('is-overview', center === midpoint);
+      carryButton.setAttribute('aria-pressed',String(carryRadio.checked));
+      carryButton.classList.toggle('is-selected',carryRadio.checked);
       cards.forEach((card,index)=>{
         const distance = index-center;
         card.style.setProperty('--film-distance',distance);
@@ -85,7 +89,8 @@
       if(!pointer)return;const dx=event.clientX-pointer.x,dy=event.clientY-pointer.y;pointer=null;
       if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3){swiped=true;browse(center+(dx<0?1:-1));setTimeout(()=>{swiped=false;},0);}
     });
-    function setMovies(movies,values={},retained=OLD_FILMS,totals={}) {
+    function setMovies(movies,values={},retained=OLD_FILMS,totals={},carry=null) {
+      document.querySelector('#carry-feature').hidden=!carry;carryRadio.disabled=!carry;carryRadio.value=carry?.id||'';carryRadio.checked=!!carry&&values.featuredFilm===carry.id;document.querySelector('#carry-film-title').textContent=carry?.title||'';
       const legacy={'new-01':movies[0]?.id,'new-02':movies[1]?.id};
       available=movies.length;midpoint=(available-1)/2;carousel.hidden=!available;
       cards.forEach((card,i)=>{
@@ -120,7 +125,7 @@
       });
       update();
     },restoreView(){const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?midpoint:selected);},
-      titleFor(value){return cards.find(card=>card.dataset.filmValue===value)?.querySelector('h4').textContent||'';}};
+      titleFor(value){return value===carryRadio.value&&!carryRadio.disabled?document.querySelector('#carry-film-title').textContent:cards.find(card=>card.dataset.filmValue===value)?.querySelector('h4').textContent||'';}};
   }
   root.CinemaFilms = {OLD_FILMS,screeningCapacity,sharePercentage,init};
 })(globalThis);

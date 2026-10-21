@@ -35,3 +35,13 @@ Checkpoints include `boxOffice` and movie retirement dates. Reload/Continue vali
 Weekly report now fills gross ticket revenue only. The annual ticket row is explicitly labeled gross to avoid presenting pre-split income as post-split income. Other revenue, costs, after-split ticket revenue, profits and taxes remain pending. Existing palette, tabs and cinema visuals are retained.
 
 Tests: `node tests/box-office.cjs`; `CINEMAN_BASE_URL=http://127.0.0.1:PORT node tests/box-office-browser.cjs`. Also run entry, movie-pool and property-save browser regressions when relevant.
+
+## Carry last week's featured film
+
+From operating week 2, an additional manual choice permits carrying last week's featured film, without replacing either new-release slot. It is offered only if the exact previous source-week receipt identifies that film, it remains showing, and no earlier settled receipt marks that film extended. The original opening date, attendance decline and retirement rules remain unchanged.
+
+The carried film takes the selected featured share; every other still-showing title (including both new releases) divides the remainder. Draft selection, switching away, reload and Continue do not consume the right. Only actual weekly settlement records featuredID and extendedFeatured in the receipt. The per-film right is therefore consumed at most once in the run, persists in saves and is validated when loading.
+
+Older receipts without featuredID remain valid. When there are at least three films and exactly one screening-share outlier, the previous feature is recovered from the former equal-remainder rule. Equal-share or two-film cases are ambiguous and are never guessed; for those saves, the option becomes available after the next normal settlement records a known feature.
+
+Tests: `node tests/box-office.cjs` and `tests/carry-feature-browser.cjs`.

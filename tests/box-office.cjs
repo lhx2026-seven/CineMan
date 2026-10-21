@@ -14,3 +14,13 @@ const knownMovies={version:1,weeksPerYear:50,seed:'known',lastWeek:1,current:['M
 const known=B.settle({database:db,movies:knownMovies,cinemaID:'C01',locationID:'LOC08',allocation:single,values:{ticketFull:300,featuredFilm:'MV0504',featuredSlots:3,specialMovie:'MV0504',specialPrice:400}});assert.equal(known.films[0].dailyViewers,75);assert.equal(known.films[0].gross,118000);assert.equal(known.films[1].gross,78000);assert.equal(known.total,196000);
 assert.equal(B.specialGross(500,.33499999999999996).viewers,34);
 console.log('PASS hand-calculated NT$196,000 weekly total and decimal half-rounding regression');
+const carry=B.carryCandidate(next.movies,next.ledger);assert.equal(carry,values.featuredFilm);
+const reuseContext={...context,movies:next.movies,values:{...values,featuredFilm:carry,specialMovie:''}};
+const reused=B.advance(reuseContext,next.ledger);const carryFilm=reused.receipt.films.find(f=>f.id===carry);assert.equal(carryFilm.share,.5);assert.equal(reused.receipt.featuredID,carry);assert.equal(reused.receipt.extendedFeatured,true);assert.equal(B.carryCandidate(reused.movies,reused.ledger),null);B.resolveLedger(reused.ledger,3);
+assert.throws(()=>B.advance({...reuseContext,movies:reused.movies},reused.ledger));
+const retired=structuredClone(next.movies);retired.history.find(h=>h.id===carry).retiredAt=2;assert.equal(B.carryCandidate(retired,next.ledger),null);
+const declined=B.advance({...reuseContext,values:{...reuseContext.values,featuredFilm:next.movies.current[0]}},next.ledger);assert.equal(declined.receipt.extendedFeatured,false);assert.equal(B.carryCandidate(declined.movies,declined.ledger),next.movies.current[0]);
+console.log('PASS carry last-week feature once, real share calculation, consume only upon settlement, retired films excluded, used extension cannot repeat');
+const oldLedger=structuredClone(next.ledger);for(const r of oldLedger.receipts){delete r.featuredID;delete r.extendedFeatured;}B.resolveLedger(oldLedger,2);assert.equal(B.carryCandidate(next.movies,oldLedger),values.featuredFilm);
+const ambiguous=structuredClone(oldLedger);ambiguous.receipts[0].films=ambiguous.receipts[0].films.slice(0,2);assert.equal(B.carryCandidate(next.movies,ambiguous),null);assert.equal(B.carryCandidate(null,null),null);
+console.log('PASS legacy receipts migrate only an unambiguous share outlier; ambiguous two-film history is not guessed');

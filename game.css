@@ -620,3 +620,8 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 /* Preserve the full portrait artwork in the three returning-film cards. */
 #panel-films .old-film .old-film-poster { width:min(100%,140px); height:auto; aspect-ratio:2/3; overflow:hidden; border-radius:3px; }
 .old-film-poster img { display:block; width:100%; height:100%; object-fit:contain; }
+
+.carry-feature { margin:8px 0 12px; text-align:center; }
+.carry-feature button { max-width:100%; padding:8px 12px; border:1px solid #a8937055; border-radius:6px; background:#15110d; color:#cbbb9e; font:inherit; font-size:12px; cursor:pointer; }
+.carry-feature button.is-selected { color:#f4dfb9; border-color:#d4b47c; background:#302419; }
+.carry-feature button:focus-visible { outline:2px solid #d4b47c; outline-offset:3px; }

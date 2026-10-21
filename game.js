@@ -141,7 +141,7 @@ function initGame() {
   function renderMovieWeek(values={}) {
     const byID=new Map(CinemaMovieDatabase.movies.map(movie=>[movie.id,movie]));
     const retained=CinemaBoxOffice.showing(movies).filter(h=>!movies.current.includes(h.id)).map(h=>byID.get(h.id));
-    films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{});
+    films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{},byID.get(CinemaBoxOffice.carryCandidate(movies,boxOffice))||null);
   }
   function renderFinance(){
     const now=CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week),receipt=boxOffice?.receipts.find(r=>r.bookedAt===now);
@@ -312,7 +312,7 @@ function initGame() {
       form.elements[`${item}Enabled`].setAttribute('aria-expanded', String(enabled));
     }
     const featured = form.querySelector('input[name="featuredFilm"]:checked');
-    document.querySelector('#next-week').disabled = advancing || !venueReady || (movies?.current.length>0&&!featured);
+    document.querySelector('#next-week').disabled = advancing || !venueReady || ((movies?.current.length>0||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!featured);
     const share = document.querySelector('#featured-share');
     share.disabled = !featured || !venueReady;
     const percentage = venueReady ? CinemaFilms.sharePercentage(Number(share.value),venueScreenCount) : 0;
@@ -371,7 +371,7 @@ function initGame() {
     saveDraft(true);
   });
   document.querySelector('#next-week').addEventListener('click', async () => {
-    if(advancing||!venueReady||(movies.current.length&&!form.querySelector('[name="featuredFilm"]:checked')))return;
+    if(advancing||!venueReady||((movies.current.length||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!form.querySelector('[name="featuredFilm"]:checked')))return;
     advancing=true;updateControls();
     try {
       const values=formValues();
