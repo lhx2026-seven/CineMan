@@ -600,6 +600,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
 'use strict';
 (function(root) {
   const OLD_FILMS = [{id:'MV0001',title:'魔猴'},{id:'MV0002',title:'恐怖速食店'},{id:'MV0003',title:'酆都'}];
+  const POSTER_VERSIONS = {"MV0001": "c6bb028955b9", "MV0002": "c55e552e31bf", "MV0003": "d35e30859d3d"};
   const canonicalId = id => ({MV001:'MV0001',MV002:'MV0002',MV003:'MV0003'})[id] || id;
   function screeningCapacity(screenCount,cinemaID='C01') {
     return root.CinemaMovieRules.screeningCapacity(screenCount,cinemaID);
@@ -706,7 +707,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
       oldContainer.replaceChildren(...retained.map(movie=>{
         const article=document.createElement('article');article.className='old-film';article.dataset.movieId=movie.id;
         const poster=document.createElement('div');poster.className='old-film-poster';
-        if(OLD_FILMS.some(old=>old.id===movie.id)){const img=document.createElement('img');img.src=`assets/films/${movie.id}.webp`;img.width=600;img.height=900;img.alt=`《${movie.title}》電影海報`;img.loading='lazy';img.decoding='async';poster.append(img);}else{const icon=cards[0].querySelector('.film-poster svg').cloneNode(true);icon.setAttribute('aria-hidden','true');poster.append(icon);}
+        if(OLD_FILMS.some(old=>old.id===movie.id)){const img=document.createElement('img');img.src=`assets/films/${movie.id}.webp?v=${POSTER_VERSIONS[movie.id]}`;img.width=600;img.height=900;img.alt=`《${movie.title}》電影海報`;img.loading='lazy';img.decoding='async';poster.append(img);}else{const icon=cards[0].querySelector('.film-poster svg').cloneNode(true);icon.setAttribute('aria-hidden','true');poster.append(icon);}
         const title=document.createElement('h4');title.textContent=movie.title;
         const report=document.createElement('p');report.className='film-box-office';const label=document.createElement('span');label.textContent='本院累計票房';const amount=document.createElement('span');amount.append('NT$ ');const output=document.createElement('output');output.dataset.boxOffice=movie.id;output.textContent=(totals[movie.id]||0).toLocaleString('zh-TW');output.setAttribute('aria-label',`${movie.title}本院累計票房`);amount.append(output);report.append(label,amount);article.append(poster,title,report);return article;
       }));
