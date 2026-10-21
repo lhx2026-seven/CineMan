@@ -2,14 +2,13 @@
 (function(root) {
   const OLD_FILMS = [{id:'MV0001',title:'魔猴'},{id:'MV0002',title:'恐怖速食店'},{id:'MV0003',title:'酆都'}];
   const canonicalId = id => ({MV001:'MV0001',MV002:'MV0002',MV003:'MV0003'})[id] || id;
-  function screeningCapacity(screenCount) {
-    if (!Number.isInteger(screenCount) || screenCount < 1) throw Error('Invalid screen count');
-    return 6 * screenCount;
+  function screeningCapacity(screenCount,cinemaID='C01') {
+    return root.CinemaMovieRules.screeningCapacity(screenCount,cinemaID);
   }
-  function sharePercentage(slots, screenCount) {
-    const capacity = screeningCapacity(screenCount);
-    if (!Number.isInteger(slots) || slots < 0 || slots > capacity) throw Error('Invalid screening slots');
-    return slots * 100 / capacity;
+  function sharePercentage(slots,screenCount,cinemaID='C01') {
+    const capacity=screeningCapacity(screenCount,cinemaID);
+    if(!Number.isInteger(slots)||slots<0||slots>capacity)throw Error('Invalid screening slots');
+    return slots*100/capacity;
   }
   function init(form) {
     const carousel = document.querySelector('#film-carousel');

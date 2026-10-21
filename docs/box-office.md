@@ -57,3 +57,11 @@ This mandatory rule overrides normal/special minimum-run protections; the existi
 Only films present in the previous source-week receipt are considered. Newly drawn movies with no prior-week operation are not mistaken for zero-gross films. Weeks without a historical receipt (legacy preview saves) do not invent an income result or trigger this rule. Existing saves apply the same check on load using their stored previous-week receipt, preserving all booked money and cumulative totals; no recalculation is performed.
 
 Tests: `node tests/box-office.cjs` and `tests/low-gross-browser.cjs`.
+
+## Second-run featured share steps
+
+C02 世紀 uses 2 share-grid units per allocated hall: each step is 100% / screenCount / 2. Other cinemas retain 6 units per hall. New weeks default to capacity−1, the highest step below 100%. This changes the share slider only: the daily gross formula still uses totalSeats × 6.
+
+The same shared capacity helper drives UI percentages and settlement. Snapshots record featuredCapacity. Legacy six-unit C02 saves convert the old ratio to the nearest new grid step; an old default converts specifically to the new below-100 default. Already booked receipts are not recomputed.
+
+Tests: `node tests/films.cjs`, `tests/second-run-share-browser.cjs`.

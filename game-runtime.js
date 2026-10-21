@@ -467,6 +467,10 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
   const index=database=>{if(!indexes.has(database))indexes.set(database,new Map(database.movies.map(m=>[m.id,m])));return indexes.get(database);};
   const random=(seed,key)=>root.CinemaRules.seededRandom(`movies/v1/${seed}/${key}`);
   const integer=(seed,key,min,max)=>min+Math.floor(random(seed,key)()*(max-min+1));
+  function screeningCapacity(screenCount,cinemaID='C01'){
+    if(!Number.isInteger(screenCount)||screenCount<1)throw Error('Invalid screen count');
+    return screenCount*(cinemaID==='C02'?2:6);
+  }
   function absoluteWeek(year,week){if(!Number.isInteger(year)||!Number.isInteger(week)||week<1||week>WEEKS_PER_YEAR)throw Error('Invalid movie calendar');return(year-2022)*WEEKS_PER_YEAR+week;}
   function reservations(database,seed){
     const cacheKey=seed; if(plans.has(cacheKey)&&plans.get(cacheKey).database===database)return plans.get(cacheKey).result;
@@ -566,7 +570,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
       if(saved?.version!==1||saved.weeksPerYear!==WEEKS_PER_YEAR||saved.seed!==seed||saved.lastWeek!==now||!Array.isArray(saved.history)||!Array.isArray(saved.current)||saved.current.length>2||new Set(saved.current).size!==saved.current.length||new Set(saved.history.map(h=>h.id)).size!==saved.history.length||saved.history.some(h=>!by.has(h.id)||h.initial!==by.get(h.id).initial||!Number.isInteger(h.releasedAt)||h.releasedAt<1||h.releasedAt>now)||saved.current.some(id=>!saved.history.some(h=>h.id===id&&h.releasedAt===now)))throw Error('Movie save is incompatible');return saved;}
     let state=create(seed,screenCount);for(let n=1;n<=now;n++)state=releaseWeek(database,state,2022+Math.floor((n-1)/WEEKS_PER_YEAR),(n-1)%WEEKS_PER_YEAR+1);return state;
   }
-  const api={WEEKS_PER_YEAR,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,locationAttendance,ticketAttendance,effectiveAttendance,retirement,eventsFor,resolve};
+  const api={WEEKS_PER_YEAR,screeningCapacity,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,locationAttendance,ticketAttendance,effectiveAttendance,retirement,eventsFor,resolve};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMovieRules=api;
 })(globalThis);
 
@@ -576,14 +580,13 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
 (function(root) {
   const OLD_FILMS = [{id:'MV0001',title:'魔猴'},{id:'MV0002',title:'恐怖速食店'},{id:'MV0003',title:'酆都'}];
   const canonicalId = id => ({MV001:'MV0001',MV002:'MV0002',MV003:'MV0003'})[id] || id;
-  function screeningCapacity(screenCount) {
-    if (!Number.isInteger(screenCount) || screenCount < 1) throw Error('Invalid screen count');
-    return 6 * screenCount;
+  function screeningCapacity(screenCount,cinemaID='C01') {
+    return root.CinemaMovieRules.screeningCapacity(screenCount,cinemaID);
   }
-  function sharePercentage(slots, screenCount) {
-    const capacity = screeningCapacity(screenCount);
-    if (!Number.isInteger(slots) || slots < 0 || slots > capacity) throw Error('Invalid screening slots');
-    return slots * 100 / capacity;
+  function sharePercentage(slots,screenCount,cinemaID='C01') {
+    const capacity=screeningCapacity(screenCount,cinemaID);
+    if(!Number.isInteger(slots)||slots<0||slots>capacity)throw Error('Invalid screening slots');
+    return slots*100/capacity;
   }
   function init(form) {
     const carousel = document.querySelector('#film-carousel');
@@ -1142,7 +1145,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     const now=movies.lastWeek,live=showing(movies),by=new Map(database.movies.map(m=>[m.id,m]));
     const carry=carryCandidate(movies,ledger),selected=values.featuredFilm;
     if((movies.current.length||carry)&&!selected||selected&&(!live.some(h=>h.id===selected)||!movies.current.includes(selected)&&selected!==carry))throw Error('請先選擇本週新片或可延用的上週主打片');
-    const slots=amount(values.featuredSlots),capacity=allocation.screenCount*6;if(!Number.isInteger(slots)||slots>capacity)throw Error('場次占比錯誤');
+    const slots=amount(values.featuredSlots),capacity=R().screeningCapacity(allocation.screenCount,cinemaID);if(!Number.isInteger(slots)||slots>capacity)throw Error('場次占比錯誤');
     const p=pricing(cinemaID,allocation,values),venue={cinemaID,locationID,screenCount:allocation.screenCount},featuredShare=slots/capacity,rest=live.length-1;
     const result=live.map(h=>{
       const movie=by.get(h.id),share=!selected?1/live.length:h.id===selected?featuredShare:(1-featuredShare)/rest;
@@ -1265,10 +1268,11 @@ function initGame() {
       venueScreenCount = allocation.screenCount;
       films.setVenue(venueScreenCount,gameDate.week);
       const share = document.querySelector('#featured-share');
-      const capacity = CinemaFilms.screeningCapacity(venueScreenCount);
+      const capacity = CinemaFilms.screeningCapacity(venueScreenCount,id);
       let slots = capacity - 1;
       if (typeof restoredDraft?.featuredSlots === 'string' && Number.isFinite(Number(restoredDraft.featuredSlots))) {
-        slots = Math.round(Number(restoredDraft.featuredSlots));
+        const stored=Number(restoredDraft.featuredSlots),oldCapacity=checkpoint?.featuredCapacity||6*venueScreenCount;
+        slots=oldCapacity!==capacity&&stored===oldCapacity-1?capacity-1:Math.round(stored*capacity/oldCapacity);
       } else if (typeof restoredDraft?.featuredShare === 'string' && Number.isFinite(Number(restoredDraft.featuredShare))) {
         slots = Math.round(capacity * Number(restoredDraft.featuredShare) / 100);
       }
@@ -1512,10 +1516,10 @@ function initGame() {
     document.querySelector('#next-week').disabled = advancing || !venueReady || ((movies?.current.length>0||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!featured);
     const share = document.querySelector('#featured-share');
     share.disabled = !featured || !venueReady;
-    const percentage = venueReady ? CinemaFilms.sharePercentage(Number(share.value),venueScreenCount) : 0;
+    const percentage = venueReady ? CinemaFilms.sharePercentage(Number(share.value),venueScreenCount,id) : 0;
     const formattedShare = percentage.toLocaleString('zh-TW',{maximumFractionDigits:2}) + '%';
     document.querySelector('#share-output').textContent = featured && venueReady ? formattedShare : '—';
-    if (venueReady) share.setAttribute('aria-valuetext',`${formattedShare}（${share.value}／${share.max}場）`);
+    if (venueReady) share.setAttribute('aria-valuetext',`${formattedShare}（${share.value}／${share.max}${id==='C02'?'刻度':'場'}）`);
     document.querySelector('#featured-settings').hidden = !featured;
     if (featured) document.querySelector('#featured-heading').textContent = `選擇${films.titleFor(featured.value)}為本週主打，場次占比`;
     films.update();
@@ -1535,7 +1539,7 @@ function initGame() {
     const values=formValues();
     const budgetLocks=Object.fromEntries(['maintenance','consumables'].map(name=>[name,form.elements[name].disabled ? document.querySelector(`#${name}-lock`).title || true : false]));
     const snapshot={cinemaID:id,cinemaName:cinema.name,runId,year:gameDate.year,week:gameDate.week,
-      values,allocation:currentAllocation,exclusiveFood,property,movies,boxOffice,budgetLocks,
+      values,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,exclusiveFood,property,movies,boxOffice,budgetLocks,
       tabID:tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       reportTabID:reportTabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};
@@ -1574,12 +1578,12 @@ function initGame() {
       const values=formValues();
       const next=CinemaBoxOffice.advance({database:CinemaMovieDatabase,movies,cinemaID:id,locationID:property.locationID,allocation:currentAllocation,values},boxOffice);
       movies=next.movies;boxOffice=next.ledger;gameDate.year=next.year;gameDate.week=next.week;
-      delete values.featuredFilm;values.featuredSlots=String(6*venueScreenCount-1);values.specialCount='1';
+      delete values.featuredFilm;values.featuredSlots=String(CinemaFilms.screeningCapacity(venueScreenCount,id)-1);values.specialCount='1';
       for(let i=1;i<=5;i++)values['specialMovie'+(i===1?'':i)]='';
       restoredDraft=values;renderMovieWeek(values);form.elements.specialCount.value='1';form.elements.featuredSlots.value=values.featuredSlots;
       films.setVenue(venueScreenCount,gameDate.week);renderFinance();
       CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,movies.lastWeek)});
-      checkpoint={...checkpoint,movies,boxOffice,allocation:currentAllocation,values,year:gameDate.year,week:gameDate.week};
+      checkpoint={...checkpoint,movies,boxOffice,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,values,year:gameDate.year,week:gameDate.week};
       saveDraft();
     }catch(error){document.querySelector('#dialog-save-status').textContent=error.message;document.querySelector('#week-dialog').showModal();console.error('Weekly settlement failed:',error);}
     finally{advancing=false;updateControls();}

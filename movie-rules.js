@@ -7,6 +7,10 @@
   const index=database=>{if(!indexes.has(database))indexes.set(database,new Map(database.movies.map(m=>[m.id,m])));return indexes.get(database);};
   const random=(seed,key)=>root.CinemaRules.seededRandom(`movies/v1/${seed}/${key}`);
   const integer=(seed,key,min,max)=>min+Math.floor(random(seed,key)()*(max-min+1));
+  function screeningCapacity(screenCount,cinemaID='C01'){
+    if(!Number.isInteger(screenCount)||screenCount<1)throw Error('Invalid screen count');
+    return screenCount*(cinemaID==='C02'?2:6);
+  }
   function absoluteWeek(year,week){if(!Number.isInteger(year)||!Number.isInteger(week)||week<1||week>WEEKS_PER_YEAR)throw Error('Invalid movie calendar');return(year-2022)*WEEKS_PER_YEAR+week;}
   function reservations(database,seed){
     const cacheKey=seed; if(plans.has(cacheKey)&&plans.get(cacheKey).database===database)return plans.get(cacheKey).result;
@@ -106,6 +110,6 @@
       if(saved?.version!==1||saved.weeksPerYear!==WEEKS_PER_YEAR||saved.seed!==seed||saved.lastWeek!==now||!Array.isArray(saved.history)||!Array.isArray(saved.current)||saved.current.length>2||new Set(saved.current).size!==saved.current.length||new Set(saved.history.map(h=>h.id)).size!==saved.history.length||saved.history.some(h=>!by.has(h.id)||h.initial!==by.get(h.id).initial||!Number.isInteger(h.releasedAt)||h.releasedAt<1||h.releasedAt>now)||saved.current.some(id=>!saved.history.some(h=>h.id===id&&h.releasedAt===now)))throw Error('Movie save is incompatible');return saved;}
     let state=create(seed,screenCount);for(let n=1;n<=now;n++)state=releaseWeek(database,state,2022+Math.floor((n-1)/WEEKS_PER_YEAR),(n-1)%WEEKS_PER_YEAR+1);return state;
   }
-  const api={WEEKS_PER_YEAR,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,locationAttendance,ticketAttendance,effectiveAttendance,retirement,eventsFor,resolve};
+  const api={WEEKS_PER_YEAR,screeningCapacity,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,locationAttendance,ticketAttendance,effectiveAttendance,retirement,eventsFor,resolve};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMovieRules=api;
 })(globalThis);

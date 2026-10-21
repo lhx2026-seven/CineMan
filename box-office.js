@@ -47,7 +47,7 @@
     const now=movies.lastWeek,live=showing(movies),by=new Map(database.movies.map(m=>[m.id,m]));
     const carry=carryCandidate(movies,ledger),selected=values.featuredFilm;
     if((movies.current.length||carry)&&!selected||selected&&(!live.some(h=>h.id===selected)||!movies.current.includes(selected)&&selected!==carry))throw Error('請先選擇本週新片或可延用的上週主打片');
-    const slots=amount(values.featuredSlots),capacity=allocation.screenCount*6;if(!Number.isInteger(slots)||slots>capacity)throw Error('場次占比錯誤');
+    const slots=amount(values.featuredSlots),capacity=R().screeningCapacity(allocation.screenCount,cinemaID);if(!Number.isInteger(slots)||slots>capacity)throw Error('場次占比錯誤');
     const p=pricing(cinemaID,allocation,values),venue={cinemaID,locationID,screenCount:allocation.screenCount},featuredShare=slots/capacity,rest=live.length-1;
     const result=live.map(h=>{
       const movie=by.get(h.id),share=!selected?1/live.length:h.id===selected?featuredShare:(1-featuredShare)/rest;
