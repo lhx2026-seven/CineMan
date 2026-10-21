@@ -77,3 +77,7 @@ C02 above 60% featured share halves non-featured ordinary-film attendance. C01 a
 Tests: node tests/scheduling-weights.cjs, plus the box-office and location/ticket suites.
 
 Retention thresholds and ledger integration: `node tests/baogong-retention.cjs`.
+
+## Featured-share ceiling
+
+C03/C04/C05 (布洛威/YLC/公會堂) cannot select 100% featured share. Keep the range max and right-end label at the full capacity (100%), but clamp interactive and restored values to capacity−1. Settlement validates the same ceiling. C01/C02 still permit 100%. Previously booked receipts remain unchanged. Test: tests/featured-share-limit-browser.cjs.
