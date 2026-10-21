@@ -61,6 +61,7 @@ function initGame() {
       movies=CinemaMovieRules.resolve(CinemaMovieDatabase,runId,allocation.screenCount,gameDate.year,gameDate.week,checkpoint?.movies);
       movies=CinemaBoxOffice.hydrate(CinemaMovieDatabase,movies);
       boxOffice=CinemaBoxOffice.resolveLedger(checkpoint?.boxOffice,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week));
+      movies=CinemaBoxOffice.retireLowGross(movies,boxOffice);
       renderMovieWeek(restoredDraft||{});
       CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week))});
       CinemaVenue.render(allocation);

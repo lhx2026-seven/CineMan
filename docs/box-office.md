@@ -47,3 +47,13 @@ Older receipts without featuredID remain valid. When there are at least three fi
 Tests: `node tests/box-office.cjs` and `tests/carry-feature-browser.cjs`.
 
 The weekly regular-session multiplier is now 3 (previously 4). This applies to future settlements only; already booked receipt amounts are preserved, not recalculated.
+
+## Mandatory low-gross retirement
+
+At the beginning of each operating week, any still-showing film whose **immediately previous week's** finalized gross is below NT$2,000 is forced off. Exactly NT$2,000 survives this specific check. Gross includes that week's regular and special-session income and uses the already rounded per-film amount in the receipt. Lifetime cumulative gross is irrelevant, even if very high.
+
+This mandatory rule overrides normal/special minimum-run protections; the existing scheduled/probabilistic retirement rules still apply to survivors. The film is marked retiredAt=currentWeek with retirementReason=low-gross. It is removed from remaining screening shares, special-session choices and carry-feature eligibility. A retired MV0503 cannot trigger its opening-week-4 event later.
+
+Only films present in the previous source-week receipt are considered. Newly drawn movies with no prior-week operation are not mistaken for zero-gross films. Weeks without a historical receipt (legacy preview saves) do not invent an income result or trigger this rule. Existing saves apply the same check on load using their stored previous-week receipt, preserving all booked money and cumulative totals; no recalculation is performed.
+
+Tests: `node tests/box-office.cjs` and `tests/low-gross-browser.cjs`.

@@ -93,7 +93,7 @@
     if((record.initial?now:age)<threshold)return false;
     return random(seed,`retire/${movie.id}/${now}`)()<(movie.id==='MV0503'?.5:.9);
   }
-  function eventsFor(state,now){return state.history.some(h=>h.id==='MV0503'&&now-h.releasedAt+1===4)?[{id:'MV0503-week4',title:'影迷守護戲院',message:eventText}]:[];}
+  function eventsFor(state,now){return state.history.some(h=>h.id==='MV0503'&&(h.retiredAt==null||h.retiredAt>now)&&now-h.releasedAt+1===4)?[{id:'MV0503-week4',title:'影迷守護戲院',message:eventText}]:[];}
   function resolve(database,seed,screenCount,year,week,saved){
     const now=absoluteWeek(year,week),by=index(database);
     if(saved!==undefined){

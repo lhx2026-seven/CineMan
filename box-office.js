@@ -78,14 +78,21 @@
     }
     if(saved.lastSettledWeek!==(previous||null)||JSON.stringify(Object.entries(totals).sort())!==JSON.stringify(Object.entries(saved.totalsByMovie).sort())||JSON.stringify(Object.entries(years).sort())!==JSON.stringify(Object.entries(saved.byYear).sort()))throw Error('票房累計存檔錯誤');return saved;
   }
+  function retireLowGross(movies,ledger,week=movies.lastWeek){
+    const previous=ledger?.receipts.find(r=>r.earnedAt===week-1);
+    if(!previous)return movies;
+    const earned=new Map(previous.films.map(f=>[f.id,f.gross])),copy=structuredClone(movies);
+    for(const h of showing(copy))if(earned.has(h.id)&&earned.get(h.id)<2000){h.retiredAt=week;h.retirementReason='low-gross';}
+    return copy;
+  }
   function advance(context,ledger){
     const now=context.movies.lastWeek;ledger=resolveLedger(ledger,now);if(ledger.lastSettledWeek!==null&&ledger.lastSettledWeek>=now)throw Error('本週已結算');
     const receipt=settle({...context,ledger}),nextNow=now+1,year=2022+Math.floor((nextNow-1)/50),week=(nextNow-1)%50+1;
-    let movies=structuredClone(context.movies);const by=new Map(context.database.movies.map(m=>[m.id,m]));
+    const next=structuredClone(ledger);next.lastSettledWeek=now;next.receipts.push(receipt);next.byYear[year]=(next.byYear[year]||0)+receipt.total;for(const f of receipt.films)next.totalsByMovie[f.id]=(next.totalsByMovie[f.id]||0)+f.gross;
+    let movies=retireLowGross(context.movies,next,nextNow);movies=structuredClone(movies);const by=new Map(context.database.movies.map(m=>[m.id,m]));
     for(const h of showing(movies))if(R().retirement(by.get(h.id),h,nextNow,movies.seed))h.retiredAt=nextNow;
     movies=R().releaseWeek(context.database,movies,year,week);for(const h of movies.history)h.retiredAt??=null;
-    const next=structuredClone(ledger);next.lastSettledWeek=now;next.receipts.push(receipt);next.byYear[year]=(next.byYear[year]||0)+receipt.total;for(const f of receipt.films)next.totalsByMovie[f.id]=(next.totalsByMovie[f.id]||0)+f.gross;
     return{movies,ledger:next,year,week,receipt};
   }
-  const api={extraKey,standardPrice,pricing,hydrate,showing,specialGross,carryCandidate,settle,createLedger,resolveLedger,advance};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaBoxOffice=api;
+  const api={extraKey,standardPrice,pricing,hydrate,showing,specialGross,carryCandidate,settle,createLedger,resolveLedger,retireLowGross,advance};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaBoxOffice=api;
 })(globalThis);

@@ -24,3 +24,12 @@ console.log('PASS carry last-week feature once, real share calculation, consume 
 const oldLedger=structuredClone(next.ledger);for(const r of oldLedger.receipts){delete r.featuredID;delete r.extendedFeatured;}B.resolveLedger(oldLedger,2);assert.equal(B.carryCandidate(next.movies,oldLedger),values.featuredFilm);
 const ambiguous=structuredClone(oldLedger);ambiguous.receipts[0].films=ambiguous.receipts[0].films.slice(0,2);assert.equal(B.carryCandidate(next.movies,ambiguous),null);assert.equal(B.carryCandidate(null,null),null);
 console.log('PASS legacy receipts migrate only an unambiguous share outlier; ambiguous two-film history is not guessed');
+const poorState={version:1,weeksPerYear:50,seed:'poor',lastWeek:3,current:['MV0100'],history:['MV0004','MV0005','MV0006','MV0100'].map((id,i)=>({id,releasedAt:i===3?3:1,initial:false,retiredAt:null}))};
+const poorLedger={receipts:[{earnedAt:2,films:[{id:'MV0004',gross:1999},{id:'MV0005',gross:2000},{id:'MV0006',gross:0}]}],totalsByMovie:{MV0004:999999,MV0005:2000,MV0006:200000}};
+const keptOriginal=JSON.stringify(poorState),forced=B.retireLowGross(poorState,poorLedger);assert.equal(JSON.stringify(poorState),keptOriginal);assert.equal(forced.history[0].retiredAt,3);assert.equal(forced.history[1].retiredAt,null);assert.equal(forced.history[2].retiredAt,3);assert.equal(forced.history[3].retiredAt,null);
+assert.deepEqual(B.retireLowGross(poorState,{receipts:[]}),poorState);
+const allOnMain={...knownMovies};const lowContext={database:db,movies:allOnMain,cinemaID:'C01',locationID:'LOC08',allocation:single,values:{ticketFull:300,featuredFilm:'MV0504',featuredSlots:6}};
+const dropped=B.advance(lowContext,B.createLedger());assert.equal(dropped.movies.history.find(h=>h.id==='MV0505').retiredAt,2);assert(dropped.movies.current.every(id=>B.showing(dropped.movies).some(h=>h.id===id)));
+const rescued=B.advance({...lowContext,values:{...lowContext.values,specialMovie:'MV0505',specialPrice:400}},B.createLedger());assert.equal(rescued.movies.history.find(h=>h.id==='MV0505').retiredAt,null);
+assert.equal(R.eventsFor({history:[{id:'MV0503',releasedAt:1,retiredAt:2}]},4).length,0);
+console.log('PASS prior-week-only <2000 retirement, exactly 2000 survives, high cumulative does not protect, zero gross retires, fresh movies excluded, special revenue included and special long-run protection overridden');
