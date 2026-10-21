@@ -190,11 +190,17 @@
     visit(0, rule.screens, {});
     return result;
   }
+  const townRows=new WeakMap();
+  function locationRule(row,locationID){
+    if(locationID!=='LOC08')return row;
+    if(!townRows.has(row))townRows.set(row,{...row,[field('EXTRA','min')]:0,[field('EXTRA','max')]:0});
+    return townRows.get(row);
+  }
   function validateAssignment(assignment, database) {
     const errors = [];
     const row = database.cinemas.find(row => row.cinemaID === assignment.cinemaID && row.screens === assignment.screens?.length);
     if (!row) return ['No matching cinema/screen-count rule'];
-    const rule = normalize(row), counts = Object.fromEntries(TYPES.map(type => [type, 0]));
+    const rule = normalize(locationRule(row,assignment.locationID)), counts = Object.fromEntries(TYPES.map(type => [type, 0]));
     const repeats = new Map();
     let total = 0;
     for (const screen of assignment.screens) {
@@ -318,13 +324,13 @@
     fingerprintCache.set(database, result);
     return result;
   }
-  function generate(database, cinemaID, seed, screenCount = null) {
+  function generate(database, cinemaID, seed, screenCount = null, locationID = null) {
     if (typeof seed !== 'string' || !seed.length || seed.length > 256) throw Error('Seed must contain 1–256 characters');
     const rows = database.cinemas.filter(row => row.cinemaID === cinemaID && (screenCount == null || row.screens === screenCount));
     if (!rows.length) throw Error('Unknown cinema or unavailable screen count');
     const random = seededRandom(seed);
     const row = rows[Math.floor(random()*rows.length)];
-    const current = model(row, database);
+    const current = model(locationRule(row,locationID), database);
     const group = random() < current.effectiveA ? current.withA : current.withoutA;
     const choice = group[Math.floor(random()*group.length)];
     const screens = choice.sampler.sample(random);
@@ -334,6 +340,7 @@
       probabilities:{aConfigured:current.rule.chanceA, aEffective:current.effectiveA,
         aNon500:current.rule.chanceNon500, d20:current.rule.chanceD20},
       constraints:{minSeats:current.rule.minSeats, ranges:current.rule.ranges}};
+    if(locationID)assignment.locationID=locationID;
     const errors = validateAssignment(assignment, database);
     if (errors.length) throw Error(errors.join('; '));
     return assignment;
@@ -353,16 +360,22 @@ globalThis.CinemaDatabase={"cinemas":[{"type":"first_run","cinemaID":"C01","name
 // Source: venue.js
 'use strict';
 (function(root) {
-  async function assign(cinemaID, runId, savedAllocation = null) {
+  async function assign(cinemaID, runId, savedAllocation = null, locationID = null) {
     const database = root.CinemaDatabase;
     if (!database) throw Error('無法讀取戲院資料');
     // The run in the URL keeps refreshes stable. A new homepage confirmation
     // creates a fresh run and therefore a new field allocation and form draft.
     if (savedAllocation) {
       if (savedAllocation.cinemaID !== cinemaID || savedAllocation.seed !== runId || root.CinemaRules.validateAssignment(savedAllocation,database).length) throw Error('存檔場地與資料庫不相符');
+      if(locationID==='LOC08'){
+        if(savedAllocation.screens.some(screen=>screen.type==='EXTRA'))return root.CinemaRules.generate(database,cinemaID,runId,savedAllocation.screenCount,locationID);
+        const updated={...savedAllocation,locationID,constraints:{...savedAllocation.constraints,ranges:{...savedAllocation.constraints.ranges,EXTRA:{min:0,max:0}}}};
+        if(root.CinemaRules.validateAssignment(updated,database).length)throw Error('小城鎮影廳配置不相容');
+        return updated;
+      }
       return savedAllocation;
     }
-    const allocation = root.CinemaRules.generate(database, cinemaID, runId);
+    const allocation = root.CinemaRules.generate(database, cinemaID, runId, null, locationID);
     return allocation;
   }
   function render(allocation) {
@@ -1295,7 +1308,7 @@ function initGame() {
     const message = document.querySelector('#venue-loading');
     message.hidden = true;
     try {
-      const allocation = await CinemaVenue.assign(id, runId, checkpoint?.allocation);
+      const allocation = await CinemaVenue.assign(id, runId, checkpoint?.allocation, property.locationID);
       movies=CinemaMovieRules.resolve(CinemaMovieDatabase,runId,allocation.screenCount,gameDate.year,gameDate.week,checkpoint?.movies);
       movies=CinemaBoxOffice.hydrate(CinemaMovieDatabase,movies);
       boxOffice=CinemaBoxOffice.resolveLedger(checkpoint?.boxOffice,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week));

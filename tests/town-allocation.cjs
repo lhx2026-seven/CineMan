@@ -1,0 +1,5 @@
+const assert=require('node:assert/strict'),R=require('../assignment-rules.js'),db=require('../data/cinemas.json');
+for(const row of db.cinemas){for(let i=0;i<30;i++){const a=R.generate(db,row.cinemaID,'town/'+i,row.screens,'LOC08');assert.equal(a.counts.EXTRA,0);assert(a.screens.every(s=>s.type!=='EXTRA'));assert.equal(a.screenCount,row.screens);assert.deepEqual(R.validateAssignment(a,db),[]);assert.equal(a.totalSeats,a.screens.reduce((s,h)=>s+h.size,0));assert.equal(a.constraints.ranges.EXTRA.max,0);}}
+const nine=R.generate(db,'C03','nine',9,'LOC08');assert.equal(nine.screenCount,9);assert.equal(nine.counts.EXTRA,0);assert.deepEqual(nine,R.generate(db,'C03','nine',9,'LOC08'));
+for(let i=0;i<30;i++){assert.equal(R.generate(db,'C03','other/'+i,9,'LOC07').counts.EXTRA,1);assert.deepEqual(R.generate(db,'C03','other/'+i,9).screens,R.generate(db,'C03','other/'+i,9,'LOC07').screens);}
+console.log('PASS town zero-EXTRA override for all hall counts incl mandatory-extra C03/9, ordinary constraints and seat sums, deterministic draw and unchanged other locations');

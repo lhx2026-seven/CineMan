@@ -57,7 +57,7 @@ function initGame() {
     const message = document.querySelector('#venue-loading');
     message.hidden = true;
     try {
-      const allocation = await CinemaVenue.assign(id, runId, checkpoint?.allocation);
+      const allocation = await CinemaVenue.assign(id, runId, checkpoint?.allocation, property.locationID);
       movies=CinemaMovieRules.resolve(CinemaMovieDatabase,runId,allocation.screenCount,gameDate.year,gameDate.week,checkpoint?.movies);
       movies=CinemaBoxOffice.hydrate(CinemaMovieDatabase,movies);
       boxOffice=CinemaBoxOffice.resolveLedger(checkpoint?.boxOffice,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week));

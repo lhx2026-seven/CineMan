@@ -79,11 +79,17 @@
     visit(0, rule.screens, {});
     return result;
   }
+  const townRows=new WeakMap();
+  function locationRule(row,locationID){
+    if(locationID!=='LOC08')return row;
+    if(!townRows.has(row))townRows.set(row,{...row,[field('EXTRA','min')]:0,[field('EXTRA','max')]:0});
+    return townRows.get(row);
+  }
   function validateAssignment(assignment, database) {
     const errors = [];
     const row = database.cinemas.find(row => row.cinemaID === assignment.cinemaID && row.screens === assignment.screens?.length);
     if (!row) return ['No matching cinema/screen-count rule'];
-    const rule = normalize(row), counts = Object.fromEntries(TYPES.map(type => [type, 0]));
+    const rule = normalize(locationRule(row,assignment.locationID)), counts = Object.fromEntries(TYPES.map(type => [type, 0]));
     const repeats = new Map();
     let total = 0;
     for (const screen of assignment.screens) {
@@ -207,13 +213,13 @@
     fingerprintCache.set(database, result);
     return result;
   }
-  function generate(database, cinemaID, seed, screenCount = null) {
+  function generate(database, cinemaID, seed, screenCount = null, locationID = null) {
     if (typeof seed !== 'string' || !seed.length || seed.length > 256) throw Error('Seed must contain 1–256 characters');
     const rows = database.cinemas.filter(row => row.cinemaID === cinemaID && (screenCount == null || row.screens === screenCount));
     if (!rows.length) throw Error('Unknown cinema or unavailable screen count');
     const random = seededRandom(seed);
     const row = rows[Math.floor(random()*rows.length)];
-    const current = model(row, database);
+    const current = model(locationRule(row,locationID), database);
     const group = random() < current.effectiveA ? current.withA : current.withoutA;
     const choice = group[Math.floor(random()*group.length)];
     const screens = choice.sampler.sample(random);
@@ -223,6 +229,7 @@
       probabilities:{aConfigured:current.rule.chanceA, aEffective:current.effectiveA,
         aNon500:current.rule.chanceNon500, d20:current.rule.chanceD20},
       constraints:{minSeats:current.rule.minSeats, ranges:current.rule.ranges}};
+    if(locationID)assignment.locationID=locationID;
     const errors = validateAssignment(assignment, database);
     if (errors.length) throw Error(errors.join('; '));
     return assignment;
