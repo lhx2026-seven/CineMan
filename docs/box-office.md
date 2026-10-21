@@ -15,12 +15,12 @@ For each film currently showing:
 1. Determine its own current-week raw attendance from the saved opening date and fixed run seed.
 2. For ordinary films, apply only the initial location factor with [0,1] clamp (the eight former additional location bonuses/penalties are withdrawn), then cumulative ticket penalties and clamp again. C05 then multiplies hit by 0.5 or average by 1.5, clamping once more; bomb is unchanged. This applies to both featured and non-featured films. Special-tier films retain their raw profile and bypass all attendance modifiers.
 3. Featured film uses exactly its selected screening share; all other still-showing films equally divide the remainder. Retired films do not share it. If no new releases are available, remaining films divide sessions equally. A single featured film does not automatically override its selected share to 100%.
-4. `dailyViewers = round(effectiveAttendance × totalSeats × 6 × filmShare)`.
+4. `dailyViewers = round(effectiveAttendance × totalSeats × 6 × filmShare × marketingFactor)`.
 5. `weeklyRegularGross = dailyViewers × weightedAveragePrice × 3`. Retain fractional money internally until final film-week rounding.
 
 ## Special sessions
 
-Extra sessions do not consume regular sessions. At 400: 100 viewers. At 410–500: round(100 × raw current-week attendance). At 510–600: round(100 × raw attendance × 0.70). Prices use 10-unit steps. No location adjustment, ordinary ticket penalty, hall-size cap or three-day multiplier applies. Each selected session occurs once; add up to five. C02 and C05 remain excluded from this feature.
+Extra sessions do not consume regular sessions. At 400: 100 viewers. At 410–500: baseline100 × raw current-week attendance. At 510–600: baseline100 × raw attendance ×0.70. Multiply this unrounded baseline by the marketing factor, then round once (see Marketing audience factor below). Prices use 10-unit steps. No location adjustment, ordinary ticket penalty, hall-size cap or three-day multiplier applies. Each selected session occurs once; add up to five. C02 and C05 remain excluded from this feature.
 
 For each film, `weeklyGross = round(weeklyRegularGross + sum(specialSessionViewers × specialSessionPrice))`. Sum these integer film grosses for the week's gross. Rounding uses a tiny floating-point error correction so values such as 33.49999999999999 mathematically representing 33.5 round to 34.
 
@@ -81,3 +81,11 @@ Retention thresholds and ledger integration: `node tests/baogong-retention.cjs`.
 ## Featured-share ceiling
 
 C03/C04/C05 (布洛威/YLC/公會堂) cannot select 100% featured share. Keep the range max and right-end label at the full capacity (100%), but clamp interactive and restored values to capacity−1. Settlement validates the same ceiling. C01/C02 still permit 100%. Previously booked receipts remain unchanged. Test: tests/featured-share-limit-browser.cjs.
+
+## Marketing audience factor
+
+For ordinary films, C01/C03/C04 marketing=0 gives factor0.5; C02 marketing>10000 gives factor1.1; C05 marketing>10000 gives factor2 only to average films; otherwise1. Exactly10000 gives no bonus. All special-tier movies have factor1. Apply to both featured and non-featured titles. Missing marketing defaults to0, matching the form minimum.
+
+Multiply unrounded general-session viewers and each special session's unrounded 100-person-based viewers by this factor before rounding once. At400 a zero-marketing ordinary-film special session thus gets50 viewers, while a special-tier film still gets100. Do not change raw attendance or double-round viewers. C02/C05 special-session closure and forced-retirement zero revenue remain intact. Marketing acts on people after attendance modifiers, with no extra seat-cap clamp; it is not an attendance percentage-point adjustment. Receipts retain marketingFactor for audit. Existing posted receipts are preserved; marketing expense settlement remains pending.
+
+Test: node tests/marketing-attendance.cjs.
