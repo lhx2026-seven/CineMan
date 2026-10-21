@@ -305,8 +305,8 @@
     }
     input.setAttribute('aria-valuetext',`NT$ ${value}${input.dataset.amountUnit?'，'+input.dataset.amountUnit:''}`);
   }
-  function syncSliders(form) {
-    form.querySelectorAll('.amount-range').forEach(syncSlider);
+  function syncSliders(form,changed) {
+    if(changed)syncSlider(changed);else form.querySelectorAll('.amount-range').forEach(syncSlider);
     const total=['staffing','foodCost','maintenance','marketing','consumables'].reduce((sum,name)=>sum+Number(form.elements[name].value||0),0);
     form.querySelector('#budget-total').textContent=`NT$${total.toLocaleString('zh-TW')}`;
   }

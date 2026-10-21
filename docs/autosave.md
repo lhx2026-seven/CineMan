@@ -72,3 +72,5 @@ checkpoint 含存檔版本、cinemaID／cinemaName、runId、遊戲年／週、s
 `CINEMAN_BASE_URL=http://127.0.0.1:8000 node tests/home-navigation-browser.cjs` 人為卡住原頁 save promise，檢查原生連結未被攔截、立即回首頁、最後金額完成還原、OFF 不寫入與緩衝移除。
 
 地點、土地與空間首抽機率及收費設定見 [property-draw.md](property-draw.md)。舊存檔補入新欄位時不重抽原影廳。
+
+Slider input events update only the affected amount/derived ticket prices or featured-share label, without rerendering movie cards and unrelated controls. Continuous input coalesces draft writes after 150 ms idle. Native change commits immediately; saveDraft cancels any pending timer before capturing the current state, so next-week, tab changes, visibility/pagehide and logo navigation still flush the latest settings. Navigation handoff remains intact. Local Chromium measurement for 80 synchronous slider events: handler work approximately 82 ms / 80 save calls before, 7 ms / 1 call after; timings depend on device. Regression: tests/slider-performance-browser.cjs covers write coalescing, reload and immediate logo navigation.

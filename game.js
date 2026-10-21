@@ -315,6 +315,10 @@ function initGame() {
     }
     const featured = form.querySelector('input[name="featuredFilm"]:checked');
     document.querySelector('#next-week').disabled = advancing || !venueReady || ((movies?.current.length>0||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!featured);
+    updateFeaturedShare(featured);
+    films.update();
+  }
+  function updateFeaturedShare(featured=form.querySelector('input[name="featuredFilm"]:checked')) {
     const share = document.querySelector('#featured-share');
     share.disabled = !featured || !venueReady;
     if(venueReady)share.value=String(Math.min(Number(share.value),CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id)));
@@ -324,7 +328,6 @@ function initGame() {
     if (venueReady) share.setAttribute('aria-valuetext',`${formattedShare}（${share.value}／${share.max}${id==='C02'?'刻度':'場'}）`);
     document.querySelector('#featured-settings').hidden = !featured;
     if (featured) document.querySelector('#featured-heading').textContent = `選擇${films.titleFor(featured.value)}為本週主打，場次占比`;
-    films.update();
   }
   function formValues() {
     const values = {};
@@ -336,7 +339,9 @@ function initGame() {
     }
     return values;
   }
+  let draftTimer;
   function saveDraft(stageForNavigation=false) {
+    clearTimeout(draftTimer);
     if(restoring || !venueReady || !storeAvailable)return saveQueue;
     const values=formValues();
     const budgetLocks=Object.fromEntries(['maintenance','consumables'].map(name=>[name,form.elements[name].disabled ? document.querySelector(`#${name}-lock`).title || true : false]));
@@ -356,7 +361,15 @@ function initGame() {
     return saveQueue;
   }
   form.addEventListener('submit', event => event.preventDefault());
-  form.addEventListener('input', () => { updateControls(); saveDraft(); });
+  form.addEventListener('input', event => {
+    const input=event.target;
+    if(input.type==='range'){
+      if(input.name==='ticketFull')CinemaParameters.updateDerived(form);
+      if(input.classList.contains('amount-range'))CinemaParameters.syncSliders(form,input);
+      if(input.name==='featuredSlots')updateFeaturedShare();
+    }else updateControls();
+    clearTimeout(draftTimer);draftTimer=setTimeout(()=>saveDraft(),150);
+  });
   form.addEventListener('change', () => { updateControls(); saveDraft(); });
   startGame();
   const homePrefetch=document.createElement('link');homePrefetch.rel='prefetch';homePrefetch.as='document';homePrefetch.href=document.querySelector('.logo a').href;document.head.append(homePrefetch);
