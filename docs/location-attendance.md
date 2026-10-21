@@ -19,9 +19,9 @@ Unmatched conditions leave the original rate unchanged. These rules are determin
 
 For the eventual box-office calculation, use:
 
-    daily gross = average ticket price × effectiveAttendance × total seats × 6 × film screening share × ticket_price_weight
+    daily gross = average ticket price × final effectiveAttendance × total seats × 6 × film screening share
 
-Do not multiply by location_weight again: its effect is already included in effectiveAttendance. For example, base 40% plus 50 points becomes 90%; hit 80% ×1.75 becomes 100%; average 10% minus 25 points becomes 0%.
+Do not multiply by location_weight or ticket_price_weight again: pass pricing to effectiveAttendance so both attendance effects are included. See `docs/ticket-attendance.md`. For example, base 40% plus 50 points becomes 90%; hit 80% ×1.75 becomes 100%; average 10% minus 25 points becomes 0%.
 
 The calculation module is ready; financial reports and weekly settlement remain inactive pending the other unprovided formula parameters. No estimates or invented financial results are displayed.
 

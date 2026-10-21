@@ -71,8 +71,20 @@
     }
     return Math.max(0,Math.min(1,rate));
   }
-  function effectiveAttendance(movie,record,now,seed,venue){
-    return locationAttendance({...venue,tier:movie.tier,attendanceRate:attendance(movie,record,now,seed)});
+  function ticketAttendance({attendanceRate,cinemaID,screenCount,ticketFull,secondRunMode,specialHallPrices=[]}) {
+    if(!Number.isFinite(attendanceRate)||attendanceRate<0||attendanceRate>1||!/^C0[1-5]$/.test(cinemaID)||!Number.isInteger(screenCount)||screenCount<1||!Array.isArray(specialHallPrices)||specialHallPrices.length>screenCount||specialHallPrices.some(price=>!Number.isFinite(price)||price<0))throw Error('Invalid ticket attendance context');
+    if(cinemaID==='C02'?!['single','double','unlimited'].includes(secondRunMode):!Number.isFinite(ticketFull)||ticketFull<0)throw Error('Invalid ticket pricing');
+    let penalty=0;
+    if(['C01','C03','C04'].includes(cinemaID)&&ticketFull>350)penalty+=.5;
+    if(cinemaID==='C02'&&secondRunMode==='single')penalty+=.5;
+    if(cinemaID==='C05'&&ticketFull>200)penalty+=.05;
+    // One entry per physical EXTRA hall, even when multiple halls share a price.
+    penalty+=specialHallPrices.filter(price=>price>500).length/screenCount;
+    return Math.max(0,Math.min(1,attendanceRate-penalty));
+  }
+  function effectiveAttendance(movie,record,now,seed,venue,pricing){
+    const rate=locationAttendance({...venue,tier:movie.tier,attendanceRate:attendance(movie,record,now,seed)});
+    return pricing===undefined?rate:ticketAttendance({...pricing,cinemaID:venue.cinemaID,screenCount:venue.screenCount,attendanceRate:rate});
   }
   function retirement(movie,record,now,seed){
     const age=now-record.releasedAt+1;
@@ -94,6 +106,6 @@
       if(saved?.version!==1||saved.weeksPerYear!==WEEKS_PER_YEAR||saved.seed!==seed||saved.lastWeek!==now||!Array.isArray(saved.history)||!Array.isArray(saved.current)||saved.current.length>2||new Set(saved.current).size!==saved.current.length||new Set(saved.history.map(h=>h.id)).size!==saved.history.length||saved.history.some(h=>!by.has(h.id)||h.initial!==by.get(h.id).initial||!Number.isInteger(h.releasedAt)||h.releasedAt<1||h.releasedAt>now)||saved.current.some(id=>!saved.history.some(h=>h.id===id&&h.releasedAt===now)))throw Error('Movie save is incompatible');return saved;}
     let state=create(seed,screenCount);for(let n=1;n<=now;n++)state=releaseWeek(database,state,2022+Math.floor((n-1)/WEEKS_PER_YEAR),(n-1)%WEEKS_PER_YEAR+1);return state;
   }
-  const api={WEEKS_PER_YEAR,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,locationAttendance,effectiveAttendance,retirement,eventsFor,resolve};
+  const api={WEEKS_PER_YEAR,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,locationAttendance,ticketAttendance,effectiveAttendance,retirement,eventsFor,resolve};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMovieRules=api;
 })(globalThis);
