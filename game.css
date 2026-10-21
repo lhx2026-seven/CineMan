@@ -625,3 +625,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .carry-feature button { max-width:100%; padding:8px 12px; border:1px solid #a8937055; border-radius:6px; background:#15110d; color:#cbbb9e; font:inherit; font-size:12px; cursor:pointer; }
 .carry-feature button.is-selected { color:#f4dfb9; border-color:#d4b47c; background:#302419; }
 .carry-feature button:focus-visible { outline:2px solid #d4b47c; outline-offset:3px; }
+
+/* Keep full poster titles on one line; films.js reduces only titles that need it. */
+.film-info h4, #panel-films .old-film h4 { min-width:0; width:100%; white-space:nowrap; }
+.film-info h4 > span, #panel-films .old-film h4 > span { letter-spacing:inherit; }

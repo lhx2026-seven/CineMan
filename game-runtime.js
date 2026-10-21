@@ -615,6 +615,21 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
   function init(form) {
     const carousel = document.querySelector('#film-carousel');
     const cards = [...carousel.querySelectorAll('.film-option')];
+    const titleMeasure=document.createElement('canvas').getContext('2d');
+    const titleObserver=new ResizeObserver(entries=>entries.forEach(({target})=>fitTitle(target)));
+    function fitTitle(title){
+      const width=title.clientWidth;if(!width||!title.firstElementChild)return;
+      const style=getComputedStyle(title);titleMeasure.font=style.font;
+      const text=title.textContent,spacing=parseFloat(style.letterSpacing)||0;
+      const measured=titleMeasure.measureText(text).width+Math.max(0,Array.from(text).length-1)*spacing;
+      const size=parseFloat(style.fontSize)*Math.min(1,(width-1)/Math.max(1,measured));
+      title.firstElementChild.style.fontSize=`${Math.max(1,size)}px`;
+    }
+    function setTitle(title,text){
+      const span=document.createElement('span');span.textContent=text;
+      title.replaceChildren(span);title.title=text;titleObserver.observe(title);fitTitle(title);
+    }
+    document.fonts.ready.then(()=>form.querySelectorAll('.film-info h4,.old-film h4').forEach(fitTitle));
     const previous = document.querySelector('#previous-film'), next = document.querySelector('#next-film');
     let available=cards.length, midpoint = (available - 1) / 2;
     let center = midpoint, pointer = null, swiped = false;
@@ -697,7 +712,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
       cards.forEach((card,i)=>{
         const movie=movies[i];card.hidden=!movie;card.querySelector("input").disabled=!movie;if(!movie){card.querySelector("input").checked=false;return;}card.dataset.filmValue=movie.id;
         const input=card.querySelector('input');input.value=movie.id;input.checked=(legacy[values.featuredFilm]||values.featuredFilm)===movie.id;
-        card.querySelector('h4').textContent=movie.title;
+        setTitle(card.querySelector('h4'),movie.title);
         const output=card.querySelector('[data-box-office]');output.dataset.boxOffice=movie.id;output.setAttribute('aria-label',`${movie.title}本院累計票房`);output.textContent=(totals[movie.id]||0).toLocaleString('zh-TW');
       });
       specialRows.forEach(row=>{
@@ -706,11 +721,12 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
         select.replaceChildren(...options);select.value=saved;
       });
       const oldContainer=document.querySelector('.old-films');
+      oldContainer.querySelectorAll('h4').forEach(title=>titleObserver.unobserve(title));
       oldContainer.replaceChildren(...retained.map(movie=>{
         const article=document.createElement('article');article.className='old-film';article.dataset.movieId=movie.id;
         const poster=document.createElement('div');poster.className='old-film-poster';
         if(OLD_FILMS.some(old=>old.id===movie.id)){const img=document.createElement('img');img.src=`assets/films/${movie.id}.webp?v=${POSTER_VERSIONS[movie.id]}`;img.width=600;img.height=900;img.alt=`《${movie.title}》電影海報`;img.loading='lazy';img.decoding='async';poster.append(img);}else{const icon=cards[0].querySelector('.film-poster svg').cloneNode(true);icon.setAttribute('aria-hidden','true');poster.append(icon);}
-        const title=document.createElement('h4');title.textContent=movie.title;
+        const title=document.createElement('h4');setTitle(title,movie.title);
         const report=document.createElement('p');report.className='film-box-office';const label=document.createElement('span');label.textContent='本院累計票房';const amount=document.createElement('span');amount.append('NT$ ');const output=document.createElement('output');output.dataset.boxOffice=movie.id;output.textContent=(totals[movie.id]||0).toLocaleString('zh-TW');output.setAttribute('aria-label',`${movie.title}本院累計票房`);amount.append(output);report.append(label,amount);article.append(poster,title,report);return article;
       }));
       oldContainer.hidden=!retained.length;document.querySelector('.old-films-heading').hidden=!retained.length;
