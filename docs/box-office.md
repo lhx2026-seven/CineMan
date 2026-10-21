@@ -68,8 +68,12 @@ Tests: `node tests/films.cjs`, `tests/second-run-share-browser.cjs`.
 
 ## Cinema scheduling limits
 
-C01 Baogong keeps at most three films (new and retained combined). Above 80% featured share it keeps at most two: the feature and one secondary. Keep the featured film first, then its surviving same-opening-week companion, then the newest surviving films (movie ID breaks ties). Never revive retired films or add titles just to fill the cap. Without a feature, keep the three newest. Excess films receive zero regular AND special-session gross this operating week and are permanently retired at the source week with reason baogong-focus; their zero receipt rows and retirement dates survive reload.
+C01 Baogong normally keeps both current new releases plus the surviving old film with the highest immediately previous operating week's gross (not lifetime cumulative). A second old film also survives if its previous-week gross is at least NT$2,000 and at least 50% of the highest old-film gross; both thresholds are inclusive. This normally gives three films, or at most four. Gross includes regular and special sessions. Ties use newer opening date then movie ID. No previous receipt (including W1) means a deterministic date/ID fallback for the first old slot and no fourth-film qualification. A manually carried feature is protected as the first old-film slot; the best remaining old film must still meet both fourth-film thresholds against the highest old gross.
+
+Above 80% featured share the existing two-film exception takes priority: keep the feature and its surviving same-opening-week companion, then newest-film fallback. Initial old films are not treated as newly opened companions even when their stored dates match W1. Never revive retired films or add titles just to fill slots. Excess films receive zero regular AND special-session gross this operating week and are permanently retired at the source week with reason baogong-focus; their zero receipt rows and retirement dates survive reload. Existing low-gross and probabilistic retirements still apply before this selection; a good prior gross does not revive an already retired title.
 
 C02 above 60% featured share halves non-featured ordinary-film attendance. C01 above 80% does the same to its surviving ordinary secondary. Exact thresholds do not trigger the penalty. Special-tier films bypass the attendance penalty, but remain subject to Baogong's structural film cap and mandatory retirement. Remaining screening share is divided only among survivors. Already booked receipts are never recalculated.
 
 Tests: node tests/scheduling-weights.cjs, plus the box-office and location/ticket suites.
+
+Retention thresholds and ledger integration: `node tests/baogong-retention.cjs`.

@@ -43,11 +43,24 @@
     if(!id||!showing(movies).some(h=>h.id===id)||ledger.receipts.some(r=>r.featuredID===id&&r.extendedFeatured===true))return null;
     return id;
   }
-  function screeningPlan(movies,cinemaID,selected,featuredShare){
+  function screeningPlan(movies,cinemaID,selected,featuredShare,ledger){
     const live=showing(movies),featured=live.find(h=>h.id===selected);
     const cap=cinemaID==='C01'?(featured&&featuredShare>.8?2:3):live.length;
     const others=live.filter(h=>h.id!==selected).sort((a,b)=>Number(b.releasedAt===featured?.releasedAt&&!!b.initial===!!featured?.initial)-Number(a.releasedAt===featured?.releasedAt&&!!a.initial===!!featured?.initial)||b.releasedAt-a.releasedAt||a.id.localeCompare(b.id));
-    const kept=(featured?[featured,...others]:others).slice(0,cap),keepIDs=new Set(kept.map(h=>h.id));
+    let kept=(featured?[featured,...others]:others).slice(0,cap);
+    if(cinemaID==='C01'&&!(featured&&featuredShare>.8)){
+      const previous=ledger?.receipts.find(r=>r.earnedAt===movies.lastWeek-1);
+      const gross=new Map((previous?.films||[]).map(f=>[f.id,f.gross]));
+      const fresh=live.filter(h=>movies.current.includes(h.id));
+      const old=live.filter(h=>!movies.current.includes(h.id)).sort((a,b)=>(gross.get(b.id)||0)-(gross.get(a.id)||0)||b.releasedAt-a.releasedAt||a.id.localeCompare(b.id));
+      // A manually carried feature remains the first retained-film choice.
+      const retained=featured&&!movies.current.includes(featured.id)?[featured,...old.filter(h=>h.id!==featured.id)]:old;
+      const winners=retained.slice(0,1),second=retained[1];
+      const highest=Math.max(0,...old.map(h=>gross.get(h.id)||0));
+      if(second&&(gross.get(second.id)||0)>=2000&&(gross.get(second.id)||0)>=highest*.5)winners.push(second);
+      kept=[...fresh,...winners];
+    }
+    const keepIDs=new Set(kept.map(h=>h.id));
     const secondary=featured?kept.find(h=>h.id!==selected):null;
     const removed=live.filter(h=>!keepIDs.has(h.id)).map(h=>h.id);
     const active=kept.length;
@@ -61,7 +74,7 @@
     if((movies.current.length||carry)&&!selected||selected&&(!live.some(h=>h.id===selected)||!movies.current.includes(selected)&&selected!==carry))throw Error('請先選擇本週新片或可延用的上週主打片');
     const slots=amount(values.featuredSlots),capacity=R().screeningCapacity(allocation.screenCount,cinemaID);if(!Number.isInteger(slots)||slots>capacity)throw Error('場次占比錯誤');
     const p=pricing(cinemaID,allocation,values),venue={cinemaID,locationID,screenCount:allocation.screenCount},featuredShare=slots/capacity;
-    const plan=screeningPlan(movies,cinemaID,selected,featuredShare);
+    const plan=screeningPlan(movies,cinemaID,selected,featuredShare,ledger);
     const result=live.map(h=>{
       const movie=by.get(h.id),share=plan.shares[h.id],forcedOff=plan.removed.includes(h.id);
       const rawRate=R().attendance(movie,h,now,movies.seed);
