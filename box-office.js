@@ -80,6 +80,7 @@
       const rawRate=R().attendance(movie,h,now,movies.seed);
       let rate=forcedOff?0:R().effectiveAttendance(movie,h,now,movies.seed,venue,p);
       if(plan.penalized&&h.id!==selected&&movie.tier!=='special')rate*=.5;
+      if(['C03','C04'].includes(cinemaID)&&featuredShare>.8&&h.id===selected&&movie.tier!=='special')rate*=.75;
       const dailyViewers=round(rate*allocation.totalSeats*6*share);
       return {id:h.id,rawRate,rate,share,forcedOff,dailyViewers,regularGross:dailyViewers*p.averagePrice*3,specialViewers:0,specialGross:0};
     });
