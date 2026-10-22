@@ -325,7 +325,7 @@
   }
   function updateDerived(form) {
     const full=form.elements.ticketFull;
-    const ready=!full.matches(':disabled') && full.value!=='' && full.validity.valid;
+    const ready=(!full.matches(':disabled')||full.dataset.yearLocked==='true'&&!full.closest('fieldset').disabled) && full.value!=='' && full.validity.valid;
     const prices=ready ? derive(Number(full.value)) : null;
     for(const name of DERIVED_TICKETS) {
       const input=form.elements[name];

@@ -303,7 +303,16 @@ function initGame() {
     films.restoreView();updateControls();await loadVenue();
   }
 
+  function updateTicketLocks(){
+    const locked=gameDate.week!==1;
+    for(const control of form.querySelectorAll('[name="ticketFull"],[name="secondRunPrice"],[name="secondRunMode"],[name^="ticketExtra_"]')){
+      control.disabled=locked;control.dataset.yearLocked=String(locked);
+      control.title=locked?'每年W1可調整電影票價':'';
+    }
+    for(const group of [standardPricing,secondRunPricing,document.querySelector('#special-ticket-group')])group.classList.toggle('year-price-locked',locked);
+  }
   function updateControls() {
+    updateTicketLocks();
     CinemaParameters.updateDerived(form);
     CinemaParameters.syncSliders(form);
     for (const item of ['poster', 'figure']) {

@@ -629,3 +629,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 /* Keep full poster titles on one line; films.js reduces only titles that need it. */
 .film-info h4, #panel-films .old-film h4 { min-width:0; width:100%; white-space:nowrap; }
 .film-info h4 > span, #panel-films .old-film h4 > span { letter-spacing:inherit; }
+
+.year-price-locked .ticket-grid, .year-price-locked .second-run-ticket-grid { color:#8e887e; }
+.year-price-locked .amount-value, .year-price-locked .field > span:first-child { color:#8e887e; }
+.year-price-locked select:disabled { opacity:.45; cursor:not-allowed; }

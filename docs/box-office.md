@@ -89,3 +89,7 @@ For ordinary films, C01/C03/C04 marketing=0 gives factor0.5; C02 marketing>10000
 Multiply unrounded general-session viewers and each special session's unrounded 100-person-based viewers by this factor before rounding once. At400 a zero-marketing ordinary-film special session thus gets50 viewers, while a special-tier film still gets100. Do not change raw attendance or double-round viewers. C02/C05 special-session closure and forced-retirement zero revenue remain intact. Marketing acts on people after attendance modifiers, with no extra seat-cap clamp; it is not an attendance percentage-point adjustment. Receipts retain marketingFactor for audit. Existing posted receipts are preserved; marketing expense settlement remains pending.
 
 Test: node tests/marketing-attendance.cjs.
+
+## Annual ticket-price window
+
+Only operating W1 of each 50-week year allows ordinary ticketFull, secondRunPrice, secondRunMode and all EXTRA hall prices to change. Other weeks disable and gray those controls, preserving values in snapshots and settlement. Derived student/morning/accessibility prices remain visible and computed from the locked full price. Each following year's W1 unlocks automatically without resetting prices. Food, merchandise and extra special-session prices retain their existing adjustability. Tests: tests/annual-ticket-lock-browser.cjs.

@@ -1113,7 +1113,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
   }
   function updateDerived(form) {
     const full=form.elements.ticketFull;
-    const ready=!full.matches(':disabled') && full.value!=='' && full.validity.valid;
+    const ready=(!full.matches(':disabled')||full.dataset.yearLocked==='true'&&!full.closest('fieldset').disabled) && full.value!=='' && full.validity.valid;
     const prices=ready ? derive(Number(full.value)) : null;
     for(const name of DERIVED_TICKETS) {
       const input=form.elements[name];
@@ -1573,7 +1573,16 @@ function initGame() {
     films.restoreView();updateControls();await loadVenue();
   }
 
+  function updateTicketLocks(){
+    const locked=gameDate.week!==1;
+    for(const control of form.querySelectorAll('[name="ticketFull"],[name="secondRunPrice"],[name="secondRunMode"],[name^="ticketExtra_"]')){
+      control.disabled=locked;control.dataset.yearLocked=String(locked);
+      control.title=locked?'每年W1可調整電影票價':'';
+    }
+    for(const group of [standardPricing,secondRunPricing,document.querySelector('#special-ticket-group')])group.classList.toggle('year-price-locked',locked);
+  }
   function updateControls() {
+    updateTicketLocks();
     CinemaParameters.updateDerived(form);
     CinemaParameters.syncSliders(form);
     for (const item of ['poster', 'figure']) {
