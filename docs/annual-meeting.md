@@ -11,3 +11,5 @@
 「開始下一年度」位於頁尾原本的「下一週」按鈕位置，會議區不另放按鈕；點擊才執行一次原本的W50→翌年W1結算；按鈕忙碌時禁用，已有票房的重複結算保護仍生效。成功後清除會議狀態，事件區恢復「本週大事」，營運解鎖、年度W1票價開放。若結算失敗，維持W50會議並可重試。
 
 程式：annual-meeting.js（角色、摘要、顯示），game.js（流程及快照），weekly-events.js（事件區復原），assets/annual-meeting.svg（簡報圖）。Tests: tests/annual-meeting.cjs, tests/annual-meeting-browser.cjs；並驗證box-office-browser、annual-ticket-lock-browser。
+
+年度會議已移除入帳口徑的畫面說明。新增「年度拆帳前票房 Top 5」片單，只顯示排名及片名，不展開收入細項；按與年報相同的入帳年度加總該戲院每片gross，含一般場／特別場、已下檔與special片。零票房不列入，不足5部只列實際數量；同票房按movie ID穩定排序。CinemaMeeting.topFilms回傳id/title/gross，供後續會議回應庫使用，無新增隨機抽選或重算歷史票房。

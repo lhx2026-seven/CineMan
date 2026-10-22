@@ -148,7 +148,7 @@ function initGame() {
     films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{},byID.get(CinemaBoxOffice.carryCandidate(movies,boxOffice))||null);
   }
   function renderBulletin(){
-    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise)});
+    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise),topFive:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase)});
     else CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week))});
   }
   function renderFinance(){
