@@ -1796,6 +1796,7 @@ function initGame() {
       document.querySelector(`#${item}-stock`).textContent=stock.toLocaleString('zh-TW');
       document.querySelector(`#${item}-inventory`).hidden=!enabled&&!stock;
       form.elements[`${item}Scrap`].disabled=!stock;
+      form.elements[`${item}Scrap`].closest('.merch-scrap').hidden=!stock;
       settings.hidden = !enabled;
       settings.disabled = !enabled;
       form.elements[`${item}Enabled`].setAttribute('aria-expanded', String(enabled));
