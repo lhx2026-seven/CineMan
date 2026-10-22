@@ -146,7 +146,7 @@ function initGame() {
     films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{},byID.get(CinemaBoxOffice.carryCandidate(movies,boxOffice))||null);
   }
   function renderBulletin(){
-    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation),onContinue:()=>advanceWeek(true),busy:advancing});
+    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation)});
     else CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week))});
   }
   function renderFinance(){
@@ -336,8 +336,8 @@ function initGame() {
   function updateControls() {
     updateTicketLocks();updateActivationLock();
     form.inert=restoring||!!annualMeeting;tabList.inert=!!annualMeeting;
-    document.querySelector('#next-week').hidden=!!annualMeeting;
-    document.querySelector('#next-week').innerHTML=gameDate.week===50?'年度會議 <span aria-hidden="true">→</span>':'下一週 <span aria-hidden="true">→</span>';
+    document.querySelector('#next-week').hidden=false;
+    document.querySelector('#next-week').innerHTML=annualMeeting?'開始下一年度 <span aria-hidden="true">→</span>':gameDate.week===50?'年度會議 <span aria-hidden="true">→</span>':'下一週 <span aria-hidden="true">→</span>';
     CinemaParameters.updateDerived(form);
     CinemaParameters.syncSliders(form);
     for (const item of ['poster', 'figure']) {
@@ -421,7 +421,7 @@ function initGame() {
     // checkpoint if this page's in-flight IndexedDB transaction is interrupted.
     saveDraft(true);
   });
-  document.querySelector('#next-week').addEventListener('click',()=>advanceWeek());
+  document.querySelector('#next-week').addEventListener('click',()=>advanceWeek(!!annualMeeting));
   async function advanceWeek(fromMeeting=false) {
     if(advancing||!venueReady||((movies.current.length||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!form.querySelector('[name="featuredFilm"]:checked')))return;
     if(annualMeeting&&!fromMeeting)return;

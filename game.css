@@ -643,5 +643,4 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .meeting-response { border-left:2px solid #a88b55; padding:8px 12px; background:#d8bb7420; margin:14px 0; }
 .meeting-response h4 { margin:0; font-size:12px; color:#d5c19b; font-weight:400; }
 .meeting-response p { margin:4px 0 0; color:#a89c85; }
-.meeting-content .gold-button { min-height:40px; font-size:12px; }
 @media(max-width:600px) { .annual-meeting .meeting-layout { grid-template-columns:1fr; gap:14px; } .meeting-slide { max-width:320px; justify-self:center; } }
