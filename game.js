@@ -161,7 +161,7 @@ function initGame() {
     document.querySelector('#annual-concessions').textContent=concessions.annual.toLocaleString('zh-TW');
     const income=activation?CinemaActivation.totals(activation,now):null;
     const row=document.querySelector('#weekly-activation-row');row.hidden=!income;
-    if(income){row.querySelector('th').textContent=CinemaProperty.ACTIVITIES[activation.kind].name;document.querySelector('#weekly-activation').textContent=income.weekly.toLocaleString('zh-TW');}
+    if(income){row.querySelector('th').textContent='其它收入';document.querySelector('#weekly-activation').textContent=income.weekly.toLocaleString('zh-TW');}
     document.querySelector('#annual-other-income').textContent=income?income.annual.toLocaleString('zh-TW'):'—';
     document.querySelector('#annual-box-office').textContent=(boxOffice?.byYear[gameDate.year]||0).toLocaleString('zh-TW');
     document.querySelector('#report-weekly caption').textContent=`${gameDate.year} W${gameDate.week} 週報，票房、餐飲與空間活化收入依入帳週列計，其餘項目待結算`;

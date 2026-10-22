@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
 <link rel="stylesheet" href="game.css?v=e89dbd165829">
-<script src="game-runtime.js?v=74b1456f5a7d" defer></script>
+<script src="game-runtime.js?v=af696d851d6b" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -43,7 +43,7 @@
           <tr><th scope="row">電影票房（拆帳前）</th><td id="weekly-box-office">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">電影票房（拆帳後）</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">餐飲週邊</th><td id="weekly-concessions" title="目前含已結算餐飲收入，海報與公仔待結算">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
-          <tr id="weekly-activation-row" hidden><th scope="row">空間活化收入</th><td id="weekly-activation">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
+          <tr id="weekly-activation-row" hidden><th scope="row">其它收入</th><td id="weekly-activation">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr class="expense-start"><th scope="row">人事</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">商品成本</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">硬體維護</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
@@ -64,7 +64,7 @@
           <tr><th scope="row">電影票房（拆帳前）</th><td id="annual-box-office">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">電影票房（拆帳後）</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">餐飲週邊</th><td id="annual-concessions" title="目前含已結算餐飲收入，海報與公仔待結算">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
-          <tr><th scope="row">其它</th><td id="annual-other-income">—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
+          <tr><th scope="row">其它收入</th><td id="annual-other-income">—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr class="expense-start"><th scope="row">人事</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">商品成本</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">硬體維護</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
@@ -142,7 +142,7 @@
         </div>
         <div class="film-carousel-controls"><button type="button" id="previous-film" aria-label="上一部新片">‹</button><span id="film-position" aria-live="polite">1 / 2</span><button type="button" id="next-film" aria-label="下一部新片">›</button></div>
       </div>
-      <div id="carry-feature" class="carry-feature" hidden><input type="radio" name="featuredFilm" id="carry-film" value="" hidden disabled><button type="button" id="carry-feature-button" aria-pressed="false">延用上週主打：<span id="carry-film-title"></span></button></div>
+      <div id="carry-feature" class="carry-feature" hidden><input type="radio" name="featuredFilm" id="carry-film" value="" hidden disabled><button type="button" id="carry-feature-button" aria-pressed="false">沿用上週主打：<span id="carry-film-title"></span></button></div>
       <div class="showtime-control" id="featured-settings" hidden><div class="featured-summary"><div><label for="featured-share" id="featured-heading">場次占比</label><p id="share-hint" class="sr-only">調整本週主打電影的場次占比。</p></div><output id="share-output" for="featured-share">—</output></div><input type="range" id="featured-share" name="featuredSlots" min="0" max="1" step="1" value="0" aria-describedby="share-hint" disabled><div class="range-labels"><span>0%</span><span>100%</span></div></div>
       <div class="old-films-heading"><h3>同步上映中</h3></div>
       <div class="old-films">
