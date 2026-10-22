@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=e89dbd165829">
-<script src="game-runtime.js?v=af696d851d6b" defer></script>
+<link rel="stylesheet" href="game.css?v=6a0caf6159e6">
+<script src="game-runtime.js?v=ce6929b5affe" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -42,7 +42,7 @@
         <tbody>
           <tr><th scope="row">電影票房（拆帳前）</th><td id="weekly-box-office">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">電影票房（拆帳後）</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
-          <tr><th scope="row">餐飲週邊</th><td id="weekly-concessions" title="目前含已結算餐飲收入，海報與公仔待結算">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
+          <tr><th scope="row">餐飲週邊</th><td id="weekly-concessions" title="已入帳餐飲、海報與公仔收入合計">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr id="weekly-activation-row" hidden><th scope="row">其它收入</th><td id="weekly-activation">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr class="expense-start"><th scope="row">人事</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">商品成本</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
@@ -63,7 +63,7 @@
         <tbody>
           <tr><th scope="row">電影票房（拆帳前）</th><td id="annual-box-office">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">電影票房（拆帳後）</th><td>—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
-          <tr><th scope="row">餐飲週邊</th><td id="annual-concessions" title="目前含已結算餐飲收入，海報與公仔待結算">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
+          <tr><th scope="row">餐飲週邊</th><td id="annual-concessions" title="已入帳餐飲、海報與公仔收入合計">0</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr><th scope="row">其它收入</th><td id="annual-other-income">—</td><td class="not-applicable" aria-label="不適用">·</td></tr>
           <tr class="expense-start"><th scope="row">人事</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
           <tr><th scope="row">商品成本</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
@@ -126,10 +126,12 @@
       </div>
       <div class="merch-grid">
         <div class="merch-card"><label class="merch-toggle"><input type="checkbox" name="posterEnabled" aria-controls="poster-settings"><span><strong>開賣獨家海報</strong><small>讓電影的餘韻，留在生活裡。</small></span><span class="toggle-track" aria-hidden="true"></span></label>
-          <fieldset class="merch-settings" id="poster-settings" hidden disabled><legend class="sr-only">獨家海報設定</legend><label class="field"><span>印量（張）</span><input type="number" name="posterQuantity" min="1" step="1" value="1" required inputmode="numeric"></label><label class="field"><span>售價（NT$／張）</span><input type="number" name="posterPrice" min="0" step="1" placeholder="—" inputmode="numeric"></label></fieldset>
+          <fieldset class="merch-settings" id="poster-settings" hidden disabled><legend class="sr-only">獨家海報設定</legend><label class="field"><span>本週追加印量（張）</span><input type="number" name="posterQuantity" min="0" step="1" value="1" required inputmode="numeric"></label><label class="field"><span>售價（NT$／張）</span><input type="number" name="posterPrice" min="0" step="1" placeholder="—" inputmode="numeric"></label></fieldset>
+          <div class="merch-inventory" id="poster-inventory" hidden><p>剩餘庫存 <output id="poster-stock" aria-label="海報剩餘庫存">0</output></p><label class="merch-scrap"><input type="checkbox" name="posterScrap" title="下次週結算時報廢現有庫存，不含本週追加量">庫存報廢</label></div>
         </div>
         <div class="merch-card"><label class="merch-toggle"><input type="checkbox" name="figureEnabled" aria-controls="figure-settings"><span><strong>開賣獨家公仔</strong><small>把喜歡的角色，帶出大銀幕。</small></span><span class="toggle-track" aria-hidden="true"></span></label>
-          <fieldset class="merch-settings" id="figure-settings" hidden disabled><legend class="sr-only">獨家公仔設定</legend><label class="field"><span>製作量（個）</span><input type="number" name="figureQuantity" min="1" step="1" value="1" required inputmode="numeric"></label><label class="field"><span>售價（NT$／個）</span><input type="number" name="figurePrice" min="0" step="1" placeholder="—" inputmode="numeric"></label></fieldset>
+          <fieldset class="merch-settings" id="figure-settings" hidden disabled><legend class="sr-only">獨家公仔設定</legend><label class="field"><span>本週追加製作量（個）</span><input type="number" name="figureQuantity" min="0" step="1" value="1" required inputmode="numeric"></label><label class="field"><span>售價（NT$／個）</span><input type="number" name="figurePrice" min="0" step="1" placeholder="—" inputmode="numeric"></label></fieldset>
+          <div class="merch-inventory" id="figure-inventory" hidden><p>剩餘庫存 <output id="figure-stock" aria-label="公仔剩餘庫存">0</output></p><label class="merch-scrap"><input type="checkbox" name="figureScrap" title="下次週結算時報廢現有庫存，不含本週追加量">庫存報廢</label></div>
         </div>
       </div>
     </section>

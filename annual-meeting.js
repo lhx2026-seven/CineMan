@@ -2,10 +2,11 @@
 (function(root){
   function create(year,seed){return{version:1,year,role:root.CinemaRules.seededRandom(`annual-meeting/v1/${seed}/${year}`)()<.5?'shareholders':'chairperson'};}
   function resolve(saved,year,week,seed){if(saved==null)return null;if(week!==50||saved.version!==1||saved.year!==year||!['shareholders','chairperson'].includes(saved.role)||saved.role!==create(year,seed).role)throw Error('年度會議存檔錯誤');return{...saved};}
-  function summary(year,boxOffice,activation,foodRevenue){
+  function summary(year,boxOffice,activation,foodRevenue,merchandise){
     const ticket=boxOffice?.byYear[year]||0,space=(activation?.receipts||[]).filter(r=>2022+Math.floor((r.bookedAt-1)/50)===year).reduce((s,r)=>s+r.gross,0);
     const food=(foodRevenue?.receipts||[]).filter(r=>2022+Math.floor((r.bookedAt-1)/50)===year).reduce((s,r)=>s+r.gross,0);
-    return{ticket,space,knownIncome:ticket+space+food,expenses:null,profit:null};
+    const merch=(merchandise?.receipts||[]).filter(r=>2022+Math.floor((r.bookedAt-1)/50)===year).reduce((s,r)=>s+r.total,0);
+    return{ticket,space,knownIncome:ticket+space+food+merch,expenses:null,profit:null};
   }
   function render({state,cinemaName,figures}){
     const section=document.querySelector('#weekly-events'),list=document.querySelector('#weekly-event-list');section.hidden=false;section.classList.add('annual-meeting');document.querySelector('#weekly-events-title').textContent='年度會議';document.querySelector('#weekly-bulletin').classList.add('has-events');
