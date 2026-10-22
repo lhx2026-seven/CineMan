@@ -399,10 +399,9 @@ function initGame() {
       detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};
     if(stageForNavigation===true)CinemaSave.stageNavigation(snapshot);
     const revision=++saveRevision;
-    draftStatus.textContent='自動存檔中…';
     // Start the transaction immediately, including before navigation/refresh.
     // IndexedDB orders overlapping readwrite transactions on these stores.
-    saveQueue=CinemaSave.save(snapshot).then(written=>{
+    saveQueue=CinemaSave.save(snapshot,{onPreference:enabled=>{if(revision===saveRevision)draftStatus.textContent=enabled?'自動存檔中…':'自動存檔 OFF';}}).then(written=>{
       if(revision===saveRevision){draftStatus.textContent=written?'已自動存檔':'自動存檔 OFF';}return written;
     }).catch(()=>{if(revision===saveRevision){draftStatus.textContent='自動存檔失敗，本次設定尚未保存。';}return false;});
     return saveQueue;

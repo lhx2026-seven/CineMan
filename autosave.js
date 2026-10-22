@@ -73,7 +73,7 @@
       tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(tx.error||Error('更新自動存檔設定失敗'));
     });notify();
   }
-  async function save(snapshot) {
+  async function save(snapshot,{onPreference}={}) {
     const record={...snapshot,key:snapshot.runId,version:SAVE_VERSION,savedAt:Date.now()};
     if(!valid(record))throw Error('無法保存不完整的遊戲狀態');
     const db=await open();let written=false,writeError;
@@ -82,7 +82,7 @@
       // another tab cannot be bypassed by a stale cached preference.
       const tx=db.transaction(['preferences','saves'],'readwrite');
       const pref=tx.objectStore('preferences').get('autoSave');
-      pref.onsuccess=()=>{try{if(pref.result?.enabled===true){const store=tx.objectStore('saves');store.put(record);const legacy=store.get('latest');legacy.onsuccess=()=>{if(legacy.result?.runId===record.runId)store.delete('latest');};written=true;}}catch(error){writeError=error;tx.abort();}};
+      pref.onsuccess=()=>{try{onPreference?.(pref.result?.enabled===true);if(pref.result?.enabled===true){const store=tx.objectStore('saves');store.put(record);const legacy=store.get('latest');legacy.onsuccess=()=>{if(legacy.result?.runId===record.runId)store.delete('latest');};written=true;}}catch(error){writeError=error;tx.abort();}};
       tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(writeError||tx.error||Error('自動存檔失敗'));
     });if(written)notify();return written;
   }

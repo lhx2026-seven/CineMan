@@ -267,7 +267,7 @@
   const fields={staffing:'salary_budget',foodCost:'food&drink_buy',marketing:'marketing_fee',maintenance:'maintenance_fee',consumables:'petty_cash',secondRunPrice:'second_run_ticket price',popcornPrice:'popcorn_price',drinkPrice:'drink_price',exclusiveFoodPrice:'special_food_price',ticketExtra_IMAX:'IMAX_ticket_price',ticketExtra_4DX:'4DX_ticket_price',ticketExtra_VIP:'VIP_ticket_price'};
   function forControl(name,cinemaID) {
     const key=name==='ticketFull' ? (cinemaID==='C05'?'arthouse_ticket price':'first_run_ticket price') : /^specialPrice(?:[2-5])?$/.test(name) ? 'special_show_price' : fields[name];
-    return key ? DATA.playerControl[key] : name==='posterPrice' ? {min:0,max:1000,step:1} : name==='figurePrice' ? {min:0,max:10000,step:1} : null;
+    return key ? DATA.playerControl[key] : name==='posterPrice' ? {min:0,max:1000,step:50} : name==='figurePrice' ? {min:0,max:10000,step:50} : null;
   }
   function applyTo(input,cinemaID) {
     const rule=forControl(input.name,cinemaID);if(!rule)return;
