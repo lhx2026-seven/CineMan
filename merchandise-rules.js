@@ -12,6 +12,7 @@
     if(saved==null)return create();
     if(saved.version!==1||!Array.isArray(saved.receipts)||!saved.stock)throw Error('周邊庫存存檔錯誤');let previous=0;const stock={poster:0,figure:0};
     for(const r of saved.receipts){
+      if(r.accountingYear!==undefined&&(r.earnedAt%50!==0||r.accountingYear!==2022+Math.floor((r.earnedAt-1)/50)))throw Error('收入年度歸屬錯誤');
       if(!Number.isInteger(r.earnedAt)||r.earnedAt<=previous||r.bookedAt!==r.earnedAt+1||r.bookedAt>now||!integer(r.viewers)||!r.items)throw Error('周邊收入週次錯誤');
       let total=0;for(const kind of KINDS){const i=r.items[kind];if(!i||typeof i.enabled!=='boolean'||typeof i.scrap!=='boolean'||!integer(i.produced)||!integer(i.discarded)||i.opening!==stock[kind]||i.discarded!==(i.scrap?stock[kind]:0)||!i.enabled&&i.produced!==0)throw Error('周邊庫存紀錄錯誤');const available=stock[kind]-i.discarded+i.produced;const sale=calculate(kind,available,i.price,i.enabled?r.viewers:0);if(i.available!==available||i.sold!==sale.sold||i.remaining!==sale.remaining||i.gross!==sale.gross||i.percent!==sale.percent)throw Error('周邊銷量紀錄錯誤');stock[kind]=i.remaining;total+=i.gross;}
       if(r.total!==total)throw Error('周邊收入合計錯誤');previous=r.earnedAt;
@@ -25,8 +26,8 @@
       const opening=state.stock[kind],enabled=values[kind+'Enabled']===true,scrap=values[kind+'Scrap']===true,discarded=scrap?opening:0,produced=enabled?Number(values[kind+'Quantity']):0,price=Number(values[kind+'Price']??0);if(!integer(produced))throw Error('周邊追加量須為非負整數');
       const available=opening-discarded+produced,sale=calculate(kind,available,price,enabled?viewers:0);stock[kind]=sale.remaining;total+=sale.gross;items[kind]={enabled,scrap,opening,discarded,produced,available,price,...sale};
     }
-    return{version:1,lastSettledWeek:now,stock,receipts:[...state.receipts,{earnedAt:now,bookedAt:now+1,viewers,items,total}]};
+    return{version:1,lastSettledWeek:now,stock,receipts:[...state.receipts,{earnedAt:now,bookedAt:now+1,viewers,items,total,...(ticketReceipt.accountingYear!==undefined?{accountingYear:ticketReceipt.accountingYear}:{})}]};
   }
-  function totals(state,now){return{weekly:(state?.receipts||[]).filter(r=>r.bookedAt===now).reduce((s,r)=>s+r.total,0),annual:(state?.receipts||[]).filter(r=>Math.floor((r.bookedAt-1)/50)===Math.floor((now-1)/50)).reduce((s,r)=>s+r.total,0)};}
+  function totals(state,now,year=2022+Math.floor((now-1)/50)){return{weekly:(state?.receipts||[]).filter(r=>r.bookedAt===now&&(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.total,0),annual:(state?.receipts||[]).filter(r=>(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.total,0)};}
   const api={KINDS,create,calculate,resolve,advance,totals};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMerchandise=api;
 })(globalThis);

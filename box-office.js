@@ -116,7 +116,7 @@
       if(receipt.extendedFeatured!==undefined&&typeof receipt.extendedFeatured!=='boolean')throw Error('沿用紀錄錯誤');
       if(receipt.extendedFeatured){if(!receipt.featuredID||previousFeatured!==receipt.featuredID||receipt.earnedAt!==previous+1||extended.has(receipt.featuredID))throw Error('電影重複沿用');extended.add(receipt.featuredID);}
       previousFeatured=receipt.featuredID||null;
-      if(total!==receipt.total)throw Error('票房合計錯誤');const year=2022+Math.floor((receipt.bookedAt-1)/50);years[year]=(years[year]||0)+total;previous=receipt.earnedAt;
+      if(total!==receipt.total)throw Error('票房合計錯誤');const year=receipt.accountingYear??(2022+Math.floor((receipt.bookedAt-1)/50));if(receipt.accountingYear!==undefined&&(receipt.earnedAt%50!==0||receipt.accountingYear!==2022+Math.floor((receipt.earnedAt-1)/50)))throw Error('年度結算歸屬錯誤');years[year]=(years[year]||0)+total;previous=receipt.earnedAt;
     }
     if(saved.lastSettledWeek!==(previous||null)||JSON.stringify(Object.entries(totals).sort())!==JSON.stringify(Object.entries(saved.totalsByMovie).sort())||JSON.stringify(Object.entries(years).sort())!==JSON.stringify(Object.entries(saved.byYear).sort()))throw Error('票房累計存檔錯誤');return saved;
   }
@@ -127,15 +127,28 @@
     for(const h of showing(copy))if(earned.has(h.id)&&earned.get(h.id)<2000){h.retiredAt=week;h.retirementReason='low-gross';}
     return copy;
   }
-  function advance(context,ledger){
+  function advance(context,ledger,{deferRelease=false}={}){
     const now=context.movies.lastWeek;ledger=resolveLedger(ledger,now);if(ledger.lastSettledWeek!==null&&ledger.lastSettledWeek>=now)throw Error('本週已結算');
-    const receipt=settle({...context,ledger}),nextNow=now+1,year=2022+Math.floor((nextNow-1)/50),week=(nextNow-1)%50+1;
-    const next={...ledger,lastSettledWeek:now,receipts:[...ledger.receipts,receipt],byYear:{...ledger.byYear},totalsByMovie:{...ledger.totalsByMovie}};next.byYear[year]=(next.byYear[year]||0)+receipt.total;for(const f of receipt.films)next.totalsByMovie[f.id]=(next.totalsByMovie[f.id]||0)+f.gross;
+    const receipt=settle({...context,ledger}),nextNow=now+1,year=2022+Math.floor((nextNow-1)/50);
+    if(deferRelease){if(now%50!==0)throw Error('只有年末可開年度會議');receipt.accountingYear=2022+Math.floor((now-1)/50);}
+    const reportYear=receipt.accountingYear??year;
+    const next={...ledger,lastSettledWeek:now,receipts:[...ledger.receipts,receipt],byYear:{...ledger.byYear},totalsByMovie:{...ledger.totalsByMovie}};next.byYear[reportYear]=(next.byYear[reportYear]||0)+receipt.total;for(const f of receipt.films)next.totalsByMovie[f.id]=(next.totalsByMovie[f.id]||0)+f.gross;
+    if(deferRelease)return{movies:context.movies,ledger:next,year:reportYear,week:50,receipt};
+    return releaseAfterSettlement(context,next,receipt);
+  }
+  function releaseAfterSettlement(context,next,receipt){
+    const now=context.movies.lastWeek,nextNow=now+1,year=2022+Math.floor((nextNow-1)/50),week=(nextNow-1)%50+1;
     let movies=structuredClone(context.movies);for(const h of showing(movies))if(receipt.strategyRetirements.includes(h.id)){h.retiredAt=now;h.retirementReason='baogong-focus';}
     movies=retireLowGross(movies,next,nextNow);const by=new Map(context.database.movies.map(m=>[m.id,m]));
     for(const h of showing(movies))if(R().retirement(by.get(h.id),h,nextNow,movies.seed))h.retiredAt=nextNow;
     movies=R().releaseWeek(context.database,movies,year,week);for(const h of movies.history)h.retiredAt??=null;
     return{movies,ledger:next,year,week,receipt};
   }
-  const api={extraKey,standardPrice,pricing,hydrate,showing,marketingFactor,specialBaseline,specialGross,carryCandidate,screeningPlan,settle,createLedger,resolveLedger,retireLowGross,advance};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaBoxOffice=api;
+  function completeYear(context,ledger){
+    const now=context.movies.lastWeek;if(now%50!==0)throw Error('並非年度會議');
+    resolveLedger(ledger,now+1);const receipt=ledger.receipts.at(-1);
+    if(receipt?.earnedAt!==now||receipt.accountingYear!==2022+Math.floor((now-1)/50))throw Error('年度尚未結算');
+    return releaseAfterSettlement(context,ledger,receipt);
+  }
+  const api={extraKey,standardPrice,pricing,hydrate,showing,marketingFactor,specialBaseline,specialGross,carryCandidate,screeningPlan,settle,createLedger,resolveLedger,retireLowGross,advance,completeYear};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaBoxOffice=api;
 })(globalThis);

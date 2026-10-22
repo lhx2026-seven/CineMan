@@ -10,6 +10,7 @@
     if(saved==null)return create();
     if(saved.version!==1||!Array.isArray(saved.receipts))throw Error('餐飲收入存檔錯誤');
     let previous=0;for(const r of saved.receipts){
+      if(r.accountingYear!==undefined&&(r.earnedAt%50!==0||r.accountingYear!==2022+Math.floor((r.earnedAt-1)/50)))throw Error('收入年度歸屬錯誤');
       if(!Number.isInteger(r.earnedAt)||r.earnedAt<=previous||r.bookedAt!==r.earnedAt+1||r.bookedAt>now||!Array.isArray(r.items)||r.items.some(i=>typeof i.name!=='string')||!Number.isSafeInteger(r.gross)||r.gross!==calculate(r.items.map(i=>i.price),r.viewers,r.purchaseRate))throw Error('餐飲收入收據錯誤');
       const average=r.items.reduce((s,i)=>s+i.price,0)/r.items.length;if(r.averagePrice!==average)throw Error('餐飲均價存檔錯誤');previous=r.earnedAt;
     }
@@ -22,8 +23,9 @@
     const viewers=ticketReceipt.films.reduce((sum,f)=>{if(!Number.isSafeInteger(f.dailyViewers)||f.dailyViewers<0||!Number.isSafeInteger(f.specialViewers)||f.specialViewers<0)throw Error('觀影人次錯誤');return sum+f.dailyViewers*3+f.specialViewers;},0);
     const purchaseRate=(1+Math.floor(root.CinemaRules.seededRandom(`concessions/v1/${seed}/${now}/purchase`)()*90))/100;
     const gross=calculate(items.map(i=>i.price),viewers,purchaseRate),receipt={earnedAt:now,bookedAt:now+1,items,averagePrice:items.reduce((s,i)=>s+i.price,0)/items.length,viewers,purchaseRate,gross};
+    if(ticketReceipt.accountingYear!==undefined)receipt.accountingYear=ticketReceipt.accountingYear;
     return{version:1,lastSettledWeek:now,receipts:[...state.receipts,receipt]};
   }
-  function totals(state,now){return{weekly:(state?.receipts||[]).filter(r=>r.bookedAt===now).reduce((s,r)=>s+r.gross,0),annual:(state?.receipts||[]).filter(r=>Math.floor((r.bookedAt-1)/50)===Math.floor((now-1)/50)).reduce((s,r)=>s+r.gross,0)};}
+  function totals(state,now,year=2022+Math.floor((now-1)/50)){return{weekly:(state?.receipts||[]).filter(r=>r.bookedAt===now&&(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.gross,0),annual:(state?.receipts||[]).filter(r=>(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.gross,0)};}
   const api={create,calculate,resolve,advance,totals};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaConcessions=api;
 })(globalThis);
