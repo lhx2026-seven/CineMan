@@ -93,3 +93,7 @@ Test: node tests/marketing-attendance.cjs.
 ## Annual ticket-price window
 
 Only operating W1 of each 50-week year allows ordinary ticketFull, secondRunPrice, secondRunMode and all EXTRA hall prices to change. Other weeks disable and gray those controls, preserving values in snapshots and settlement. Derived student/morning/accessibility prices remain visible and computed from the locked full price. Each following year's W1 unlocks automatically without resetting prices. Food, merchandise and extra special-session prices retain their existing adjustability. Tests: tests/annual-ticket-lock-browser.cjs.
+
+## Final attendance floor
+
+After all attendance and scheduling adjustments, apply max(rate,0.001) for films still showing with positive screening share. Forced-off films retain zero attendance and revenue. This is an attendance floor, not a one-viewer or minimum-revenue guarantee: marketing remains an audience multiplier before integer viewer rounding, so tiny allocations can still round to zero. The <2000 prior-week retirement rule is unchanged. Special sessions keep raw attendance. Posted receipts are not recomputed. Test: tests/attendance-floor.cjs.

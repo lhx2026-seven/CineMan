@@ -91,6 +91,7 @@
       if(plan.penalized&&h.id!==selected&&movie.tier!=='special')rate*=.5;
       if(['C03','C04'].includes(cinemaID)&&featuredShare>.8&&h.id===selected&&movie.tier!=='special')rate*=.75;
       if(allocation.screenCount>7&&featuredShare>.5&&h.id===selected&&movie.tier!=='special')rate*=.25;
+      if(!forcedOff&&share>0)rate=Math.max(.001,rate);
       const audienceFactor=marketingFactor(cinemaID,movie.tier,values.marketing);
       const dailyViewers=round(rate*allocation.totalSeats*6*share*audienceFactor);
       return {id:h.id,rawRate,rate,share,forcedOff,marketingFactor:audienceFactor,dailyViewers,regularGross:dailyViewers*p.averagePrice*3,specialViewers:0,specialGross:0};
