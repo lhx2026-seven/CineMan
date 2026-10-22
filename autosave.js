@@ -102,6 +102,6 @@
     return written;
   }
   root.CinemaSave={DB_NAME,SAVE_VERSION,getSettings,setEnabled,getLatest,getByRun,list,clear,save,stageNavigation,flushNavigation,
-    label:record=>`${record.cinemaName} ${record.year}年${record.annualMeeting?.settled?51:record.week}週`,
+    label:record=>`${record.cinemaName} ${record.annualMeeting?.settled?`${record.year}年度會議`:`${record.year}年${record.week}週`}`,
     subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn);}};
 })(globalThis);

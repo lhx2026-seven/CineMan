@@ -104,7 +104,7 @@
     return written;
   }
   root.CinemaSave={DB_NAME,SAVE_VERSION,getSettings,setEnabled,getLatest,getByRun,list,clear,save,stageNavigation,flushNavigation,
-    label:record=>`${record.cinemaName} ${record.year}年${record.annualMeeting?.settled?51:record.week}週`,
+    label:record=>`${record.cinemaName} ${record.annualMeeting?.settled?`${record.year}年度會議`:`${record.year}年${record.week}週`}`,
     subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn);}};
 })(globalThis);
 
@@ -928,7 +928,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     const section=document.querySelector('#weekly-events'),list=document.querySelector('#weekly-event-list');section.hidden=false;section.classList.add('annual-meeting');document.querySelector('#weekly-events-title').textContent='年度會議';document.querySelector('#weekly-bulletin').classList.add('has-events');
     const article=document.createElement('article');article.className='meeting-layout';
     const visual=document.createElement('img');visual.src='assets/annual-meeting.svg';visual.width=640;visual.height=360;visual.alt='年度經營簡報示意';visual.className='meeting-slide';
-    const content=document.createElement('div');content.className='meeting-content';const h=document.createElement('h3');h.textContent=`${state.year}年・${cinemaName}`;
+    const content=document.createElement('div');content.className='meeting-content';const h=document.createElement('h3');h.textContent=`${cinemaName}${state.year}年度損益摘要`;
     const money=n=>'NT$'+n.toLocaleString('zh-TW');
     const text=document.createElement('p');text.className='meeting-summary';text.textContent=`年度已入帳收入合計${money(figures.knownIncome)}。年度支出：${figures.expenses===null?'待結算':money(figures.expenses)}。年度損益：${figures.profit===null?'待結算':money(figures.profit)}。`;
     const ranking=document.createElement('div');ranking.className='meeting-ranking';
@@ -1491,7 +1491,7 @@ function initGame() {
   let saveQueue = Promise.resolve(false), saveRevision = 0;
   const gameDate = {year:2022,week:1};
   const currentWeek=()=>CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week)+(annualMeeting?.settled?1:0);
-  const displayWeek=()=>annualMeeting?.settled?51:gameDate.week;
+  const displayPeriod=()=>annualMeeting?.settled?`${gameDate.year}年度會議`:`${gameDate.year} W${gameDate.week}`;
   let venueReady = false;
   let venueScreenCount = 0;
   const venueRetry = document.querySelector('#venue-retry');
@@ -1596,8 +1596,8 @@ function initGame() {
   }
   function renderFinance(){
     const now=currentWeek(),receipt=boxOffice?.receipts.find(r=>r.bookedAt===now&&(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===gameDate.year);
-    document.querySelector('.week-badge').textContent=`${gameDate.year} W${displayWeek()}`;
-    document.querySelector('#report-weekly .report-period').textContent=`${gameDate.year} W${displayWeek()}`;
+    document.querySelector('.week-badge').textContent=`${displayPeriod()}`;
+    document.querySelector('#report-weekly .report-period').textContent=`${displayPeriod()}`;
     document.querySelector('#report-annual .report-period').textContent=String(gameDate.year);
     document.querySelector('#weekly-box-office').textContent=(receipt?.total||0).toLocaleString('zh-TW');
     const concessions=CinemaConcessions.totals(foodRevenue,now,gameDate.year);
@@ -1609,7 +1609,7 @@ function initGame() {
     if(income){row.querySelector('th').textContent='其它收入';document.querySelector('#weekly-activation').textContent=income.weekly.toLocaleString('zh-TW');}
     document.querySelector('#annual-other-income').textContent=income?income.annual.toLocaleString('zh-TW'):'—';
     document.querySelector('#annual-box-office').textContent=(boxOffice?.byYear[gameDate.year]||0).toLocaleString('zh-TW');
-    document.querySelector('#report-weekly caption').textContent=`${gameDate.year} W${displayWeek()} 週報，票房、餐飲與空間活化收入依入帳週列計，其餘項目待結算`;
+    document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，票房、餐飲與空間活化收入依入帳週列計，其餘項目待結算`;
     document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，票房、餐飲與空間活化收入依入帳年度累計，其餘項目待結算`;
   }
   function renderProperty() {
@@ -1716,10 +1716,10 @@ function initGame() {
       }
       if (checkpoint) {
         gameDate.year=checkpoint.year;gameDate.week=checkpoint.week;
-        document.querySelector('.workspace-bar .week-badge').textContent=`${gameDate.year} W${displayWeek()}`;
-        document.querySelector('#report-weekly .report-period').textContent=`${gameDate.year} W${displayWeek()}`;
+        document.querySelector('.workspace-bar .week-badge').textContent=`${displayPeriod()}`;
+        document.querySelector('#report-weekly .report-period').textContent=`${displayPeriod()}`;
         document.querySelector('#report-annual .report-period').textContent=String(gameDate.year);
-        document.querySelector('#report-weekly caption').textContent=`${gameDate.year} W${displayWeek()} 週報，結算規則尚未設定，金額均待結算`;
+        document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，結算規則尚未設定，金額均待結算`;
         document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，結算規則尚未設定，金額均待結算`;
       }
       if (restoredDraft) {

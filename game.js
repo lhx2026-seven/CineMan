@@ -50,7 +50,7 @@ function initGame() {
   let saveQueue = Promise.resolve(false), saveRevision = 0;
   const gameDate = {year:2022,week:1};
   const currentWeek=()=>CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week)+(annualMeeting?.settled?1:0);
-  const displayWeek=()=>annualMeeting?.settled?51:gameDate.week;
+  const displayPeriod=()=>annualMeeting?.settled?`${gameDate.year}年度會議`:`${gameDate.year} W${gameDate.week}`;
   let venueReady = false;
   let venueScreenCount = 0;
   const venueRetry = document.querySelector('#venue-retry');
@@ -155,8 +155,8 @@ function initGame() {
   }
   function renderFinance(){
     const now=currentWeek(),receipt=boxOffice?.receipts.find(r=>r.bookedAt===now&&(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===gameDate.year);
-    document.querySelector('.week-badge').textContent=`${gameDate.year} W${displayWeek()}`;
-    document.querySelector('#report-weekly .report-period').textContent=`${gameDate.year} W${displayWeek()}`;
+    document.querySelector('.week-badge').textContent=`${displayPeriod()}`;
+    document.querySelector('#report-weekly .report-period').textContent=`${displayPeriod()}`;
     document.querySelector('#report-annual .report-period').textContent=String(gameDate.year);
     document.querySelector('#weekly-box-office').textContent=(receipt?.total||0).toLocaleString('zh-TW');
     const concessions=CinemaConcessions.totals(foodRevenue,now,gameDate.year);
@@ -168,7 +168,7 @@ function initGame() {
     if(income){row.querySelector('th').textContent='其它收入';document.querySelector('#weekly-activation').textContent=income.weekly.toLocaleString('zh-TW');}
     document.querySelector('#annual-other-income').textContent=income?income.annual.toLocaleString('zh-TW'):'—';
     document.querySelector('#annual-box-office').textContent=(boxOffice?.byYear[gameDate.year]||0).toLocaleString('zh-TW');
-    document.querySelector('#report-weekly caption').textContent=`${gameDate.year} W${displayWeek()} 週報，票房、餐飲與空間活化收入依入帳週列計，其餘項目待結算`;
+    document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，票房、餐飲與空間活化收入依入帳週列計，其餘項目待結算`;
     document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，票房、餐飲與空間活化收入依入帳年度累計，其餘項目待結算`;
   }
   function renderProperty() {
@@ -275,10 +275,10 @@ function initGame() {
       }
       if (checkpoint) {
         gameDate.year=checkpoint.year;gameDate.week=checkpoint.week;
-        document.querySelector('.workspace-bar .week-badge').textContent=`${gameDate.year} W${displayWeek()}`;
-        document.querySelector('#report-weekly .report-period').textContent=`${gameDate.year} W${displayWeek()}`;
+        document.querySelector('.workspace-bar .week-badge').textContent=`${displayPeriod()}`;
+        document.querySelector('#report-weekly .report-period').textContent=`${displayPeriod()}`;
         document.querySelector('#report-annual .report-period').textContent=String(gameDate.year);
-        document.querySelector('#report-weekly caption').textContent=`${gameDate.year} W${displayWeek()} 週報，結算規則尚未設定，金額均待結算`;
+        document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，結算規則尚未設定，金額均待結算`;
         document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，結算規則尚未設定，金額均待結算`;
       }
       if (restoredDraft) {
