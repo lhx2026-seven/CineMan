@@ -97,3 +97,7 @@ Only operating W1 of each 50-week year allows ordinary ticketFull, secondRunPric
 ## Final attendance floor
 
 After all attendance and scheduling adjustments, apply max(rate,0.001) for films still showing with positive screening share. Forced-off films retain zero attendance and revenue. This is an attendance floor, not a one-viewer or minimum-revenue guarantee: marketing remains an audience multiplier before integer viewer rounding, so tiny allocations can still round to zero. The <2000 prior-week retirement rule is unchanged. Special sessions keep raw attendance. Posted receipts are not recomputed. Test: tests/attendance-floor.cjs.
+
+## Second-run player visibility
+
+C02 世紀 hides cumulative box-office lines below both new-release and retained-film posters. Weekly and annual whole-cinema aggregates remain visible. Its annual meeting also omits the per-film Top5 list, so player-facing reporting remains aggregate-only. Internal per-film receipts, cumulative totals, ranking helpers, retirement and carry rules continue to operate unchanged. Other cinemas retain per-film displays. Test: tests/second-run-revenue-visibility-browser.cjs.

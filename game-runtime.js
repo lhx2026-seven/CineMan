@@ -613,7 +613,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     if(!Number.isInteger(slots)||slots<0||slots>capacity)throw Error('Invalid screening slots');
     return slots*100/capacity;
   }
-  function init(form) {
+  function init(form,{showBoxOffice=true}={}) {
     const carousel = document.querySelector('#film-carousel');
     const cards = [...carousel.querySelectorAll('.film-option')];
     const titleMeasure=document.createElement('canvas').getContext('2d');
@@ -714,6 +714,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
         const movie=movies[i];card.hidden=!movie;card.querySelector("input").disabled=!movie;if(!movie){card.querySelector("input").checked=false;return;}card.dataset.filmValue=movie.id;
         const input=card.querySelector('input');input.value=movie.id;input.checked=(legacy[values.featuredFilm]||values.featuredFilm)===movie.id;
         setTitle(card.querySelector('h4'),movie.title);
+        card.querySelector('.film-box-office').hidden=!showBoxOffice;
         const output=card.querySelector('[data-box-office]');output.dataset.boxOffice=movie.id;output.setAttribute('aria-label',`${movie.title}本院累計票房`);output.textContent=(totals[movie.id]||0).toLocaleString('zh-TW');
       });
       specialRows.forEach(row=>{
@@ -728,7 +729,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
         const poster=document.createElement('div');poster.className='old-film-poster';
         if(OLD_FILMS.some(old=>old.id===movie.id)){const img=document.createElement('img');img.src=`assets/films/${movie.id}.webp?v=${POSTER_VERSIONS[movie.id]}`;img.width=600;img.height=900;img.alt=`《${movie.title}》電影海報`;img.loading='lazy';img.decoding='async';poster.append(img);}else{const icon=cards[0].querySelector('.film-poster svg').cloneNode(true);icon.setAttribute('aria-hidden','true');poster.append(icon);}
         const title=document.createElement('h4');setTitle(title,movie.title);
-        const report=document.createElement('p');report.className='film-box-office';const label=document.createElement('span');label.textContent='本院累計票房';const amount=document.createElement('span');amount.append('NT$ ');const output=document.createElement('output');output.dataset.boxOffice=movie.id;output.textContent=(totals[movie.id]||0).toLocaleString('zh-TW');output.setAttribute('aria-label',`${movie.title}本院累計票房`);amount.append(output);report.append(label,amount);article.append(poster,title,report);return article;
+        const report=document.createElement('p');report.className='film-box-office';report.hidden=!showBoxOffice;const label=document.createElement('span');label.textContent='本院累計票房';const amount=document.createElement('span');amount.append('NT$ ');const output=document.createElement('output');output.dataset.boxOffice=movie.id;output.textContent=(totals[movie.id]||0).toLocaleString('zh-TW');output.setAttribute('aria-label',`${movie.title}本院累計票房`);amount.append(output);report.append(label,amount);article.append(poster,title,report);return article;
       }));
       oldContainer.hidden=!retained.length;document.querySelector('.old-films-heading').hidden=!retained.length;
       const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?midpoint:selected);
@@ -1562,14 +1563,14 @@ function initGame() {
   });
   const form = document.querySelector('#management-form');
   CinemaParameters.apply(form,id);
-  const films = CinemaFilms.init(form);
+  const films = CinemaFilms.init(form,{showBoxOffice:!secondRun});
   function renderMovieWeek(values={}) {
     const byID=new Map(CinemaMovieDatabase.movies.map(movie=>[movie.id,movie]));
     const retained=CinemaBoxOffice.showing(movies).filter(h=>!movies.current.includes(h.id)).map(h=>byID.get(h.id));
     films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{},byID.get(CinemaBoxOffice.carryCandidate(movies,boxOffice))||null);
   }
   function renderBulletin(){
-    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise),topFive:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase)});
+    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise),topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase)});
     else CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week))});
   }
   function renderFinance(){

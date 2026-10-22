@@ -141,14 +141,14 @@ function initGame() {
   });
   const form = document.querySelector('#management-form');
   CinemaParameters.apply(form,id);
-  const films = CinemaFilms.init(form);
+  const films = CinemaFilms.init(form,{showBoxOffice:!secondRun});
   function renderMovieWeek(values={}) {
     const byID=new Map(CinemaMovieDatabase.movies.map(movie=>[movie.id,movie]));
     const retained=CinemaBoxOffice.showing(movies).filter(h=>!movies.current.includes(h.id)).map(h=>byID.get(h.id));
     films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{},byID.get(CinemaBoxOffice.carryCandidate(movies,boxOffice))||null);
   }
   function renderBulletin(){
-    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise),topFive:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase)});
+    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise),topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase)});
     else CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week))});
   }
   function renderFinance(){
