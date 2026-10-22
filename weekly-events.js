@@ -13,6 +13,7 @@
     }
     const section = document.querySelector('#weekly-events');
     const list = document.querySelector('#weekly-event-list');
+    document.querySelector('#weekly-events-title').textContent='本週大事';section.classList.remove('annual-meeting');
     const cards = events.map(event => {
       const article = document.createElement('article'); article.className = 'weekly-event';
       const heading = document.createElement('h3'); heading.textContent = event.title;

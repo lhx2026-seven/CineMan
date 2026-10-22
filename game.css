@@ -633,3 +633,15 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .year-price-locked .ticket-grid, .year-price-locked .second-run-ticket-grid { color:#8e887e; }
 .year-price-locked .amount-value, .year-price-locked .field > span:first-child { color:#8e887e; }
 .year-price-locked select:disabled { opacity:.45; cursor:not-allowed; }
+
+.annual-meeting .meeting-layout { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr); gap:20px; align-items:start; }
+.meeting-slide { width:100%; height:auto; border-radius:10px; border:1px solid #a1875330; }
+.meeting-content { min-width:0; }
+.meeting-content h3 { margin:0 0 12px; font-size:17px; color:#e8d5b2; font-weight:400; }
+.meeting-summary { color:#c8baa3; font-size:13px; line-height:1.9; margin:0; }
+.meeting-note { color:#8f8677; font-size:11px; line-height:1.7; margin:10px 0; }
+.meeting-response { border-left:2px solid #a88b55; padding:8px 12px; background:#d8bb7420; margin:14px 0; }
+.meeting-response h4 { margin:0; font-size:12px; color:#d5c19b; font-weight:400; }
+.meeting-response p { margin:4px 0 0; color:#a89c85; }
+.meeting-content .gold-button { min-height:40px; font-size:12px; }
+@media(max-width:600px) { .annual-meeting .meeting-layout { grid-template-columns:1fr; gap:14px; } .meeting-slide { max-width:320px; justify-self:center; } }
