@@ -1,7 +1,7 @@
 // Rebuild after editing game runtime sources; keep HTML and preloads in sync.
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const root=path.join(__dirname,'..');
-const sources=['autosave.js','assignment-rules.js','data/cinemas.js','venue.js','weekly-events.js','data/movies.js','movie-rules.js','films.js','food-rules.js','property-rules.js','parameter-rules.js','box-office.js','game.js'];
+const sources=['autosave.js','assignment-rules.js','data/cinemas.js','venue.js','weekly-events.js','data/movies.js','movie-rules.js','films.js','food-rules.js','property-rules.js','activation-rules.js','parameter-rules.js','box-office.js','game.js'];
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const checking=process.argv.includes('--check'),stale=[];
 const write=(file,text)=>{if(checking){if(!fs.existsSync(path.join(root,file))||read(file)!==text)stale.push(file);}else fs.writeFileSync(path.join(root,file),text);};
