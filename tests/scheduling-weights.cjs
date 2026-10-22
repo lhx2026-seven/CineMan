@@ -1,9 +1,9 @@
 const assert=require('node:assert/strict');globalThis.CinemaRules=require('../assignment-rules.js');globalThis.CinemaMovieRules=require('../movie-rules.js');globalThis.CinemaParameters=require('../parameter-rules.js');const R=CinemaMovieRules,B=require('../box-office.js'),db=require('../data/movies.json'),by=new Map(db.movies.map(m=>[m.id,m]));
 const near=(a,b)=>assert(Math.abs(a-b)<1e-10,`${a} != ${b}`);
 for(const [locationID,factor]of Object.entries({LOC01:1,LOC02:1,LOC03:.8,LOC04:.9,LOC05:.8,LOC06:.6,LOC07:.7,LOC08:.6}))assert.equal(R.LOCATION_INITIAL[locationID],factor);
-near(R.locationAttendance({attendanceRate:.4,locationID:'LOC03',cinemaID:'C02',tier:'hit',screenCount:3}),.32);
-near(R.locationAttendance({attendanceRate:.01,locationID:'LOC06',cinemaID:'C04',tier:'hit',screenCount:3}),.006);
-near(R.locationAttendance({attendanceRate:.01,locationID:'LOC06',cinemaID:'C04',tier:'average',screenCount:3}),.006);
+near(R.locationAttendance({attendanceRate:.4,locationID:'LOC03',cinemaID:'C02',tier:'hit',screenCount:3}),.62);
+near(R.locationAttendance({attendanceRate:.01,locationID:'LOC06',cinemaID:'C04',tier:'hit',screenCount:3}),.159);
+near(R.locationAttendance({attendanceRate:.01,locationID:'LOC06',cinemaID:'C04',tier:'average',screenCount:3}),.106);
 const state={version:1,weeksPerYear:50,seed:'schedule-weights',lastWeek:2,current:['MV0054','MV0055'],history:[['MV0056',1],['MV0504',1],['MV0054',2],['MV0055',2]].map(([id,releasedAt])=>({id,releasedAt,initial:false,retiredAt:null}))};
 const allocation={screenCount:10,totalSeats:1000,screens:Array.from({length:10},()=>({type:'NORMAL',name:'normal',size:100}))},context={database:db,movies:state,cinemaID:'C01',locationID:'LOC01',allocation,values:{marketing:5000,ticketFull:300,featuredFilm:'MV0054',featuredSlots:54,specialMovie:'MV0504',specialPrice:400}};
 assert.deepEqual(B.screeningPlan(state,'C01','MV0054',.8).removed,['MV0504']);

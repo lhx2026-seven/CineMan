@@ -33,9 +33,10 @@
     if(cinemaID==='C05'&&tier==='average'&&spend>10000)return 2;
     return 1;
   }
-  function specialGross(price,rawRate,factor=1){
+  const specialBaseline=locationID=>({LOC01:150,LOC06:50,LOC08:50}[locationID]??100);
+  function specialGross(price,rawRate,factor=1,baseline=100){
     price=amount(price);if(price<400||price>600||price%10!==0)throw Error('特別場票價需為400至600元，步長10元');
-    const viewers=round((price===400?100:100*rawRate*(price>500?.7:1))*amount(factor));return {viewers,gross:viewers*price};
+    const viewers=round((price===400?baseline:baseline*rawRate*(price>500?.7:1))*amount(factor));return {viewers,gross:viewers*price};
   }
   function legacyFeatured(receipt){
     const films=receipt?.films;if(!Array.isArray(films)||films.length<3||films.some(f=>!Number.isFinite(f.share)||f.share<0||f.share>1)||Math.abs(films.reduce((sum,f)=>sum+f.share,0)-1)>1e-10)return null;
@@ -98,7 +99,7 @@
       const suffix=i===1?'':String(i),id=values['specialMovie'+suffix];if(!id)continue;
       const film=result.find(f=>f.id===id);if(!film)throw Error('特別場電影已下檔');
       if(film.forcedOff)continue;
-      const extra=specialGross(values['specialPrice'+suffix],film.rawRate,film.marketingFactor);film.specialViewers+=extra.viewers;film.specialGross+=extra.gross;
+      const extra=specialGross(values['specialPrice'+suffix],film.rawRate,film.marketingFactor,specialBaseline(locationID));film.specialViewers+=extra.viewers;film.specialGross+=extra.gross;
     }
     const films=result.map(f=>({...f,gross:round(f.regularGross+f.specialGross)}));return{earnedAt:now,bookedAt:now+1,featuredID:selected||null,extendedFeatured:selected===carry&&carry!==null,strategyRetirements:plan.removed,total:films.reduce((s,f)=>s+f.gross,0),films};
   }
@@ -135,5 +136,5 @@
     movies=R().releaseWeek(context.database,movies,year,week);for(const h of movies.history)h.retiredAt??=null;
     return{movies,ledger:next,year,week,receipt};
   }
-  const api={extraKey,standardPrice,pricing,hydrate,showing,marketingFactor,specialGross,carryCandidate,screeningPlan,settle,createLedger,resolveLedger,retireLowGross,advance};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaBoxOffice=api;
+  const api={extraKey,standardPrice,pricing,hydrate,showing,marketingFactor,specialBaseline,specialGross,carryCandidate,screeningPlan,settle,createLedger,resolveLedger,retireLowGross,advance};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaBoxOffice=api;
 })(globalThis);

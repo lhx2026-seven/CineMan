@@ -1,12 +1,9 @@
 const assert=require('node:assert/strict');globalThis.CinemaRules=require('../assignment-rules.js');const R=require('../movie-rules.js'),db=require('../data/movies.json');
-const apply=(locationID,extra={})=>R.locationAttendance({attendanceRate:.4,locationID,cinemaID:'C01',tier:'average',screenCount:3,...extra});
-const near=(a,b)=>assert(Math.abs(a-b)<1e-12,`${a} != ${b}`);
-const factors={LOC01:1,LOC02:1,LOC03:.8,LOC04:.9,LOC05:.8,LOC06:.6,LOC07:.7,LOC08:.6};
-for(const [locationID,factor]of Object.entries(factors))for(const tier of ['hit','bomb','average','special'])for(const cinemaID of ['C01','C02','C03','C04','C05'])for(const screenCount of [1,3,4,25])for(const attendanceRate of [0,.01,.4,.99,1])near(apply(locationID,{tier,cinemaID,screenCount,attendanceRate}),attendanceRate*(tier==='special'?1:factor));
-const hit=db.movies.find(m=>m.tier==='hit'),record={releasedAt:1,initial:false};const venue={locationID:'LOC01',cinemaID:'C01',screenCount:3};
-for(let week=1;week<=6;week++){const raw=R.attendance(hit,record,week,'weekly');near(R.effectiveAttendance(hit,record,week,'weekly',venue),raw);}
-const special=db.movies.find(m=>m.id==='MV0503');near(R.effectiveAttendance(special,record,5,'weekly',{...venue,locationID:'LOC08'}),.5);
-for(const extra of [{locationID:'bad'},{tier:'unknown'},{cinemaID:'bad'},{attendanceRate:NaN},{screenCount:0}])assert.throws(()=>apply('LOC01',extra));
-console.log('PASS only eight initial location factors remain; no withdrawn bonuses by cinema/tier/hall count; weekly/special composition and invalid inputs');
-
-near(R.effectiveAttendance(hit,record,5,"weekly",{...venue,locationID:"LOC06"}),.006);
+const apply=(locationID,extra={})=>R.locationAttendance({attendanceRate:.4,locationID,cinemaID:'C01',tier:'average',screenCount:3,...extra});const near=(a,b)=>assert(Math.abs(a-b)<1e-12,`${a} != ${b}`);
+const cases=[['LOC01','C01','average',.6],['LOC01','C02','average',.5],['LOC01','C03','average',.4],['LOC02','C03','hit',.8],['LOC02','C04','hit',.8],['LOC02','C01','hit',.6],['LOC02','C03','average',.6],['LOC03','C02','hit',.62],['LOC03','C02','average',.52],['LOC03','C01','hit',.42],['LOC04','C04','hit',1],['LOC04','C04','average',1],['LOC04','C01','average',.432],['LOC04','C01','hit',.56],['LOC05','C03','hit',.62],['LOC05','C03','average',.624],['LOC05','C01','average',.384],['LOC05','C01','hit',.42],['LOC06','C04','hit',.51],['LOC06','C01','hit',.36],['LOC06','C04','average',.34],['LOC06','C01','average',.24],['LOC07','C03','hit',.456],['LOC07','C01','hit',.336],['LOC07','C03','average',.38],['LOC08','C01','hit',.36],['LOC08','C01','average',.12],['LOC08','C01','bomb',.12]];
+for(const [locationID,cinemaID,tier,expected]of cases)near(apply(locationID,{cinemaID,tier}),expected);
+for(const locationID of Object.keys(R.LOCATION_INITIAL))for(const tier of['hit','bomb','average','special'])for(const cinemaID of['C01','C02','C03','C04','C05'])for(const attendanceRate of[0,.01,.4,.99,1]){const result=apply(locationID,{tier,cinemaID,attendanceRate});assert(result>=0&&result<=1);if(tier==='special')near(result,attendanceRate);near(result,apply(locationID,{tier,cinemaID,attendanceRate,screenCount:25}));}
+const hit=db.movies.find(m=>m.tier==='hit'),record={releasedAt:1,initial:false},venue={locationID:'LOC01',cinemaID:'C01',screenCount:3};for(let week=1;week<=6;week++)near(R.effectiveAttendance(hit,record,week,'weekly',venue),Math.min(1,R.attendance(hit,record,week,'weekly')*1.5));
+near(R.effectiveAttendance(hit,record,5,'weekly',{...venue,cinemaID:'C04',locationID:'LOC06'}),.159);
+for(const extra of[{locationID:'bad'},{tier:'unknown'},{cinemaID:'bad'},{attendanceRate:NaN},{screenCount:0}])assert.throws(()=>apply('LOC01',extra));
+console.log('PASS eight locations, initial→cinema→tier stacking, additive points, multiplication order, 0–100% clamp, special immunity, no obsolete hall-count condition and W5 composition');

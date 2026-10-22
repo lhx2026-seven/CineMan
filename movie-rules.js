@@ -69,7 +69,17 @@
   function locationAttendance({attendanceRate,locationID,cinemaID,tier,screenCount}) {
     if(!Number.isFinite(attendanceRate)||attendanceRate<0||attendanceRate>1||!/^LOC0[1-8]$/.test(locationID)||!/^C0[1-5]$/.test(cinemaID)||!['hit','bomb','average','special'].includes(tier)||!Number.isInteger(screenCount)||screenCount<1)throw Error('Invalid attendance context');
     if(tier==='special')return attendanceRate;
-    const rate=attendanceRate*LOCATION_INITIAL[locationID];
+    let rate=attendanceRate*LOCATION_INITIAL[locationID];
+    switch(locationID){
+      case 'LOC01':if(cinemaID==='C01')rate*=1.5;if(cinemaID==='C02')rate+=.1;break;
+      case 'LOC02':if(['C03','C04'].includes(cinemaID))rate+=.2;if(tier==='hit')rate+=.2;break;
+      case 'LOC03':if(cinemaID==='C02')rate+=.2;if(tier==='hit')rate+=.1;break;
+      case 'LOC04':if(cinemaID==='C04')rate+=.5;if(tier==='hit')rate+=.2;if(tier==='average')rate*=1.2;break;
+      case 'LOC05':if(cinemaID==='C03')rate+=.2;if(tier==='hit')rate+=.1;if(tier==='average')rate*=1.2;break;
+      case 'LOC06':if(cinemaID==='C04')rate+=.1;if(tier==='hit')rate*=1.5;break;
+      case 'LOC07':if(cinemaID==='C03')rate+=.1;if(tier==='hit')rate*=1.2;break;
+      case 'LOC08':if(tier==='hit')rate*=1.5;if(['average','bomb'].includes(tier))rate*=.5;break;
+    }
     return Math.max(0,Math.min(1,rate));
   }
   function ticketAttendance({attendanceRate,cinemaID,screenCount,ticketFull,secondRunMode,specialHallPrices=[]}) {

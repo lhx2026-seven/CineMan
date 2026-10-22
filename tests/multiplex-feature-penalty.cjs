@@ -7,6 +7,6 @@ for(const count of[7,8,10])for(const cinemaID of['C03','C04'])for(const featured
  const receipt=B.settle({database:db,movies,cinemaID,locationID:'LOC06',allocation:allocated,values:{marketing:5000,ticketFull:300,featuredFilm:featured.id,featuredSlots:slots,specialMovie:featured.id,specialPrice:500}});
  assert.deepEqual(receipt.strategyRetirements,[]);
  for(const f of receipt.films){const m=db.movies.find(m=>m.id===f.id),h=movies.history.find(h=>h.id===f.id),base=R.effectiveAttendance(m,h,1,movies.seed,{cinemaID,locationID:'LOC06',screenCount:count},{ticketFull:300,specialHallPrices:[]});const applies=f.id===featured.id&&m.tier!=='special';const expected=base*(applies&&actualShare>.8?.75:1)*(applies&&count>7&&actualShare>.5?.25:1);assert(Math.abs(f.rate-expected)<1e-12);assert.equal(f.dailyViewers,Math.round(Number((expected*1000*6*f.share).toFixed(9))));}
- const main=receipt.films.find(f=>f.id===featured.id);assert.equal(main.specialViewers,Math.round(100*main.rawRate));
+ const main=receipt.films.find(f=>f.id===featured.id);assert.equal(main.specialViewers,Math.round(50*main.rawRate));
 }
 console.log('PASS >7 halls and >50% featured ×0.25, exact 7/50 boundaries, stacking with C03/C04 >80% ×0.75, all ordinary featured choices, non-featured/special immunity, raw-rate special sessions and final viewer rounding');
