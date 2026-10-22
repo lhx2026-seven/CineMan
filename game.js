@@ -248,7 +248,6 @@ function initGame() {
   });
   const draftKey = `cineman.gameDraft.${id}`;
   const draftStatus = document.querySelector('#draft-status');
-  let saved = false;
   form.inert = true;
   async function bootstrap() {
     restoring=true;form.inert=true;
@@ -343,7 +342,8 @@ function initGame() {
     updateTicketLocks();updateActivationLock();
     form.inert=restoring||!!annualMeeting;tabList.inert=!!annualMeeting;
     document.querySelector('#next-week').hidden=false;
-    document.querySelector('#next-week').innerHTML=annualMeeting?'開始下一年度 <span aria-hidden="true">→</span>':gameDate.week===50?'年度會議 <span aria-hidden="true">→</span>':'下一週 <span aria-hidden="true">→</span>';
+    const nextLabel=annualMeeting?'開始下一年度':gameDate.week===50?'年度會議':'下一週';
+    const nextButton=document.querySelector('#next-week');if(nextButton.dataset.label!==nextLabel){nextButton.dataset.label=nextLabel;nextButton.replaceChildren(nextLabel+' ');const arrow=document.createElement('span');arrow.setAttribute('aria-hidden','true');arrow.textContent='→';nextButton.append(arrow);}
     CinemaParameters.updateDerived(form);
     CinemaParameters.syncSliders(form);
     for (const item of ['poster', 'figure']) {
@@ -400,8 +400,8 @@ function initGame() {
     // Start the transaction immediately, including before navigation/refresh.
     // IndexedDB orders overlapping readwrite transactions on these stores.
     saveQueue=CinemaSave.save(snapshot).then(written=>{
-      if(revision===saveRevision){saved=written;draftStatus.textContent=written?'已自動存檔':'自動存檔 OFF';}return written;
-    }).catch(()=>{if(revision===saveRevision){saved=false;draftStatus.textContent='自動存檔失敗，本次設定尚未保存。';}return false;});
+      if(revision===saveRevision){draftStatus.textContent=written?'已自動存檔':'自動存檔 OFF';}return written;
+    }).catch(()=>{if(revision===saveRevision){draftStatus.textContent='自動存檔失敗，本次設定尚未保存。';}return false;});
     return saveQueue;
   }
   form.addEventListener('submit', event => event.preventDefault());

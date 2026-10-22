@@ -15,7 +15,9 @@ let app=read('app.js');
 const start=app.indexOf('  for (const [href, as] of ['),end=app.indexOf('  ]) {',start);
 if(start<0||end<0)throw Error('Missing preload list');
 app=app.slice(0,start)+"  for (const [href, as] of [\n    [`game.html?cinema=${encodeURIComponent(id)}&fresh=1&v=entry-v39&run=${preparedRuns.get(id)}`, 'document'],\n"+`    ['${cssURL}', 'style'],\n    ['${runtimeURL}', 'script'],\n`+app.slice(end);write('app.js',app);
-write('index.html',read('index.html').replace(/app\.js\?v=[^"\s]+/,`app.js?v=${hash(app)}`));
+let indexHTML=read('index.html').replace(/app\.js\?v=[^"\s]+/,`app.js?v=${hash(app)}`);
+for(const file of ['autosave.js','home-save.js','data/cinemas.js'])indexHTML=indexHTML.replace(new RegExp(file.replaceAll('.', '\\.')+'\\?v=[^\"\\s]+'),`${file}?v=${hash(read(file))}`);
+write('index.html',indexHTML);
 console.log(runtimeURL,cssURL,`${Buffer.byteLength(runtime)} bytes`);
 
 if(stale.length)throw Error('Rebuild game runtime: '+stale.join(', '));

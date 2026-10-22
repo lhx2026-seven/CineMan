@@ -16,7 +16,7 @@ assert.equal(B.specialGross(500,.33499999999999996).viewers,34);
 console.log('PASS hand-calculated NT$254,000 weekly total and decimal half-rounding regression');
 const carry=B.carryCandidate(next.movies,next.ledger);assert.equal(carry,values.featuredFilm);
 const reuseContext={...context,movies:next.movies,values:{...values,featuredFilm:carry,specialMovie:''}};
-const reused=B.advance(reuseContext,next.ledger);const carryFilm=reused.receipt.films.find(f=>f.id===carry);assert.equal(carryFilm.share,.5);assert.equal(reused.receipt.featuredID,carry);assert.equal(reused.receipt.extendedFeatured,true);assert.equal(B.carryCandidate(reused.movies,reused.ledger),null);B.resolveLedger(reused.ledger,3);
+const previousLedger=JSON.stringify(next.ledger);const reused=B.advance(reuseContext,next.ledger);assert.equal(JSON.stringify(next.ledger),previousLedger);const carryFilm=reused.receipt.films.find(f=>f.id===carry);assert.equal(carryFilm.share,.5);assert.equal(reused.receipt.featuredID,carry);assert.equal(reused.receipt.extendedFeatured,true);assert.equal(B.carryCandidate(reused.movies,reused.ledger),null);B.resolveLedger(reused.ledger,3);
 assert.throws(()=>B.advance({...reuseContext,movies:reused.movies},reused.ledger));
 const retired=structuredClone(next.movies);retired.history.find(h=>h.id===carry).retiredAt=2;assert.equal(B.carryCandidate(retired,next.ledger),null);
 const declined=B.advance({...reuseContext,values:{...reuseContext.values,featuredFilm:next.movies.current[0]}},next.ledger);assert.equal(declined.receipt.extendedFeatured,false);assert.equal(B.carryCandidate(declined.movies,declined.ledger),next.movies.current[0]);

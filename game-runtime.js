@@ -55,7 +55,8 @@
   }
   async function getLatest() { return (await list())[0] || null; }
   async function getByRun(runId) {
-    const [current,legacy]=await Promise.all([read('saves',runId),read('saves','latest')]);
+    const current=await read('saves',runId);
+    const legacy=current?null:await read('saves','latest');
     const record=current || (legacy?.runId===runId ? legacy : null);
     if(record && !valid(record))throw Error('存檔格式不支援或已損壞');
     return record;
@@ -1408,9 +1409,9 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
   function advance(context,ledger){
     const now=context.movies.lastWeek;ledger=resolveLedger(ledger,now);if(ledger.lastSettledWeek!==null&&ledger.lastSettledWeek>=now)throw Error('本週已結算');
     const receipt=settle({...context,ledger}),nextNow=now+1,year=2022+Math.floor((nextNow-1)/50),week=(nextNow-1)%50+1;
-    const next=structuredClone(ledger);next.lastSettledWeek=now;next.receipts.push(receipt);next.byYear[year]=(next.byYear[year]||0)+receipt.total;for(const f of receipt.films)next.totalsByMovie[f.id]=(next.totalsByMovie[f.id]||0)+f.gross;
+    const next={...ledger,lastSettledWeek:now,receipts:[...ledger.receipts,receipt],byYear:{...ledger.byYear},totalsByMovie:{...ledger.totalsByMovie}};next.byYear[year]=(next.byYear[year]||0)+receipt.total;for(const f of receipt.films)next.totalsByMovie[f.id]=(next.totalsByMovie[f.id]||0)+f.gross;
     let movies=structuredClone(context.movies);for(const h of showing(movies))if(receipt.strategyRetirements.includes(h.id)){h.retiredAt=now;h.retirementReason='baogong-focus';}
-    movies=retireLowGross(movies,next,nextNow);movies=structuredClone(movies);const by=new Map(context.database.movies.map(m=>[m.id,m]));
+    movies=retireLowGross(movies,next,nextNow);const by=new Map(context.database.movies.map(m=>[m.id,m]));
     for(const h of showing(movies))if(R().retirement(by.get(h.id),h,nextNow,movies.seed))h.retiredAt=nextNow;
     movies=R().releaseWeek(context.database,movies,year,week);for(const h of movies.history)h.retiredAt??=null;
     return{movies,ledger:next,year,week,receipt};
@@ -1670,7 +1671,6 @@ function initGame() {
   });
   const draftKey = `cineman.gameDraft.${id}`;
   const draftStatus = document.querySelector('#draft-status');
-  let saved = false;
   form.inert = true;
   async function bootstrap() {
     restoring=true;form.inert=true;
@@ -1765,7 +1765,8 @@ function initGame() {
     updateTicketLocks();updateActivationLock();
     form.inert=restoring||!!annualMeeting;tabList.inert=!!annualMeeting;
     document.querySelector('#next-week').hidden=false;
-    document.querySelector('#next-week').innerHTML=annualMeeting?'開始下一年度 <span aria-hidden="true">→</span>':gameDate.week===50?'年度會議 <span aria-hidden="true">→</span>':'下一週 <span aria-hidden="true">→</span>';
+    const nextLabel=annualMeeting?'開始下一年度':gameDate.week===50?'年度會議':'下一週';
+    const nextButton=document.querySelector('#next-week');if(nextButton.dataset.label!==nextLabel){nextButton.dataset.label=nextLabel;nextButton.replaceChildren(nextLabel+' ');const arrow=document.createElement('span');arrow.setAttribute('aria-hidden','true');arrow.textContent='→';nextButton.append(arrow);}
     CinemaParameters.updateDerived(form);
     CinemaParameters.syncSliders(form);
     for (const item of ['poster', 'figure']) {
@@ -1822,8 +1823,8 @@ function initGame() {
     // Start the transaction immediately, including before navigation/refresh.
     // IndexedDB orders overlapping readwrite transactions on these stores.
     saveQueue=CinemaSave.save(snapshot).then(written=>{
-      if(revision===saveRevision){saved=written;draftStatus.textContent=written?'已自動存檔':'自動存檔 OFF';}return written;
-    }).catch(()=>{if(revision===saveRevision){saved=false;draftStatus.textContent='自動存檔失敗，本次設定尚未保存。';}return false;});
+      if(revision===saveRevision){draftStatus.textContent=written?'已自動存檔':'自動存檔 OFF';}return written;
+    }).catch(()=>{if(revision===saveRevision){draftStatus.textContent='自動存檔失敗，本次設定尚未保存。';}return false;});
     return saveQueue;
   }
   form.addEventListener('submit', event => event.preventDefault());

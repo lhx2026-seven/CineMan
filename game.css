@@ -98,17 +98,9 @@ fieldset { min-width:0; border:0; padding:0; margin:0; }
 .merch-toggle input:checked ~ .toggle-track::after { transform:translateX(14px); background:#ffe5af; }
 .merch-toggle input:focus-visible ~ .toggle-track { outline:2px solid var(--gold); outline-offset:4px; }
 .merch-settings { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line); }
-.new-films { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 .film-option { position:relative; display:grid; grid-template-columns:120px minmax(0,1fr); border:1px solid #a8937033; border-radius:12px; overflow:hidden; background:#0b0a09; cursor:pointer; }
 .film-option > input { position:absolute; left:14px; top:14px; opacity:0; }
-.poster-placeholder { min-height:180px; padding:18px; display:flex; flex-direction:column; align-items:start; justify-content:space-between; font-family:Georgia,serif; letter-spacing:.12em; border-right:1px solid #ffffff0d; }
-.poster-placeholder > span { font-size:18px; color:#d7c9ad; line-height:1.5; }
-.poster-placeholder small { font-size:36px; color:#cbb58d99; }
-.poster-one { background:radial-gradient(ellipse at 20% 80%,#89613170,transparent 55%),linear-gradient(130deg,#211b12,#0a0908); }
-.poster-two { background:radial-gradient(ellipse at 80% 10%,#655f6e70,transparent 60%),linear-gradient(130deg,#1d1c24,#09090c); }
 .film-info { padding:20px 16px; display:flex; flex-direction:column; gap:10px; min-width:0; }
-.film-info > strong { color:#e7d5b5; font-size:19px; font-weight:500; }
-.film-tag { font-size:10px; color:#b19463; letter-spacing:.15em; }
 .muted { font-size:12px; color:#8e867a; line-height:1.7; }
 .feature-indicator { margin-top:auto; padding-top:12px; display:flex; justify-content:space-between; gap:8px; color:#aea18b; font-size:12px; }
 .feature-indicator > span { color:#d2b37b; }
@@ -126,17 +118,9 @@ input[type="range"]:disabled { opacity:.3; cursor:default; }
 .old-films-heading h3 { font-size:15px; font-weight:400; margin:0; color:#d1c4ae; }
 .old-films { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
 .old-film { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #ffffff0c; background:#08080760; border-radius:10px; }
-.mini-poster { display:grid; place-items:center; width:38px; height:54px; flex-shrink:0; font:20px Georgia,serif; background:linear-gradient(140deg,#3b3325,#171411); color:#9e8960; }
 .old-film h4 { margin:0 0 5px; color:#c8baa3; font-size:13px; font-weight:400; }
 .old-film p { margin:0; color:#6f695f; font-size:10px; line-height:1.7; }
-.locked-label { margin-left:auto; color:#8c806e; font-size:10px; white-space:nowrap; }
 .pending-tag { color:#a8997e; font-size:11px; border:1px solid #8d70434a; padding:6px 10px; border-radius:20px; }
-.finance-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); background:#08080790; border:1px solid #ffffff0c; border-radius:12px; }
-.finance-summary > div { padding:22px; display:grid; grid-template-columns:1fr auto; gap:14px; }
-.finance-summary > div + div { border-left:1px solid var(--line); }
-.finance-summary span { grid-column:1/-1; font-size:12px; color:#b3a68f; }
-.finance-summary strong { font:32px Georgia,serif; color:#debd7d; }
-.finance-summary small { align-self:end; font-size:10px; color:#7e7463; }
 .report-lines { margin:22px 0 0; }
 .report-lines > div { display:flex; justify-content:space-between; border-bottom:1px solid #ffffff0a; padding:13px 0; }
 .report-lines dt { font-size:13px; color:#a99e8b; }
@@ -196,17 +180,10 @@ dialog .gold-button { margin-top:10px; }
   .input-wrap input { font-size:14px; }
   .merch-grid { grid-template-columns:1fr; gap:12px; }
   .merch-card { padding:16px 14px; }
-  .new-films { grid-template-columns:1fr; gap:12px; }
   .film-option { grid-template-columns:95px minmax(0,1fr); }
-  .poster-placeholder { min-height:155px; padding:14px; }
-  .poster-placeholder > span { font-size:15px; }
-  .poster-placeholder small { font-size:30px; }
   .film-info { padding:17px 14px; }
   .showtime-control { padding:16px 13px; gap:12px; }
   .old-films-heading .muted { font-size:10px; }
-  .finance-summary > div { padding:16px 10px; gap:10px; }
-  .finance-summary span { font-size:11px; }
-  .finance-summary strong { font-size:28px; }
   .counter-scene { border-radius:16px; }
   .counter-scene > img { aspect-ratio:1.5/1; }
   .next-week-area { inset:auto 16px 16px; flex-direction:column; align-items:start; gap:14px; }
@@ -260,14 +237,8 @@ input::placeholder { font-size:12px; }
 .merch-toggle small { display:none; }
 .merch-settings { gap:10px; margin-top:8px; padding-top:10px; }
 .merch-settings .field { gap:5px; font-size:12px; }
-.new-films { gap:12px; }
 .film-option { grid-template-columns:66px minmax(0,1fr); border-radius:8px; }
-.poster-placeholder { min-height:112px; padding:10px; }
-.poster-placeholder > span { font-size:10px; }
-.poster-placeholder small { font-size:24px; }
 .film-info { padding:12px; gap:5px; }
-.film-info > strong { font-size:16px; }
-.film-tag { font-size:9px; }
 .feature-indicator { padding-top:7px; }
 .showtime-control { padding:12px; gap:8px; margin-top:12px; border-radius:8px; }
 .showtime-control label { font-size:13px; }
@@ -278,13 +249,9 @@ input::placeholder { font-size:12px; }
 .old-films-heading h3 { font-size:13px; }
 .old-films { display:block; border-top:1px solid #ffffff0b; }
 .old-film { padding:8px 0; gap:10px; background:none; border:0; border-bottom:1px solid #ffffff0b; border-radius:0; }
-.mini-poster { width:23px; height:30px; font-size:13px; }
 .old-film > div { display:flex; align-items:center; gap:16px; }
 .old-film h4 { margin:0; font-size:12px; }
 .old-film p { font-size:10px; }
-.finance-summary { border-radius:8px; }
-.finance-summary > div { padding:13px 14px; gap:7px; }
-.finance-summary strong { font-size:26px; }
 .report-lines { margin-top:12px; }
 .report-lines > div { padding:9px 0; }
 .report-lines dt, .report-lines dd { font-size:12px; }
@@ -321,20 +288,13 @@ input::placeholder { font-size:12px; }
   .merch-card { padding:7px 10px; }
   .merch-toggle { min-height:44px; }
   .merch-settings { margin-top:4px; padding-top:9px; }
-  .new-films { grid-template-columns:1fr; gap:8px; }
   .film-option { grid-template-columns:54px minmax(0,1fr); }
-  .poster-placeholder { min-height:98px; padding:8px; }
-  .poster-placeholder > span { font-size:9px; }
-  .poster-placeholder small { font-size:22px; }
   .film-info { padding:10px 12px; }
   .feature-indicator { min-height:24px; }
   .showtime-control { padding:10px; }
   input[type="range"] { min-height:32px; }
   .old-film { padding:7px 0; }
   .old-film > div { gap:10px; }
-  .finance-summary > div { padding:12px 9px; }
-  .finance-summary span { font-size:10px; }
-  .finance-summary strong { font-size:24px; }
   .counter-scene { border-radius:9px; }
   .counter-scene > img { height:108px; }
   .next-week-area { inset:auto 10px 10px; gap:8px; }

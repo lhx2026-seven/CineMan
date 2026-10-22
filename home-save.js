@@ -3,7 +3,12 @@
   const toggle=document.querySelector('#auto-save-toggle'),resume=document.querySelector('#resume-game');
   const label=document.querySelector('#saved-game-label'),status=document.querySelector('#auto-save-status');
   const drawer=document.querySelector('#save-drawer'),list=document.querySelector('#save-list'),clear=document.querySelector('#clear-saves');
-  let refreshing=0,handoffError='';
+  let refreshing=0,handoffError='',refreshTask=null;
+  function refresh(){
+    if(refreshTask)return refreshTask;
+    refreshTask=performRefresh().finally(()=>{refreshTask=null;});return refreshTask;
+  }
+  function refreshAfterWrite(){if(refreshTask)refreshTask.finally(()=>refresh());else refresh();}
   function setOpen(open) { drawer.hidden=!open;resume.setAttribute('aria-expanded',String(open)); }
   async function continueRun(runId) {
     try {
@@ -11,12 +16,11 @@
       location.assign(`game.html?cinema=${encodeURIComponent(record.cinemaID)}&run=${encodeURIComponent(record.runId)}&resume=1&v=autosave-v23`);
     } catch {status.textContent='無法讀取存檔，請重試。';}
   }
-  async function refresh() {
+  async function performRefresh() {
     const token=++refreshing;
     try {
-      const settings=await CinemaSave.getSettings();
-      let records=[],recordError=false;
-      try { records=await CinemaSave.list(); } catch { recordError=true; }
+      const [settings,result]=await Promise.all([CinemaSave.getSettings(),CinemaSave.list().then(records=>({records,recordError:false}),()=>({records:[],recordError:true}))]);
+      const {records,recordError}=result;
       if(token!==refreshing)return;
       toggle.disabled=false;toggle.setAttribute('aria-checked',String(settings.enabled));
       document.querySelector('#auto-save-value').textContent=settings.enabled?'ON':'OFF';
@@ -48,5 +52,5 @@
     finally {clear.disabled=false;}
   });
   CinemaSave.flushNavigation().catch(()=>{handoffError='上一頁的設定尚未完成存檔，請重新整理重試。';status.textContent=handoffError;});
-  CinemaSave.subscribe(refresh);window.addEventListener('focus',refresh);window.addEventListener('pageshow',refresh);refresh();
+  CinemaSave.subscribe(refreshAfterWrite);window.addEventListener('focus',refresh);window.addEventListener('pageshow',event=>{if(event.persisted)refresh();});refresh();
 })();

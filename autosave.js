@@ -53,7 +53,8 @@
   }
   async function getLatest() { return (await list())[0] || null; }
   async function getByRun(runId) {
-    const [current,legacy]=await Promise.all([read('saves',runId),read('saves','latest')]);
+    const current=await read('saves',runId);
+    const legacy=current?null:await read('saves','latest');
     const record=current || (legacy?.runId===runId ? legacy : null);
     if(record && !valid(record))throw Error('存檔格式不支援或已損壞');
     return record;
