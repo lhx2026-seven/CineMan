@@ -1930,7 +1930,7 @@ function initGame() {
   }
   venueRetry.addEventListener('click', () => bootFailed ? startGame() : loadVenue());
 
-  document.title = `CineMan｜${cinema.name}・本週營運配置`;
+  document.title = `CineMan｜${cinema.name}營業中`;
   document.documentElement.style.setProperty('--accent', cinema.color);
   document.querySelector('#cinema-name').textContent = cinema.name;
   document.querySelector('#cinema-type').textContent = cinema.type;
