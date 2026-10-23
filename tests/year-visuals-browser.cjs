@@ -2,7 +2,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
 const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8144';
 (async()=>{
   const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']});
-  for(const width of[390,1440])for(const[id,slug]of Object.entries({C01:'baogong',C02:'century',C03:'broadway',C04:'ylc',C05:'arthouse'})){
+  for(const width of[390,1440])for(const[id,slug]of Object.entries({C01:'baogong',C02:'century',C03:'broadway',C04:'ylc',C05:'arthouse'}).filter(([id])=>!process.env.CINEMAN_TEST_CINEMA||id===process.env.CINEMAN_TEST_CINEMA)){
     const page=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'}),errors=[],requests=[];
     page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));
     await page.goto(`${base}/game.html?cinema=${id}&fresh=1&run=year-visuals-${id}-${width}`);
@@ -51,7 +51,7 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8144';
     await page.locator('#next-week').click();await page.waitForFunction(()=>document.querySelector('.week-badge').textContent==='2024年度會議');await check(2024);
     await page.locator('#next-week').click();await page.waitForFunction(()=>document.querySelector('.week-badge').textContent==='2025 W1');await check(2025);
     assert.equal(await page.locator('#cinema-exterior').evaluate(e=>getComputedStyle(e).objectFit),'contain');
-    assert((await page.locator('#cinema-exterior').getAttribute('alt')).includes('片名CineMan'));
+    assert((await page.locator('#cinema-exterior').getAttribute('alt')).includes(id==='C01'?'復古學生電影票':'片名CineMan'));
     await page.waitForFunction(()=>document.querySelector('#draft-status').textContent==='已自動存檔');
     requests.length=0;await page.reload();await page.locator('#venue-data').waitFor();await check(2025);
     assert(!requests.some(url=>url.includes(`${slug}-interior`)),'2025 reload fetched the superseded interior');
