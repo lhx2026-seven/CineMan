@@ -85,8 +85,9 @@
     if(!townRows.has(row))townRows.set(row,{...row,[field('EXTRA','min')]:0,[field('EXTRA','max')]:0});
     return townRows.get(row);
   }
-  function validateAssignment(assignment, database) {
+  function validateAssignment(assignment, database, {allowLegacyTownCount=false}={}) {
     const errors = [];
+    if(assignment.locationID==='LOC08'&&assignment.screens?.length>4&&!allowLegacyTownCount)errors.push('LOC08 allows at most 4 screens');
     const row = database.cinemas.find(row => row.cinemaID === assignment.cinemaID && row.screens === assignment.screens?.length);
     if (!row) return ['No matching cinema/screen-count rule'];
     const rule = normalize(locationRule(row,assignment.locationID)), counts = Object.fromEntries(TYPES.map(type => [type, 0]));
@@ -215,7 +216,7 @@
   }
   function generate(database, cinemaID, seed, screenCount = null, locationID = null) {
     if (typeof seed !== 'string' || !seed.length || seed.length > 256) throw Error('Seed must contain 1–256 characters');
-    const rows = database.cinemas.filter(row => row.cinemaID === cinemaID && (screenCount == null || row.screens === screenCount));
+    const rows = database.cinemas.filter(row => row.cinemaID === cinemaID && (screenCount == null || row.screens === screenCount) && (locationID!=='LOC08'||row.screens<=4));
     if (!rows.length) throw Error('Unknown cinema or unavailable screen count');
     const random = seededRandom(seed);
     const row = rows[Math.floor(random()*rows.length)];

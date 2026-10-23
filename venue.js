@@ -6,8 +6,9 @@
     // The run in the URL keeps refreshes stable. A new homepage confirmation
     // creates a fresh run and therefore a new field allocation and form draft.
     if (savedAllocation) {
-      if (savedAllocation.cinemaID !== cinemaID || savedAllocation.seed !== runId || root.CinemaRules.validateAssignment(savedAllocation,database).length) throw Error('存檔場地與資料庫不相符');
+      if (savedAllocation.cinemaID !== cinemaID || savedAllocation.seed !== runId || root.CinemaRules.validateAssignment(savedAllocation,database,{allowLegacyTownCount:locationID==='LOC08'}).length) throw Error('存檔場地與資料庫不相符');
       if(locationID==='LOC08'){
+        if(savedAllocation.screenCount>4)return root.CinemaRules.generate(database,cinemaID,runId,null,locationID);
         if(savedAllocation.screens.some(screen=>screen.type==='EXTRA'))return root.CinemaRules.generate(database,cinemaID,runId,savedAllocation.screenCount,locationID);
         const updated={...savedAllocation,locationID,constraints:{...savedAllocation.constraints,ranges:{...savedAllocation.constraints.ranges,EXTRA:{min:0,max:0}}}};
         if(root.CinemaRules.validateAssignment(updated,database).length)throw Error('小城鎮影廳配置不相容');

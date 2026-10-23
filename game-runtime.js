@@ -197,8 +197,9 @@
     if(!townRows.has(row))townRows.set(row,{...row,[field('EXTRA','min')]:0,[field('EXTRA','max')]:0});
     return townRows.get(row);
   }
-  function validateAssignment(assignment, database) {
+  function validateAssignment(assignment, database, {allowLegacyTownCount=false}={}) {
     const errors = [];
+    if(assignment.locationID==='LOC08'&&assignment.screens?.length>4&&!allowLegacyTownCount)errors.push('LOC08 allows at most 4 screens');
     const row = database.cinemas.find(row => row.cinemaID === assignment.cinemaID && row.screens === assignment.screens?.length);
     if (!row) return ['No matching cinema/screen-count rule'];
     const rule = normalize(locationRule(row,assignment.locationID)), counts = Object.fromEntries(TYPES.map(type => [type, 0]));
@@ -327,7 +328,7 @@
   }
   function generate(database, cinemaID, seed, screenCount = null, locationID = null) {
     if (typeof seed !== 'string' || !seed.length || seed.length > 256) throw Error('Seed must contain 1–256 characters');
-    const rows = database.cinemas.filter(row => row.cinemaID === cinemaID && (screenCount == null || row.screens === screenCount));
+    const rows = database.cinemas.filter(row => row.cinemaID === cinemaID && (screenCount == null || row.screens === screenCount) && (locationID!=='LOC08'||row.screens<=4));
     if (!rows.length) throw Error('Unknown cinema or unavailable screen count');
     const random = seededRandom(seed);
     const row = rows[Math.floor(random()*rows.length)];
@@ -367,8 +368,9 @@ globalThis.CinemaDatabase={"cinemas":[{"type":"first_run","cinemaID":"C01","name
     // The run in the URL keeps refreshes stable. A new homepage confirmation
     // creates a fresh run and therefore a new field allocation and form draft.
     if (savedAllocation) {
-      if (savedAllocation.cinemaID !== cinemaID || savedAllocation.seed !== runId || root.CinemaRules.validateAssignment(savedAllocation,database).length) throw Error('存檔場地與資料庫不相符');
+      if (savedAllocation.cinemaID !== cinemaID || savedAllocation.seed !== runId || root.CinemaRules.validateAssignment(savedAllocation,database,{allowLegacyTownCount:locationID==='LOC08'}).length) throw Error('存檔場地與資料庫不相符');
       if(locationID==='LOC08'){
+        if(savedAllocation.screenCount>4)return root.CinemaRules.generate(database,cinemaID,runId,null,locationID);
         if(savedAllocation.screens.some(screen=>screen.type==='EXTRA'))return root.CinemaRules.generate(database,cinemaID,runId,savedAllocation.screenCount,locationID);
         const updated={...savedAllocation,locationID,constraints:{...savedAllocation.constraints,ranges:{...savedAllocation.constraints.ranges,EXTRA:{min:0,max:0}}}};
         if(root.CinemaRules.validateAssignment(updated,database).length)throw Error('小城鎮影廳配置不相容');
