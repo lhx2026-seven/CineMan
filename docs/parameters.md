@@ -45,3 +45,5 @@
 管理費改依management-fee-rules.js：布洛威／YLC總座位數乘一次抽定的400／450／500／550／600，W4起每4週出帳，覆蓋Parameter.xlsx的manage_fee舊範圍。
 
 餐飲成本food&drink_buy玩家拉條範圍更新為0～400,000元，step=1,000元。
+
+公共事業帳單改依utility-bill-expense.md：忽略utility_bill舊min/max與gapWeeks，以各戲院座位數及每期係數計價，固定每年W8／16／24／32／40／48出帳，其中W24／32／40乘1.5。

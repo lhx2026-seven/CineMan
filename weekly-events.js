@@ -1,10 +1,9 @@
 'use strict';
 (function(root) {
-  function paymentReminders({week,cinemaID,rent,propertyTax,managementFee,parameters}) {
+  function paymentReminders({week,rent,propertyTax,managementFee,utilityBills}) {
     const notices=[];
-    const due=key=>{const gap=parameters?.[key]?.gapWeeks;return Number.isInteger(gap)&&gap>0&&week>=gap&&week%gap===0;};
     const add=(kind,title)=>notices.push({id:`payment/${kind}/${week}`,title,message:'',noticeOnly:true});
-    if(due('utility_bill'))add('utilities','本週繳交水電網路費');
+    if(utilityBills?.receipts.some(r=>r.week===week&&r.amount>0))add('utilities','本週繳交水電網路費');
     const rental=rent?.receipts.some(r=>r.week===week&&r.amount>0);
     const management=managementFee?.receipts.some(r=>r.week===week&&r.amount>0);
     if(rental||management)add('premises',rental?(management?'本週繳交租金及管理費':'本週繳交租金'):'本週繳交管理費');

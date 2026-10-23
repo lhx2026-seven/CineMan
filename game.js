@@ -45,7 +45,7 @@ function initGame() {
   let exclusiveFood = null;
   let property = null, activation = null;
   let movies = null;
-  let boxOffice=null,distributor=null,rent=null,propertyTax=null,managementFee=null,operatingExpenses=null,foodRevenue=null,merchandise=null,advancing=false,annualMeeting=null;
+  let boxOffice=null,distributor=null,rent=null,propertyTax=null,managementFee=null,operatingExpenses=null,utilityBills=null,foodRevenue=null,merchandise=null,advancing=false,annualMeeting=null;
   let checkpoint = null, currentAllocation = null, restoring = true, bootFailed = false, storeAvailable = true;
   let saveQueue = Promise.resolve(false), saveRevision = 0;
   const gameDate = {year:2022,week:1};
@@ -71,6 +71,7 @@ function initGame() {
       propertyTax=CinemaPropertyTax.sync(checkpoint?.propertyTax,property,allocation.totalSeats,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week));
       managementFee=CinemaManagementFee.sync(checkpoint?.managementFee,property,allocation.totalSeats,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week));
       operatingExpenses=CinemaOperatingExpenses.resolve(checkpoint?.operatingExpenses,currentWeek());
+      utilityBills=CinemaUtilityBills.sync(checkpoint?.utilityBills,property,allocation.totalSeats,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week));
       renderMovieWeek(restoredDraft||{});
       renderBulletin();
       CinemaVenue.render(allocation);
@@ -156,7 +157,7 @@ function initGame() {
   }
   function renderBulletin(){
     if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),showRanking:!secondRun});
-    else CinemaEvents.render({events:[...CinemaMovieRules.eventsFor(movies,currentWeek()),...CinemaEvents.paymentReminders({week:currentWeek(),cinemaID:id,rent,propertyTax,managementFee,parameters:CinemaParameters.DATA.compute})]});
+    else CinemaEvents.render({events:[...CinemaMovieRules.eventsFor(movies,currentWeek()),...CinemaEvents.paymentReminders({week:currentWeek(),rent,propertyTax,managementFee,utilityBills})]});
   }
   function renderFinance(){
     const now=currentWeek(),receipt=boxOffice?.receipts.find(r=>r.bookedAt===now&&(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===gameDate.year);
@@ -168,6 +169,9 @@ function initGame() {
     document.querySelector('#annual-net-box-office').textContent=net.annual.toLocaleString('zh-TW');
     const expenses=CinemaOperatingExpenses.totals(operatingExpenses,now,gameDate.year);
     for(const period of['weekly','annual'])for(const key of CinemaOperatingExpenses.KEYS)document.querySelector(`#${period}-${key}`).textContent=expenses[period][key].toLocaleString('zh-TW');
+    const utilities=CinemaUtilityBills.totals(utilityBills,now,gameDate.year);
+    document.querySelector('#weekly-utilities').textContent=utilities.weekly.toLocaleString('zh-TW');
+    document.querySelector('#annual-utilities').textContent=utilities.annual.toLocaleString('zh-TW');
     const rental=CinemaRent.totals(rent,now,gameDate.year);
     const realEstateTax=CinemaPropertyTax.totals(propertyTax,now,gameDate.year);
     const management=CinemaManagementFee.totals(managementFee,now,gameDate.year);
@@ -408,7 +412,7 @@ function initGame() {
     const values=formValues();
     const budgetLocks=Object.fromEntries(['maintenance','consumables'].map(name=>[name,form.elements[name].disabled ? document.querySelector(`#${name}-lock`).title || true : false]));
     const snapshot={cinemaID:id,cinemaName:cinema.name,runId,year:gameDate.year,week:gameDate.week,
-      values,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,exclusiveFood,property,activation,annualMeeting,movies,boxOffice,distributor,rent,propertyTax,managementFee,operatingExpenses,foodRevenue,merchandise,budgetLocks,
+      values,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,exclusiveFood,property,activation,annualMeeting,movies,boxOffice,distributor,rent,propertyTax,managementFee,operatingExpenses,utilityBills,foodRevenue,merchandise,budgetLocks,
       tabID:tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       reportTabID:reportTabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};
@@ -473,6 +477,7 @@ function initGame() {
       rent=CinemaRent.sync(rent,property,currentAllocation.totalSeats,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week));
       propertyTax=CinemaPropertyTax.sync(propertyTax,property,currentAllocation.totalSeats,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week));
       managementFee=CinemaManagementFee.sync(managementFee,property,currentAllocation.totalSeats,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week));
+      utilityBills=CinemaUtilityBills.sync(utilityBills,property,currentAllocation.totalSeats,CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week));
       for(const kind of CinemaMerchandise.KINDS){values[kind+'Quantity']='0';values[kind+'Scrap']=false;form.elements[kind+'Quantity'].value='0';form.elements[kind+'Scrap'].checked=false;}
       delete values.featuredFilm;values.featuredSlots=String(CinemaFilms.screeningCapacity(venueScreenCount,id)-1);values.specialCount='1';
       for(let i=1;i<=5;i++)values['specialMovie'+(i===1?'':i)]='';
@@ -480,7 +485,7 @@ function initGame() {
       films.setVenue(venueScreenCount,gameDate.week);renderFinance();
       renderBulletin();
       if(annualMeeting?.settled){activateReport(reportTabs.find(tab=>tab.id==='tab-annual'));document.querySelector('#weekly-events').scrollIntoView({block:'start',behavior:'smooth'});}
-      checkpoint={...checkpoint,movies,boxOffice,distributor,rent,propertyTax,managementFee,operatingExpenses,foodRevenue,merchandise,activation,annualMeeting,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,values,year:gameDate.year,week:gameDate.week};
+      checkpoint={...checkpoint,movies,boxOffice,distributor,rent,propertyTax,managementFee,operatingExpenses,utilityBills,foodRevenue,merchandise,activation,annualMeeting,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,values,year:gameDate.year,week:gameDate.week};
       saveDraft();
     }catch(error){document.querySelector('#dialog-save-status').textContent=error.message;document.querySelector('#week-dialog').showModal();console.error('Weekly settlement failed:',error);}
     finally{advancing=false;updateControls();}
