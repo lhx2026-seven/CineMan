@@ -614,3 +614,5 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .meeting-ranking li { padding-left:3px; overflow-wrap:anywhere; }
 
 .meeting-ranking > p { font-size:11px; line-height:1.7; color:#a99d87; margin:0; }
+
+.financial-report #finance-title { background:#f6dfb0; color:#2b1d10; padding:7px 12px; border-radius:7px; }
