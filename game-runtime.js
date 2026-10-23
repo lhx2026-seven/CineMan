@@ -417,6 +417,17 @@ globalThis.CinemaDatabase={"cinemas":[{"type":"first_run","cinemaID":"C01","name
 // Source: weekly-events.js
 'use strict';
 (function(root) {
+  function paymentReminders({week,cinemaID,rent,propertyTax,parameters}) {
+    const notices=[];
+    const due=key=>{const gap=parameters?.[key]?.gapWeeks;return Number.isInteger(gap)&&gap>0&&week>=gap&&week%gap===0;};
+    const add=(kind,title)=>notices.push({id:`payment/${kind}/${week}`,title,message:'',noticeOnly:true});
+    if(due('utility_bill'))add('utilities','本週繳交水電網路費');
+    const rental=rent?.receipts.some(r=>r.week===week&&r.amount>0);
+    const management=['C03','C04'].includes(cinemaID)&&due('manage_fee');
+    if(rental||management)add('premises',rental?(management?'本週繳交租金及管理費':'本週繳交租金'):'本週繳交管理費');
+    if(propertyTax?.receipts.some(r=>r.week===week&&r.amount>0))add('property-tax','本週繳交房屋稅、地價稅');
+    return notices;
+  }
   // Called at the beginning of a week with that week's database-backed events.
   // No event database or game effects are invented by this presentation layer.
   function render({events = [], onDecision} = {}) {
@@ -435,7 +446,7 @@ globalThis.CinemaDatabase={"cinemas":[{"type":"first_run","cinemaID":"C01","name
       const article = document.createElement('article'); article.className = 'weekly-event';
       const heading = document.createElement('h3'); heading.textContent = event.title;
       const message = document.createElement('p'); message.textContent = event.message;
-      article.append(heading, message);
+      article.append(heading);if(event.message)article.append(message);
       const choices = event.choices ?? [];
       if (choices.length) {
         const actions = document.createElement('div'); actions.className = 'event-actions';
@@ -456,7 +467,7 @@ globalThis.CinemaDatabase={"cinemas":[{"type":"first_run","cinemaID":"C01","name
           actions.append(button);
         }
         article.append(actions, status);
-      } else {
+      } else if(!event.noticeOnly) {
         const note = document.createElement('span'); note.className = 'event-notice'; note.textContent = '無法干預'; article.append(note);
       }
       return article;
@@ -465,7 +476,8 @@ globalThis.CinemaDatabase={"cinemas":[{"type":"first_run","cinemaID":"C01","name
     section.hidden = !cards.length;
     document.querySelector('#weekly-bulletin').classList.toggle('has-events', cards.length > 0);
   }
-  root.CinemaEvents = {render};
+  const api={render,paymentReminders};
+  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaEvents=api;
 })(globalThis);
 
 ;
@@ -1813,7 +1825,7 @@ function initGame() {
   }
   function renderBulletin(){
     if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),showRanking:!secondRun});
-    else CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,currentWeek())});
+    else CinemaEvents.render({events:[...CinemaMovieRules.eventsFor(movies,currentWeek()),...CinemaEvents.paymentReminders({week:currentWeek(),cinemaID:id,rent,propertyTax,parameters:CinemaParameters.DATA.compute})]});
   }
   function renderFinance(){
     const now=currentWeek(),receipt=boxOffice?.receipts.find(r=>r.bookedAt===now&&(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===gameDate.year);
