@@ -781,7 +781,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     const eligible=locations(database,cinemaID);if(!eligible.length)throw Error('沒有適用地點');
     const random=key=>root.CinemaRules.seededRandom(`property/v1/${cinemaID}/${runId}/${key}`);
     const location=eligible[Math.floor(random('location')()*eligible.length)];
-    const owned=random('tenure')()<0.05,hasSpace=random('space')()<0.33;
+    const owned=random('tenure')()<({C03:0.03,C04:0.01}[cinemaID]??0.05),hasSpace=random('space')()<0.33;
     let activationType=null;
     if(hasSpace){const type=random('activity'),pool=commonFor(cinemaID);activationType=hotelEligible(cinemaID)&&type()<0.01?'hotel':pool[Math.floor(type()*pool.length)];}
     return {version:1,cinemaID,runId,locationID:location.locationID,tenure:owned?'owned':'rented',hasSpace,activationType,rentalActive:!owned,realEstateTaxActive:owned};
@@ -1577,13 +1577,14 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     // Location ranges use integer coefficients; both draws happen only once.
     const locationCoefficient=range[0]+Math.floor(random('location')*(range[1]-range[0]+1));
     const randomCoefficient=5+Math.floor(random('multiplier')*6);
-    return{version:1,cinemaID:property.cinemaID,runId:property.runId,tenure:property.tenure,locationID:property.locationID,totalSeats,locationCoefficient,randomCoefficient,amount:property.rentalActive?rounded(totalSeats,locationCoefficient,randomCoefficient):0,firstDueWeek,throughWeek:0,receipts:[]};
+    const rentFactor=property.cinemaID==='C05'?0.5:1;
+    return{version:1,rentFactor,cinemaID:property.cinemaID,runId:property.runId,tenure:property.tenure,locationID:property.locationID,totalSeats,locationCoefficient,randomCoefficient,amount:property.rentalActive?rounded(totalSeats,locationCoefficient,randomCoefficient)*rentFactor:0,firstDueWeek,throughWeek:0,receipts:[]};
   }
   function resolve(saved,property,week){
     if(saved==null)return null;
     // Existing leases drawn under the earlier 2–10 range remain fixed.
-    const range=RANGES[saved.locationID];
-    if(saved.version!==1||saved.cinemaID!==property.cinemaID||saved.runId!==property.runId||saved.tenure!==property.tenure||saved.locationID!==property.locationID||!range||!Number.isSafeInteger(saved.totalSeats)||saved.totalSeats<=0||!Number.isInteger(saved.locationCoefficient)||saved.locationCoefficient<range[0]||saved.locationCoefficient>range[1]||!Number.isInteger(saved.randomCoefficient)||saved.randomCoefficient<2||saved.randomCoefficient>10||saved.amount!==(property.rentalActive?rounded(saved.totalSeats,saved.locationCoefficient,saved.randomCoefficient):0)||saved.firstDueWeek!==4||!Number.isInteger(saved.throughWeek)||saved.throughWeek<0||saved.throughWeek>week||!Array.isArray(saved.receipts))throw Error('租金存檔錯誤');
+    const range=RANGES[saved.locationID],rentFactor=saved.rentFactor??1;
+    if(saved.version!==1||(saved.rentFactor!==undefined&&rentFactor!==(property.cinemaID==='C05'?0.5:1))||saved.cinemaID!==property.cinemaID||saved.runId!==property.runId||saved.tenure!==property.tenure||saved.locationID!==property.locationID||!range||!Number.isSafeInteger(saved.totalSeats)||saved.totalSeats<=0||!Number.isInteger(saved.locationCoefficient)||saved.locationCoefficient<range[0]||saved.locationCoefficient>range[1]||!Number.isInteger(saved.randomCoefficient)||saved.randomCoefficient<2||saved.randomCoefficient>10||saved.amount!==(property.rentalActive?rounded(saved.totalSeats,saved.locationCoefficient,saved.randomCoefficient)*rentFactor:0)||saved.firstDueWeek!==4||!Number.isInteger(saved.throughWeek)||saved.throughWeek<0||saved.throughWeek>week||!Array.isArray(saved.receipts))throw Error('租金存檔錯誤');
     const expected=property.rentalActive&&saved.throughWeek>=saved.firstDueWeek?Math.floor((saved.throughWeek-saved.firstDueWeek)/4)+1:0;
     if(saved.receipts.length!==expected||saved.receipts.some((r,i)=>r.week!==saved.firstDueWeek+i*4||r.year!==yearOf(r.week)||r.amount!==saved.amount))throw Error('租金出帳紀錄錯誤');
     return saved;

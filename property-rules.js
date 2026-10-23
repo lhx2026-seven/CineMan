@@ -15,7 +15,7 @@
     const eligible=locations(database,cinemaID);if(!eligible.length)throw Error('沒有適用地點');
     const random=key=>root.CinemaRules.seededRandom(`property/v1/${cinemaID}/${runId}/${key}`);
     const location=eligible[Math.floor(random('location')()*eligible.length)];
-    const owned=random('tenure')()<0.05,hasSpace=random('space')()<0.33;
+    const owned=random('tenure')()<({C03:0.03,C04:0.01}[cinemaID]??0.05),hasSpace=random('space')()<0.33;
     let activationType=null;
     if(hasSpace){const type=random('activity'),pool=commonFor(cinemaID);activationType=hotelEligible(cinemaID)&&type()<0.01?'hotel':pool[Math.floor(type()*pool.length)];}
     return {version:1,cinemaID,runId,locationID:location.locationID,tenure:owned?'owned':'rented',hasSpace,activationType,rentalActive:!owned,realEstateTaxActive:owned};
