@@ -1938,19 +1938,31 @@ function initGame() {
   document.querySelector('#cinema-type').textContent = cinema.type;
   const exterior = document.querySelector('#cinema-exterior');
   exterior.sizes = '(max-width: 760px) calc(100vw - 20px), (max-width: 992px) 52vw, 510px';
-  exterior.srcset = `assets/cinemas/optimized/${cinema.exterior.replace('.webp', '-640.webp')} 640w, assets/cinemas/landscape/${cinema.exterior} 1774w`;
   exterior.fetchPriority = 'high';
   exterior.decoding = 'async';
-  exterior.src = `assets/cinemas/landscape/${cinema.exterior}`;
-  exterior.alt = `${cinema.name}外觀`;
   const counter = document.querySelector('#cinema-counter');
-  const counterVersion = id === 'C02' ? '' : id === 'C01' ? '-v4' : '-v2';
   counter.sizes = '(max-width: 760px) calc(100vw - 32px), 960px';
-  counter.srcset = `assets/cinemas/optimized/${cinema.slug}-counter${counterVersion}-960.webp 960w, assets/cinemas/counters/${cinema.slug}-counter${counterVersion}.webp ${id === 'C01' ? 2048 : 1774}w`;
   counter.decoding = 'async';
-  counter.src = `assets/cinemas/counters/${cinema.slug}-counter${counterVersion}.webp`;
   document.body.dataset.cinema = cinema.slug;
-  counter.alt = `${cinema.name}售票櫃台`;
+  function renderYearVisuals() {
+    const interior=gameDate.year>=2023,projection=gameDate.year>=2024;
+    const heroFile=interior?`${cinema.slug}-interior.webp`:cinema.exterior;
+    if(exterior.dataset.asset!==heroFile){
+      exterior.dataset.asset=heroFile;
+      exterior.srcset=`assets/cinemas/optimized/${heroFile.replace('.webp','-640.webp')} 640w, assets/cinemas/landscape/${heroFile} 1774w`;
+      exterior.src=`assets/cinemas/landscape/${heroFile}`;
+      exterior.alt=`${cinema.name}${interior?'影廳內部':'外觀'}`;
+    }
+    const counterVersion=id==='C02'?'':id==='C01'?'-v4':'-v2';
+    const footerFile=projection?`${cinema.slug}-projection.webp`:`${cinema.slug}-counter${counterVersion}.webp`;
+    if(counter.dataset.asset!==footerFile){
+      counter.dataset.asset=footerFile;counter.dataset.scene=projection?'projection':'counter';
+      counter.srcset=`assets/cinemas/optimized/${footerFile.replace('.webp','-960.webp')} 960w, assets/cinemas/${projection?'projection':'counters'}/${footerFile} ${!projection&&id==='C01'?2048:1774}w`;
+      counter.src=`assets/cinemas/${projection?'projection':'counters'}/${footerFile}`;
+      counter.alt=`${cinema.name}${projection?'觀眾席後方與放映窗':'售票櫃台'}`;
+      counter.closest('.counter-scene').setAttribute('aria-label',counter.alt);
+    }
+  }
   document.querySelector('#game-content').hidden = false;
   const reportTabList = document.querySelector('.report-tabs');
   const reportTabs = [...reportTabList.querySelectorAll('[role="tab"]')];
@@ -1989,6 +2001,7 @@ function initGame() {
     else CinemaEvents.render({events:[...CinemaMovieRules.eventsFor(movies,currentWeek()),...CinemaEvents.paymentReminders({week:currentWeek(),rent,propertyTax,managementFee,utilityBills})]});
   }
   function renderFinance(){
+    renderYearVisuals();
     const now=currentWeek(),receipt=boxOffice?.receipts.find(r=>r.bookedAt===now&&(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===gameDate.year);
     document.querySelector('.week-badge').textContent=`${displayPeriod()}`;
     document.querySelector('#report-weekly .report-period').textContent=`${displayPeriod()}`;
@@ -2135,6 +2148,7 @@ function initGame() {
         document.querySelector('#report-weekly .report-period').textContent=`${displayPeriod()}`;
         document.querySelector('#report-annual .report-period').textContent=String(gameDate.year);
       }
+      renderYearVisuals();
       if (restoredDraft) {
         for (const control of form.elements) {
           if (!control.name || CinemaParameters.isDerived(control.name) || !Object.hasOwn(restoredDraft,control.name)) continue;
@@ -2336,6 +2350,7 @@ function initGame() {
       draftStatus.textContent='本次載入失敗，既有存檔未變更。';
       console.error('Game initialization failed:',error);
     } finally {
+      renderYearVisuals();
       // Errors must never leave the retry control trapped behind the curtains.
       document.body.classList.add('reveal');
       setTimeout(() => document.body.classList.remove('page-entering', 'reveal'), matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 500);

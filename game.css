@@ -625,3 +625,6 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 #weekly-profit { font-size:13px; }
 
 #annual-pretax-profit { font-size:14px; }
+
+/* Keep rear projection windows visible in the compact footer after 2024. */
+.game-page .counter-scene > img[data-scene="projection"] { object-position:center 30%; }
