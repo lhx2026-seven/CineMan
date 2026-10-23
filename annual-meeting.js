@@ -19,7 +19,7 @@
     const visual=document.createElement('img');visual.src='assets/annual-meeting.svg';visual.width=640;visual.height=360;visual.alt='年度經營簡報示意';visual.className='meeting-slide';
     const content=document.createElement('div');content.className='meeting-content';const h=document.createElement('h3');h.textContent=`${cinemaName}${state.year}年度損益摘要`;
     const money=n=>'NT$'+n.toLocaleString('zh-TW');
-    const text=document.createElement('p');text.className='meeting-summary';text.textContent=`年度已入帳收入合計${money(figures.knownIncome)}。年度支出：${figures.expenses===null?'待結算':money(figures.expenses)}。年度損益：${figures.profit===null?'待結算':money(figures.profit)}。`;
+    const text=document.createElement('p');text.className='meeting-summary';text.textContent=`年度已入帳收入合計${money(figures.knownIncome)}。年度支出：${figures.expenses===null?'待結算':money(figures.expenses)}。${figures.preTaxProfit==null?'':`稅前淨利：${money(figures.preTaxProfit)}。`}年度損益：${figures.profit===null?(figures.preTaxProfit==null?'待結算':'待所得稅'):money(figures.profit)}。`;
     const ranking=document.createElement('div');ranking.className='meeting-ranking';
     if(showRanking&&topFive.length){const heading=document.createElement('h4');heading.textContent='年度票房TOP 5';const ol=document.createElement('ol');for(const film of topFive){const li=document.createElement('li');li.textContent=film.title;li.dataset.movieId=film.id;ol.append(li);}ranking.append(heading,ol);}
     if(!ranking.children.length){const heading=document.createElement('h4');heading.textContent='年度票房TOP 5';const p=document.createElement('p');p.textContent=showRanking?'本年度尚無票房紀錄':'本院僅顯示合計票房';ranking.append(heading,p);}

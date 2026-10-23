@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
 <link rel="stylesheet" href="game.css?v=2ae0cb323e0f">
-<script src="game-runtime.js?v=baf32db1ee39" defer></script>
+<script src="game-runtime.js?v=2b70b1021e91" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -48,12 +48,12 @@
           <tr><th scope="row">商品成本</th><td class="not-applicable" aria-label="不適用">·</td><td id="weekly-goods">0</td></tr>
           <tr><th scope="row">硬體維護</th><td class="not-applicable" aria-label="不適用">·</td><td id="weekly-maintenance">0</td></tr>
           <tr><th scope="row">行銷宣傳</th><td class="not-applicable" aria-label="不適用">·</td><td id="weekly-marketing">0</td></tr>
-          <tr><th scope="row">其它費用</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
+          <tr><th scope="row">其它費用</th><td class="not-applicable" aria-label="不適用">·</td><td id="weekly-other">0</td></tr>
           <tr><th scope="row">公共事業帳單</th><td class="not-applicable" aria-label="不適用">·</td><td id="weekly-utilities">0</td></tr>
           <tr><th scope="row">租金、管理費、不動產稅</th><td class="not-applicable" aria-label="不適用">·</td><td id="weekly-rent" title="已出帳租金、管理費與不動產稅合計">—</td></tr>
         </tbody>
       </table>
-      <div class="ledger-balance"><span>營業利益</span><strong>—</strong><span class="pending-tag">尚未結算</span></div>
+      <div class="ledger-balance"><span>營業利益</span><strong id="weekly-profit">0</strong></div>
     </div>
     <div id="report-annual" role="tabpanel" aria-labelledby="tab-annual" tabindex="0" hidden>
       <p class="report-period">2022</p>
@@ -69,14 +69,14 @@
           <tr><th scope="row">商品成本</th><td class="not-applicable" aria-label="不適用">·</td><td id="annual-goods">0</td></tr>
           <tr><th scope="row">硬體維護</th><td class="not-applicable" aria-label="不適用">·</td><td id="annual-maintenance">0</td></tr>
           <tr><th scope="row">行銷宣傳</th><td class="not-applicable" aria-label="不適用">·</td><td id="annual-marketing">0</td></tr>
-          <tr><th scope="row">其它費用</th><td class="not-applicable" aria-label="不適用">·</td><td>—</td></tr>
+          <tr><th scope="row">其它費用</th><td class="not-applicable" aria-label="不適用">·</td><td id="annual-other">0</td></tr>
           <tr><th scope="row">公共事業帳單</th><td class="not-applicable" aria-label="不適用">·</td><td id="annual-utilities">0</td></tr>
           <tr><th scope="row">租金、管理費、不動產稅</th><td class="not-applicable" aria-label="不適用">·</td><td id="annual-rent" title="已出帳租金、管理費與不動產稅合計">—</td></tr>
         </tbody>
-        <tfoot><tr><th scope="row">稅前淨利</th><td colspan="2">—</td></tr></tfoot>
+        <tfoot><tr><th scope="row">稅前淨利</th><td colspan="2" id="annual-pretax-profit">0</td></tr></tfoot>
       </table>
       <div class="ledger-tax"><span>減：稅</span><strong>—</strong></div>
-      <div class="ledger-balance"><span>年度損益</span><strong>—</strong><span class="pending-tag">尚未結算</span></div>
+      <div class="ledger-balance"><span>年度損益</span><strong>—</strong><span class="pending-tag">待所得稅</span></div>
     </div>
   </section>
   </div>
