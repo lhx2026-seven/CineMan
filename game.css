@@ -396,8 +396,9 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 /* The current week introduces the event bulletin above management tabs. */
 .workspace-bar .week-badge { font-size:20px; letter-spacing:.05em; padding:7px 12px; border-radius:7px; }
 .weekly-events { margin:0 0 12px; border-color:#a1875347; background:#17120cd9; }
-.weekly-events .section-heading { padding-bottom:10px; margin-bottom:0; border-bottom:1px solid var(--line); }
-.weekly-events .section-heading h2 { font-size:16px; }
+.weekly-bulletin .workspace-meta { gap:12px; flex-wrap:nowrap; }
+.weekly-bulletin .week-badge { background:#f6dfb0; color:#2b1d10; border-color:#f6dfb0; }
+#weekly-events-title { margin:0; color:#f1dfbf; font-size:16px; font-weight:600; white-space:nowrap; }
 .weekly-event { padding-top:13px; }
 .weekly-event + .weekly-event { border-top:1px solid var(--line); margin-top:13px; }
 .weekly-event h3 { margin:0 0 6px; font-size:14px; font-weight:500; color:#ead4ac; }

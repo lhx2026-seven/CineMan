@@ -473,6 +473,7 @@ globalThis.CinemaDatabase={"cinemas":[{"type":"first_run","cinemaID":"C01","name
     });
     list.replaceChildren(...cards);
     section.hidden = !cards.length;
+    document.querySelector('#weekly-events-title').hidden=!cards.length;
     document.querySelector('#weekly-bulletin').classList.toggle('has-events', cards.length > 0);
   }
   const api={render,paymentReminders};
@@ -996,7 +997,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     return [...totals].filter(([,gross])=>gross>0).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,5).map(([id,gross])=>({id,title:titles.get(id)||id,gross}));
   }
   function render({state,cinemaName,figures,topFive=[],showRanking=true}){
-    const section=document.querySelector('#weekly-events'),list=document.querySelector('#weekly-event-list');section.hidden=false;section.classList.add('annual-meeting');document.querySelector('#weekly-events-title').textContent='年度會議';document.querySelector('#weekly-bulletin').classList.add('has-events');
+    const section=document.querySelector('#weekly-events'),list=document.querySelector('#weekly-event-list');section.hidden=false;section.classList.add('annual-meeting');document.querySelector('#weekly-events-title').textContent='年度會議';document.querySelector('#weekly-events-title').hidden=true;document.querySelector('#weekly-bulletin').classList.add('has-events');
     const article=document.createElement('article');article.className='meeting-layout';
     const visual=document.createElement('img');visual.src='assets/annual-meeting.svg';visual.width=640;visual.height=360;visual.alt='年度經營簡報示意';visual.className='meeting-slide';
     const content=document.createElement('div');content.className='meeting-content';const h=document.createElement('h3');h.textContent=`${cinemaName}${state.year}年度損益摘要`;
@@ -1756,9 +1757,9 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     return{version:2,lastSettledWeek:earnedAt,receipts:[...state.receipts,receipt]};
   }
   function totals(state,now,year=2022+Math.floor((now-1)/50)){
-    const weekly=Object.fromEntries(KEYS.map(k=>[k,0])),annual={...weekly};
-    for(const r of state?.receipts||[])if((r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year)for(const key of KEYS){annual[key]+=(r.amounts[key]??0);if(r.bookedAt===now)weekly[key]+=(r.amounts[key]??0);}
-    return{weekly,annual};
+    const weekly=Object.fromEntries(KEYS.map(k=>[k,0])),annual={...weekly},foodCost={weekly:0,annual:0};
+    for(const r of state?.receipts||[])if((r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year){foodCost.annual+=r.inputs.foodCost;if(r.bookedAt===now)foodCost.weekly+=r.inputs.foodCost;for(const key of KEYS){annual[key]+=(r.amounts[key]??0);if(r.bookedAt===now)weekly[key]+=(r.amounts[key]??0);}}
+    return{weekly,annual,foodCost};
   }
   const api={KEYS,calculate,create,resolve,advance,totals};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaOperatingExpenses=api;
 })(globalThis);
@@ -1817,7 +1818,15 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     if(!Number.isSafeInteger(revenue)||!Number.isSafeInteger(cost)||!Number.isSafeInteger(revenue-cost))throw Error('財報合計超出範圍');
     return{income:revenue,expenses:cost,profit:revenue-cost};
   }
-  const api={calculate};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaFinancialTotals=api;
+  // Annual recognized amounts; merchandise is excluded and negative bases remain signed.
+  function incomeTax(year,ticketBase,foodRevenue,foodCost){
+    if(!Number.isInteger(year)||year<2022||![ticketBase,foodRevenue,foodCost].every(Number.isSafeInteger))throw Error('所得稅基礎資料錯誤');
+    const value=((ticketBase+foodRevenue-foodCost)*2+(year<=2025?ticketBase*3:0))/40;
+    const tax=Math.sign(value)*Math.round(Math.abs(value)+Number.EPSILON*Math.max(1,Math.abs(value))*4);
+    if(!Number.isSafeInteger(tax))throw Error('所得稅金額超出範圍');
+    return tax||0;
+  }
+  const api={calculate,incomeTax};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaFinancialTotals=api;
 })(globalThis);
 
 ;
@@ -1980,7 +1989,7 @@ function initGame() {
     films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{},byID.get(CinemaBoxOffice.carryCandidate(movies,boxOffice))||null);
   }
   function renderBulletin(){
-    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:{...CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),expenses:financialSummary?.annual.expenses??null,preTaxProfit:financialSummary?.annual.profit??null},topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),showRanking:!secondRun});
+    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:{...CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),expenses:financialSummary?.annual.expenses??null,preTaxProfit:financialSummary?.annual.profit??null,profit:financialSummary?.annual.afterTaxProfit??null},topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),showRanking:!secondRun});
     else CinemaEvents.render({events:[...CinemaMovieRules.eventsFor(movies,currentWeek()),...CinemaEvents.paymentReminders({week:currentWeek(),rent,propertyTax,managementFee,utilityBills})]});
   }
   function renderFinance(){
@@ -2012,6 +2021,10 @@ function initGame() {
     document.querySelector('#annual-other-income').textContent=income?income.annual.toLocaleString('zh-TW'):'—';
     document.querySelector('#annual-box-office').textContent=(boxOffice?.byYear[gameDate.year]||0).toLocaleString('zh-TW');
     financialSummary=Object.fromEntries(['weekly','annual'].map(period=>[period,CinemaFinancialTotals.calculate({ticket:net[period],food:concessions[period],merchandise:merchIncome[period],other:income?.[period]||0},{...expenses[period],utilities:utilities[period],premises:rental[period]+realEstateTax[period]+management[period]})]));
+    financialSummary.annual.tax=CinemaFinancialTotals.incomeTax(gameDate.year,net.annual,concessions.annual,expenses.foodCost.annual);
+    financialSummary.annual.afterTaxProfit=financialSummary.annual.profit-financialSummary.annual.tax;
+    document.querySelector('#annual-income-tax').textContent=financialSummary.annual.tax.toLocaleString('zh-TW');
+    document.querySelector('#annual-profit').textContent=financialSummary.annual.afterTaxProfit.toLocaleString('zh-TW');
     document.querySelector('#weekly-profit').textContent=financialSummary.weekly.profit.toLocaleString('zh-TW');
     document.querySelector('#annual-pretax-profit').textContent=financialSummary.annual.profit.toLocaleString('zh-TW');
     document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，票房、餐飲與空間活化收入依入帳週列計，其餘項目待結算`;

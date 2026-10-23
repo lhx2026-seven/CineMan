@@ -156,7 +156,7 @@ function initGame() {
     films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{},byID.get(CinemaBoxOffice.carryCandidate(movies,boxOffice))||null);
   }
   function renderBulletin(){
-    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:{...CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),expenses:financialSummary?.annual.expenses??null,preTaxProfit:financialSummary?.annual.profit??null},topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),showRanking:!secondRun});
+    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:{...CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),expenses:financialSummary?.annual.expenses??null,preTaxProfit:financialSummary?.annual.profit??null,profit:financialSummary?.annual.afterTaxProfit??null},topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),showRanking:!secondRun});
     else CinemaEvents.render({events:[...CinemaMovieRules.eventsFor(movies,currentWeek()),...CinemaEvents.paymentReminders({week:currentWeek(),rent,propertyTax,managementFee,utilityBills})]});
   }
   function renderFinance(){
@@ -188,6 +188,10 @@ function initGame() {
     document.querySelector('#annual-other-income').textContent=income?income.annual.toLocaleString('zh-TW'):'—';
     document.querySelector('#annual-box-office').textContent=(boxOffice?.byYear[gameDate.year]||0).toLocaleString('zh-TW');
     financialSummary=Object.fromEntries(['weekly','annual'].map(period=>[period,CinemaFinancialTotals.calculate({ticket:net[period],food:concessions[period],merchandise:merchIncome[period],other:income?.[period]||0},{...expenses[period],utilities:utilities[period],premises:rental[period]+realEstateTax[period]+management[period]})]));
+    financialSummary.annual.tax=CinemaFinancialTotals.incomeTax(gameDate.year,net.annual,concessions.annual,expenses.foodCost.annual);
+    financialSummary.annual.afterTaxProfit=financialSummary.annual.profit-financialSummary.annual.tax;
+    document.querySelector('#annual-income-tax').textContent=financialSummary.annual.tax.toLocaleString('zh-TW');
+    document.querySelector('#annual-profit').textContent=financialSummary.annual.afterTaxProfit.toLocaleString('zh-TW');
     document.querySelector('#weekly-profit').textContent=financialSummary.weekly.profit.toLocaleString('zh-TW');
     document.querySelector('#annual-pretax-profit').textContent=financialSummary.annual.profit.toLocaleString('zh-TW');
     document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，票房、餐飲與空間活化收入依入帳週列計，其餘項目待結算`;

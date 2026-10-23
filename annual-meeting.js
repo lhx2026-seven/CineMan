@@ -14,7 +14,7 @@
     return [...totals].filter(([,gross])=>gross>0).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,5).map(([id,gross])=>({id,title:titles.get(id)||id,gross}));
   }
   function render({state,cinemaName,figures,topFive=[],showRanking=true}){
-    const section=document.querySelector('#weekly-events'),list=document.querySelector('#weekly-event-list');section.hidden=false;section.classList.add('annual-meeting');document.querySelector('#weekly-events-title').textContent='年度會議';document.querySelector('#weekly-bulletin').classList.add('has-events');
+    const section=document.querySelector('#weekly-events'),list=document.querySelector('#weekly-event-list');section.hidden=false;section.classList.add('annual-meeting');document.querySelector('#weekly-events-title').textContent='年度會議';document.querySelector('#weekly-events-title').hidden=true;document.querySelector('#weekly-bulletin').classList.add('has-events');
     const article=document.createElement('article');article.className='meeting-layout';
     const visual=document.createElement('img');visual.src='assets/annual-meeting.svg';visual.width=640;visual.height=360;visual.alt='年度經營簡報示意';visual.className='meeting-slide';
     const content=document.createElement('div');content.className='meeting-content';const h=document.createElement('h3');h.textContent=`${cinemaName}${state.year}年度損益摘要`;

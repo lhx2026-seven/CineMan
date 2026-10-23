@@ -39,9 +39,9 @@
     return{version:2,lastSettledWeek:earnedAt,receipts:[...state.receipts,receipt]};
   }
   function totals(state,now,year=2022+Math.floor((now-1)/50)){
-    const weekly=Object.fromEntries(KEYS.map(k=>[k,0])),annual={...weekly};
-    for(const r of state?.receipts||[])if((r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year)for(const key of KEYS){annual[key]+=(r.amounts[key]??0);if(r.bookedAt===now)weekly[key]+=(r.amounts[key]??0);}
-    return{weekly,annual};
+    const weekly=Object.fromEntries(KEYS.map(k=>[k,0])),annual={...weekly},foodCost={weekly:0,annual:0};
+    for(const r of state?.receipts||[])if((r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year){foodCost.annual+=r.inputs.foodCost;if(r.bookedAt===now)foodCost.weekly+=r.inputs.foodCost;for(const key of KEYS){annual[key]+=(r.amounts[key]??0);if(r.bookedAt===now)weekly[key]+=(r.amounts[key]??0);}}
+    return{weekly,annual,foodCost};
   }
   const api={KEYS,calculate,create,resolve,advance,totals};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaOperatingExpenses=api;
 })(globalThis);

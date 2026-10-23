@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜本週營運配置</title>
-<link rel="stylesheet" href="game.css?v=2ae0cb323e0f">
-<script src="game-runtime.js?v=2b70b1021e91" defer></script>
+<link rel="stylesheet" href="game.css?v=5991a55e4d70">
+<script src="game-runtime.js?v=4593cb8d5396" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -75,15 +75,14 @@
         </tbody>
         <tfoot><tr><th scope="row">稅前淨利</th><td colspan="2" id="annual-pretax-profit">0</td></tr></tfoot>
       </table>
-      <div class="ledger-tax"><span>減：稅</span><strong>—</strong></div>
-      <div class="ledger-balance"><span>年度損益</span><strong>—</strong><span class="pending-tag">待所得稅</span></div>
+      <div class="ledger-tax"><span>減：所得稅</span><strong id="annual-income-tax">0</strong></div>
+      <div class="ledger-balance"><span>年度損益</span><strong id="annual-profit">0</strong></div>
     </div>
   </section>
   </div>
   <section class="weekly-bulletin" id="weekly-bulletin" aria-label="本週公告">
-  <div class="workspace-bar"><div class="workspace-meta"><span class="week-badge">2022 W1</span></div></div>
+  <div class="workspace-bar"><div class="workspace-meta"><span class="week-badge">2022 W1</span><h2 id="weekly-events-title" hidden>本週大事</h2></div></div>
   <section class="panel weekly-events" id="weekly-events" aria-labelledby="weekly-events-title" hidden>
-    <div class="section-heading"><h2 id="weekly-events-title">本週大事</h2></div>
     <div id="weekly-event-list"></div>
   </section>
   </section>
