@@ -394,7 +394,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .venue-details-toggle:hover { color:#ffe2a4; background:#b9934a0b; }
 
 /* The current week introduces the event bulletin above management tabs. */
-.workspace-bar .week-badge { font-size:20px; letter-spacing:.05em; padding:7px 12px; border-radius:7px; }
+
 .weekly-events { margin:0 0 12px; border-color:#a1875347; background:#17120cd9; }
 .weekly-bulletin .workspace-meta { gap:12px; flex-wrap:nowrap; }
 .weekly-bulletin .week-badge { background:#f6dfb0; color:#2b1d10; border-color:#f6dfb0; }
@@ -411,7 +411,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .event-actions button.chosen { opacity:1; }
 .weekly-event .event-decision-status { font-size:11px; margin-top:8px; color:#bda67b; }
 .event-decision-status:empty { display:none; }
-@media(max-width:760px) { .workspace-bar .week-badge { font-size:18px; padding:6px 10px; } }
+
 
 /* The week is always visible within the event area; its bulletin is optional. */
 .weekly-bulletin.has-events { padding:14px 18px; margin-bottom:12px; border:1px solid #a1875347; border-radius:12px; background:#17120cd9; }
@@ -615,4 +615,10 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 
 .meeting-ranking > p { font-size:11px; line-height:1.7; color:#a99d87; margin:0; }
 
-.financial-report #finance-title { background:#f6dfb0; color:#2b1d10; padding:7px 12px; border-radius:7px; }
+.financial-report #finance-title,
+.weekly-bulletin .week-badge { background:#f6dfb0; color:#2b1d10; font-family:inherit; font-size:18px; font-weight:600; line-height:1.5; letter-spacing:.08em; padding:7px 12px; border:0; border-radius:7px; }
+.weekly-bulletin:not(.has-events) { padding-inline:19px; }
+@media(max-width:760px) {
+  .financial-report #finance-title, .weekly-bulletin .week-badge { font-size:16px; }
+  .weekly-bulletin:not(.has-events) { padding-inline:13px; }
+}
