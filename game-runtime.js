@@ -1809,12 +1809,15 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     if(!Number.isSafeInteger(revenue)||!Number.isSafeInteger(cost)||!Number.isSafeInteger(revenue-cost))throw Error('財報合計超出範圍');
     return{income:revenue,expenses:cost,profit:revenue-cost};
   }
-  // Annual net ticket receipts less all recognized expenses, before withholding tax.
-  function incomeTax(netTicket,totalExpenses){
-    if(![netTicket,totalExpenses].every(Number.isSafeInteger)||totalExpenses<0)throw Error('預扣稅金基礎資料錯誤');
+  // Positive net-ticket surplus at 5%, plus signed entertainment tax through 2025.
+  function incomeTax(year,netTicket,totalExpenses){
+    if(!Number.isInteger(year)||year<2022||![netTicket,totalExpenses].every(Number.isSafeInteger)||totalExpenses<0)throw Error('預扣稅金基礎資料錯誤');
     const base=netTicket-totalExpenses;
     if(!Number.isSafeInteger(base))throw Error('預扣稅金基礎超出範圍');
-    return base>0?Math.round(base/20):0;
+    const numerator=Math.max(0,base)*2+(year<=2025?netTicket*3:0);
+    if(!Number.isSafeInteger(numerator))throw Error('預扣稅金超出範圍');
+    const value=numerator/40;
+    return Math.sign(value)*Math.round(Math.abs(value))||0;
   }
   const api={calculate,incomeTax};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaFinancialTotals=api;
 })(globalThis);
@@ -2014,7 +2017,7 @@ function initGame() {
     document.querySelector('#annual-other-income').textContent=income?income.annual.toLocaleString('zh-TW'):'—';
     document.querySelector('#annual-box-office').textContent=(boxOffice?.byYear[gameDate.year]||0).toLocaleString('zh-TW');
     financialSummary=Object.fromEntries(['weekly','annual'].map(period=>[period,CinemaFinancialTotals.calculate({ticket:net[period],food:concessions[period],merchandise:merchIncome[period],other:income?.[period]||0},{...expenses[period],utilities:utilities[period],premises:rental[period]+realEstateTax[period]+management[period]})]));
-    financialSummary.annual.tax=CinemaFinancialTotals.incomeTax(net.annual,financialSummary.annual.expenses);
+    financialSummary.annual.tax=CinemaFinancialTotals.incomeTax(gameDate.year,net.annual,financialSummary.annual.expenses);
     financialSummary.annual.afterTaxProfit=financialSummary.annual.profit-financialSummary.annual.tax;
     document.querySelector('#annual-income-tax').textContent=(-financialSummary.annual.tax||0).toLocaleString('zh-TW');
     document.querySelector('#annual-profit').textContent=financialSummary.annual.afterTaxProfit.toLocaleString('zh-TW');
