@@ -96,13 +96,14 @@
       const dailyViewers=round(rate*allocation.totalSeats*6*share*audienceFactor);
       return {id:h.id,rawRate,rate,share,forcedOff,marketingFactor:audienceFactor,dailyViewers,regularGross:dailyViewers*p.averagePrice*3,specialViewers:0,specialGross:0};
     });
+    let specialSessionCount=0;
     if(!['C02','C05'].includes(cinemaID))for(let i=1;i<=5;i++){
       const suffix=i===1?'':String(i),id=values['specialMovie'+suffix];if(!id)continue;
       const film=result.find(f=>f.id===id);if(!film)throw Error('特別場電影已下檔');
       if(film.forcedOff)continue;
-      const extra=specialGross(values['specialPrice'+suffix],film.rawRate,film.marketingFactor,specialBaseline(locationID));film.specialViewers+=extra.viewers;film.specialGross+=extra.gross;
+      const extra=specialGross(values['specialPrice'+suffix],film.rawRate,film.marketingFactor,specialBaseline(locationID));film.specialViewers+=extra.viewers;film.specialGross+=extra.gross;specialSessionCount++;
     }
-    const films=result.map(f=>({...f,gross:round(f.regularGross+f.specialGross)}));return{earnedAt:now,bookedAt:now+1,featuredID:selected||null,extendedFeatured:selected===carry&&carry!==null,strategyRetirements:plan.removed,total:films.reduce((s,f)=>s+f.gross,0),films};
+    const films=result.map(f=>({...f,gross:round(f.regularGross+f.specialGross)}));return{earnedAt:now,bookedAt:now+1,specialSessionCount,featuredID:selected||null,extendedFeatured:selected===carry&&carry!==null,strategyRetirements:plan.removed,total:films.reduce((s,f)=>s+f.gross,0),films};
   }
   function createLedger(){return{version:1,lastSettledWeek:null,receipts:[],totalsByMovie:{},byYear:{}};}
   function resolveLedger(saved,now){
@@ -111,6 +112,7 @@
     if(saved.receipts.some(r=>r.featuredID===undefined&&r.extendedFeatured===undefined&&legacyFeatured(r)))saved={...saved,receipts:saved.receipts.map(r=>r.featuredID===undefined&&r.extendedFeatured===undefined&&legacyFeatured(r)?{...r,featuredID:legacyFeatured(r),extendedFeatured:false}:r)};
     let previous=0,previousFeatured=null;const totals={},years={},extended=new Set();for(const receipt of saved.receipts){
       if(!Number.isInteger(receipt.earnedAt)||receipt.earnedAt<=previous||receipt.bookedAt!==receipt.earnedAt+1||receipt.bookedAt>now||!Array.isArray(receipt.films)||new Set(receipt.films.map(f=>f.id)).size!==receipt.films.length)throw Error('票房入帳週次錯誤');
+      if(receipt.specialSessionCount!==undefined&&(!Number.isInteger(receipt.specialSessionCount)||receipt.specialSessionCount<0||receipt.specialSessionCount>5))throw Error('特別場次數存檔錯誤');
       let total=0;for(const f of receipt.films){if(!/^MV\d{4}$/.test(f.id)||!Number.isSafeInteger(f.gross)||f.gross<0)throw Error('單片票房存檔錯誤');total+=f.gross;totals[f.id]=(totals[f.id]||0)+f.gross;}
       if(receipt.featuredID!==undefined&&receipt.featuredID!==null&&!receipt.films.some(f=>f.id===receipt.featuredID))throw Error('主打紀錄錯誤');
       if(receipt.extendedFeatured!==undefined&&typeof receipt.extendedFeatured!=='boolean')throw Error('沿用紀錄錯誤');
