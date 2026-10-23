@@ -39,3 +39,5 @@ checkpoint 的 `property` 保存 version、cinemaID、runId、locationID、tenur
 後續機率調整只適用新抽選；已有存檔的電子看板保留，不重抽其他場地資料。
 
 自有土地機率：YLC（C04）1%、布洛威（C03）3%，寶宮／世紀／公會堂維持5%。既有快照權屬保持原抽值，不重新抽選。
+
+YLC新抽選：先按33%決定有可活用空間；抽中空間後10%為largeMall，其餘90%由mall／claw／parking／billboard各占22.5%。largeMall僅限YLC，前台仍顯示「商場櫃位租金」，min=20000、max=1000000、step=5000；普通mall維持上限100000。已有property快照不升級或重抽。五家共250000局測試中，YLC有空間16721局，其中largeMall1685局（約10.08%）。

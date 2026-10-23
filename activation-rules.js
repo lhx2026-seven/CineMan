@@ -1,6 +1,6 @@
 'use strict';
 (function(root){
-  const MONTHLY=['mall','claw','billboard'];
+  const MONTHLY=['mall','largeMall','claw','billboard'];
   const round=n=>Math.round(n+Number.EPSILON*Math.max(1,Math.abs(n))*4);
   const activity=kind=>{const a=root.CinemaProperty.ACTIVITIES[kind];if(!a)throw Error('空間活化類型錯誤');return a;};
   function validRate(kind,rate){const a=activity(kind);return Number.isFinite(rate)&&rate>=a.min&&rate<=a.max&&Math.abs((rate-a.min)/a.step-Math.round((rate-a.min)/a.step))<1e-8;}

@@ -12,3 +12,10 @@ for(const kind of Object.keys(P.ACTIVITIES)){
 let crossing=A.create('hotel',500,50);crossing=A.advance(crossing,50,0,'year');assert.equal(A.totals(crossing,51).annual,4000);assert.equal(A.totals(crossing,50).annual,0);
 let month=A.create('mall',20000,1);for(let w=1;w<=4;w++)month=A.advance(month,w,0,'month');const original=month.receipts[0].gross;month=A.change(month,25000,5);for(let w=5;w<=8;w++)month=A.advance(month,w,0,'month');assert.equal(month.receipts[0].gross,original);assert.equal(month.receipts[1].gross,25000);
 console.log('PASS all five income formulas, W1→W5 delay, recurring four-week receipts, four-week price lock, threshold exclusions and 50% high-price zero demand, immutable settlement/reload, new quotes and W50 rollover');
+
+assert.equal(P.ACTIVITIES.largeMall.max,1000000);assert.equal(P.ACTIVITIES.mall.max,100000);
+assert.equal(P.ACTIVITIES.largeMall.name,P.ACTIVITIES.mall.name);
+assert.throws(()=>A.create('mall',1000000,1));assert.throws(()=>A.create('largeMall',1005000,1));
+let large=A.create('largeMall',510000,1);for(let w=1;w<=4;w++)large=A.advance(large,w,0,'large-midpoint');assert.equal(large.receipts[0].gross,510000);assert.equal(large.receipts[0].zeroDemand,false);
+assert.deepEqual(A.resolve(JSON.parse(JSON.stringify(large)),'largeMall',510000,5),large);
+console.log('PASS large mall monthly quote, million cap, own midpoint penalty and saved settlement');

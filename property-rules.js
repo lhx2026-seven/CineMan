@@ -2,6 +2,7 @@
 (function(root) {
   const ACTIVITIES=Object.freeze({
     mall:{name:'商場櫃位租金',unit:'單位/月',min:20000,max:100000,step:5000},
+    largeMall:{name:'商場櫃位租金',unit:'單位/月',min:20000,max:1000000,step:5000},
     claw:{name:'娃娃機台租金',unit:'單位/月',min:10000,max:100000,step:2000},
     parking:{name:'停車場收費',unit:'單位/小時',min:10,max:100,step:5},
     billboard:{name:'電子看板廣告費',unit:'單位/秒',min:0.5,max:3,step:0.5},
@@ -17,13 +18,13 @@
     const location=eligible[Math.floor(random('location')()*eligible.length)];
     const owned=random('tenure')()<({C03:0.03,C04:0.01}[cinemaID]??0.05),hasSpace=random('space')()<0.33;
     let activationType=null;
-    if(hasSpace){const type=random('activity'),pool=commonFor(cinemaID);activationType=hotelEligible(cinemaID)&&type()<0.01?'hotel':pool[Math.floor(type()*pool.length)];}
+    if(hasSpace){const type=random('activity'),pool=commonFor(cinemaID);activationType=cinemaID==='C04'&&random('large-mall')()<0.10?'largeMall':hotelEligible(cinemaID)&&type()<0.01?'hotel':pool[Math.floor(type()*pool.length)];}
     return {version:1,cinemaID,runId,locationID:location.locationID,tenure:owned?'owned':'rented',hasSpace,activationType,rentalActive:!owned,realEstateTaxActive:owned};
   }
   function validate(record,database,cinemaID,runId){
     if(!record||record.version!==1||record.cinemaID!==cinemaID||record.runId!==runId||!locations(database,cinemaID).some(location=>location.locationID===record.locationID))throw Error('場地首抽存檔不相容');
     if(!['owned','rented'].includes(record.tenure)||typeof record.hasSpace!=='boolean'||record.rentalActive!==(record.tenure==='rented')||record.realEstateTaxActive!==(record.tenure==='owned'))throw Error('土地權屬存檔不相容');
-    if(record.hasSpace?(!Object.hasOwn(ACTIVITIES,record.activationType)||(record.activationType==='hotel'&&!hotelEligible(cinemaID))):record.activationType!==null)throw Error('空間活化存檔不相容');
+    if(record.hasSpace?(!Object.hasOwn(ACTIVITIES,record.activationType)||(record.activationType==='hotel'&&!hotelEligible(cinemaID))||(record.activationType==='largeMall'&&cinemaID!=='C04')):record.activationType!==null)throw Error('空間活化存檔不相容');
     return record;
   }
   function resolve(database,cinemaID,runId,saved){return saved===undefined?draw(database,cinemaID,runId):validate(saved,database,cinemaID,runId);}

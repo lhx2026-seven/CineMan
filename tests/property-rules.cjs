@@ -6,7 +6,7 @@ for(const id of ['C01','C02','C03','C04','C05']){
  for(let k=0;k<n;k++){const record=P.draw(db,id,'property-test/'+k);assert.equal(P.validate(record,db,id,record.runId),record);assert(allowed.some(location=>location.locationID===record.locationID));stats.owned+=record.tenure==='owned';stats.space+=record.hasSpace;stats.locations[record.locationID]=(stats.locations[record.locationID]||0)+1;if(record.hasSpace)stats.types[record.activationType]=(stats.types[record.activationType]||0)+1;}
  close(stats.owned,n,({C03:.03,C04:.01}[id]??.05));close(stats.space,n,.33);Object.values(stats.locations).forEach(count=>close(count,n,1/allowed.length));
  const pool=P.commonFor(id);if(['C01','C02','C05'].includes(id))assert(!stats.types.billboard);
- if(P.hotelEligible(id)){close(stats.types.hotel||0,stats.space,.01);pool.forEach(type=>close(stats.types[type],stats.space,.99/pool.length));}else{assert(!stats.types.hotel);pool.forEach(type=>close(stats.types[type],stats.space,1/pool.length));}
+ if(P.hotelEligible(id)){close(stats.types.hotel||0,stats.space,.01);pool.forEach(type=>close(stats.types[type],stats.space,.99/pool.length));}else{assert(!stats.types.hotel);if(id==='C04')close(stats.types.largeMall||0,stats.space,.10);else assert(!stats.types.largeMall);pool.forEach(type=>close(stats.types[type],stats.space,(id==='C04'?.9:1)/pool.length));}
  assert.deepEqual(P.draw(db,id,'fixed'),P.draw(db,id,'fixed'));const saved=P.draw(db,id,'saved');assert.equal(P.resolve(db,id,'saved',saved),saved);assert.deepEqual(P.resolve(db,id,'legacy',undefined),P.draw(db,id,'legacy'));assert.throws(()=>P.validate({...saved,locationID:'bad'},db,id,'saved'));
  console.log('PASS',id,JSON.stringify(stats));
 }
@@ -16,3 +16,5 @@ console.log('PASS conditional hotel probability, eligible locations, determinist
 // Existing records retain their original draw even after the new pool excludes billboards.
 for(const id of ['C01','C02','C05']){const old={...P.draw(db,id,'old-board'),hasSpace:true,activationType:'billboard'};assert.equal(P.resolve(db,id,'old-board',old),old);}
 console.log('PASS historical billboard saves retained without reroll');
+
+assert.throws(()=>P.validate({...invalid,hasSpace:true,activationType:'largeMall'},db,'C03','invalid'));
