@@ -1576,11 +1576,12 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     const random=key=>root.CinemaRules.seededRandom(`rent/v1/${property.cinemaID}/${property.runId}/${key}`)();
     // Location ranges use integer coefficients; both draws happen only once.
     const locationCoefficient=range[0]+Math.floor(random('location')*(range[1]-range[0]+1));
-    const randomCoefficient=2+Math.floor(random('multiplier')*9);
+    const randomCoefficient=5+Math.floor(random('multiplier')*6);
     return{version:1,cinemaID:property.cinemaID,runId:property.runId,tenure:property.tenure,locationID:property.locationID,totalSeats,locationCoefficient,randomCoefficient,amount:property.rentalActive?rounded(totalSeats,locationCoefficient,randomCoefficient):0,firstDueWeek,throughWeek:0,receipts:[]};
   }
   function resolve(saved,property,week){
     if(saved==null)return null;
+    // Existing leases drawn under the earlier 2–10 range remain fixed.
     const range=RANGES[saved.locationID];
     if(saved.version!==1||saved.cinemaID!==property.cinemaID||saved.runId!==property.runId||saved.tenure!==property.tenure||saved.locationID!==property.locationID||!range||!Number.isSafeInteger(saved.totalSeats)||saved.totalSeats<=0||!Number.isInteger(saved.locationCoefficient)||saved.locationCoefficient<range[0]||saved.locationCoefficient>range[1]||!Number.isInteger(saved.randomCoefficient)||saved.randomCoefficient<2||saved.randomCoefficient>10||saved.amount!==(property.rentalActive?rounded(saved.totalSeats,saved.locationCoefficient,saved.randomCoefficient):0)||saved.firstDueWeek!==4||!Number.isInteger(saved.throughWeek)||saved.throughWeek<0||saved.throughWeek>week||!Array.isArray(saved.receipts))throw Error('租金存檔錯誤');
     const expected=property.rentalActive&&saved.throughWeek>=saved.firstDueWeek?Math.floor((saved.throughWeek-saved.firstDueWeek)/4)+1:0;
