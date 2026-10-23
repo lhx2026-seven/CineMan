@@ -314,7 +314,7 @@ input::placeholder { font-size:12px; }
 .ledger-table thead th { color:#bda67b; font-size:11px; }
 .ledger-table .not-applicable { color:#514a3d; }
 .ledger-table .expense-start > * { border-top:1px solid #a1875340; }
-.ledger-table tfoot > tr > * { border-top:1px solid #a1875366; border-bottom:3px double #a187534f; padding-top:8px; padding-bottom:8px; color:#e5ce9f; }
+.ledger-table tfoot > tr > * { border-top:1px solid #a1875366; border-bottom:1px solid #a187534f; padding-top:8px; padding-bottom:8px; color:#e5ce9f; }
 .ledger-balance { display:flex; align-items:center; gap:12px; padding:11px 10px 3px; color:#e8d2ac; font-size:13px; }
 .ledger-balance strong { margin-left:auto; font:20px ui-monospace,monospace; color:#ffd47c; }
 .ledger-balance .pending-tag { font-size:10px; padding:3px 7px; }
@@ -397,7 +397,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 
 .weekly-events { margin:0 0 12px; border-color:#a1875347; background:#17120cd9; }
 .weekly-bulletin .workspace-meta { gap:12px; flex-wrap:nowrap; }
-.weekly-bulletin .week-badge { background:#f6dfb0; color:#2b1d10; border-color:#f6dfb0; }
+.weekly-bulletin .week-badge { background:#f6dfb0cc; color:#2b1d10; border-color:#f6dfb0; }
 #weekly-events-title { margin:0; color:#f1dfbf; font-size:16px; font-weight:600; white-space:nowrap; }
 .weekly-event { padding-top:13px; }
 .weekly-event + .weekly-event { border-top:1px solid var(--line); margin-top:13px; }
@@ -616,9 +616,12 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .meeting-ranking > p { font-size:11px; line-height:1.7; color:#a99d87; margin:0; }
 
 .financial-report #finance-title,
-.weekly-bulletin .week-badge { background:#f6dfb0; color:#2b1d10; font-family:inherit; font-size:18px; font-weight:600; line-height:1.5; letter-spacing:.08em; padding:7px 12px; border:0; border-radius:7px; }
+.weekly-bulletin .week-badge { background:#f6dfb0cc; color:#2b1d10; font-family:inherit; font-size:18px; font-weight:600; line-height:1.5; letter-spacing:.08em; padding:7px 12px; border:0; border-radius:7px; }
 .weekly-bulletin:not(.has-events) { padding-inline:19px; }
 @media(max-width:760px) {
   .financial-report #finance-title, .weekly-bulletin .week-badge { font-size:16px; }
   .weekly-bulletin:not(.has-events) { padding-inline:13px; }
 }
+
+.ledger-table tfoot > tr > * { font-size:13px; }
+#weekly-profit { font-size:13px; }
