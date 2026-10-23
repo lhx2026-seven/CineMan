@@ -43,3 +43,5 @@
 片商比例、bomb保底及世紀固定片租已接入distributor-rules.js，詳細時點及豁免規則見distributor-income.md。每片合約保存抽選結果；其餘未連動的compute參數仍保留，不推算未提供公式。
 
 管理費改依management-fee-rules.js：布洛威／YLC總座位數乘一次抽定的400／450／500／550／600，W4起每4週出帳，覆蓋Parameter.xlsx的manage_fee舊範圍。
+
+餐飲成本food&drink_buy玩家拉條範圍更新為0～400,000元，step=1,000元。

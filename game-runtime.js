@@ -1032,7 +1032,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
       "displayName": "餐飲成本",
       "attribute": "expense",
       "min": 0.0,
-      "max": 100000.0,
+      "max": 400000.0,
       "step": 1000.0,
       "gapWeeks": 1.0
     },
