@@ -26,7 +26,7 @@ checkpoint 的 `property` 保存 version、cinemaID、runId、locationID、tenur
 
 舊存檔缺 property 時，以既有局種子補入新欄位，不改動既有影廳／座位或其他設定；ON 時寫回 checkpoint，OFF 時仍由同一種子重現。
 
-承租啟用 rentalActive；自有啟用 realEstateTaxActive 並停用 rentalActive。旗標同時放在 financial-report 的 data 屬性供後續公式使用。租金已依總座位數、區位係數及隨機係數固定計價，每4週出帳，詳見rent-expense.md；活化收入見space-income.md。不動產稅已按每年W46出帳，見property-tax-expense.md；管理費仍待公式。
+承租啟用 rentalActive；自有啟用 realEstateTaxActive 並停用 rentalActive。旗標同時放在 financial-report 的 data 屬性供後續公式使用。租金已依總座位數、區位係數及隨機係數固定計價，每4週出帳，詳見rent-expense.md；活化收入見space-income.md。不動產稅已按每年W46出帳，見property-tax-expense.md；管理費已按management-fee-expense.md連動。
 
 ## 驗證
 

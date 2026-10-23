@@ -41,3 +41,5 @@
 行政管理五項採統一 96px 文字欄，項目名稱與金額同高，拉條保留於下排，雜支不因字短而改變起點。鎖定標籤位於名稱下方，不擠移拉條。
 
 片商比例、bomb保底及世紀固定片租已接入distributor-rules.js，詳細時點及豁免規則見distributor-income.md。每片合約保存抽選結果；其餘未連動的compute參數仍保留，不推算未提供公式。
+
+管理費改依management-fee-rules.js：布洛威／YLC總座位數乘一次抽定的400／450／500／550／600，W4起每4週出帳，覆蓋Parameter.xlsx的manage_fee舊範圍。
