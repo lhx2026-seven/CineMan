@@ -191,7 +191,7 @@ function initGame() {
     document.querySelector('#annual-other-income').textContent=income?income.annual.toLocaleString('zh-TW'):'—';
     document.querySelector('#annual-box-office').textContent=(boxOffice?.byYear[gameDate.year]||0).toLocaleString('zh-TW');
     financialSummary=Object.fromEntries(['weekly','annual'].map(period=>[period,CinemaFinancialTotals.calculate({ticket:net[period],food:concessions[period],merchandise:merchIncome[period],other:income?.[period]||0},{...expenses[period],utilities:utilities[period],premises:rental[period]+realEstateTax[period]+management[period]})]));
-    financialSummary.annual.tax=CinemaFinancialTotals.incomeTax(gameDate.year,net.annual,concessions.annual,expenses.foodCost.annual);
+    financialSummary.annual.tax=CinemaFinancialTotals.incomeTax(net.annual,financialSummary.annual.expenses);
     financialSummary.annual.afterTaxProfit=financialSummary.annual.profit-financialSummary.annual.tax;
     document.querySelector('#annual-income-tax').textContent=(-financialSummary.annual.tax||0).toLocaleString('zh-TW');
     document.querySelector('#annual-profit').textContent=financialSummary.annual.afterTaxProfit.toLocaleString('zh-TW');
