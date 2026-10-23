@@ -51,7 +51,7 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8144';
     await page.locator('#next-week').click();await page.waitForFunction(()=>document.querySelector('.week-badge').textContent==='2024年度會議');await check(2024);
     await page.locator('#next-week').click();await page.waitForFunction(()=>document.querySelector('.week-badge').textContent==='2025 W1');await check(2025);
     assert.equal(await page.locator('#cinema-exterior').evaluate(e=>getComputedStyle(e).objectFit),'contain');
-    assert((await page.locator('#cinema-exterior').getAttribute('alt')).includes(id==='C01'?'復古全票':id==='C02'?'日期2025.01.01':'片名CineMan'));
+    assert((await page.locator('#cinema-exterior').getAttribute('alt')).includes(id==='C01'?'復古全票':['C02','C05'].includes(id)?'日期2025.01.01':'片名CineMan'));
     await page.waitForFunction(()=>document.querySelector('#draft-status').textContent==='已自動存檔');
     requests.length=0;await page.reload();await page.locator('#venue-data').waitFor();await check(2025);
     assert(!requests.some(url=>url.includes(`${slug}-interior`)),'2025 reload fetched the superseded interior');
