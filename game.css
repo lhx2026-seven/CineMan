@@ -625,3 +625,5 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 
 .ledger-table tfoot > tr > * { font-size:13px; }
 #weekly-profit { font-size:13px; }
+
+#annual-pretax-profit { font-size:14px; }
