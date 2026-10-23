@@ -1,6 +1,6 @@
 # Gross box office and delayed weekly recognition
 
-Implemented after confirmation of round-to-nearest viewers, round-to-nearest whole NT$ gross, and uncapped location-specific special-session baseline. No distributor split, food/merch revenue, expense settlement, tax, net profit or cash balance is invented.
+Implemented after confirmation of round-to-nearest viewers, round-to-nearest whole NT$ gross, and uncapped location-specific special-session baseline. Gross receipts remain independent from distributor deductions and food/merchandise income. Distributor net is implemented in distributor-rules.js (see distributor-income.md); expense settlement, tax, profit and cash balance remain pending.
 
 ## Regular sessions
 

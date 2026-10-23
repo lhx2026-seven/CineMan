@@ -961,8 +961,8 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
 (function(root){
   function create(year,seed,settled=false){return{version:2,year,settled,role:root.CinemaRules.seededRandom(`annual-meeting/v1/${seed}/${year}`)()<.5?'shareholders':'chairperson'};}
   function resolve(saved,year,week,seed){if(saved==null)return null;if(week!==50||![1,2].includes(saved.version)||saved.year!==year||!['shareholders','chairperson'].includes(saved.role)||saved.role!==create(year,seed).role)throw Error('年度會議存檔錯誤');return{...saved,version:2,settled:saved.settled===true};}
-  function summary(year,boxOffice,activation,foodRevenue,merchandise){
-    const ticket=boxOffice?.byYear[year]||0,space=(activation?.receipts||[]).filter(r=>(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.gross,0);
+  function summary(year,boxOffice,activation,foodRevenue,merchandise,distributor){
+    const ticket=distributor?distributor.receipts.filter(r=>r.accountingYear===year).reduce((sum,r)=>sum+r.net,0):(boxOffice?.byYear[year]||0),space=(activation?.receipts||[]).filter(r=>(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.gross,0);
     const food=(foodRevenue?.receipts||[]).filter(r=>(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.gross,0);
     const merch=(merchandise?.receipts||[]).filter(r=>(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.total,0);
     return{ticket,space,knownIncome:ticket+space+food+merch,expenses:null,profit:null};
@@ -992,7 +992,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
 // Source: parameter-rules.js
 'use strict';
 // Parameter.xlsx, imported 2026-10-20; guarantee step corrected by user to 5000.
-// Negative compute deductions reduce box office; calculation is not activated.
+// Negative distributor parameters reduce gross box office via distributor-rules.js.
 (function(root) {
   const DATA={
   "playerControl": {
@@ -1486,6 +1486,83 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
 })(globalThis);
 
 ;
+// Source: distributor-rules.js
+'use strict';
+(function(root){
+  const yearOf=week=>2022+Math.floor((week-1)/50);
+  const money=value=>Math.round(value+Number.EPSILON*Math.max(1,Math.abs(value))*4);
+  function draw(seed,key,rule){
+    if(!rule||!Number.isFinite(rule.min)||!Number.isFinite(rule.max)||!(rule.step>0))throw Error('片商參數不完整');
+    const count=Math.round(Math.abs(rule.max-rule.min)/rule.step)+1;
+    const index=Math.floor(root.CinemaRules.seededRandom(`distributor/v1/${seed}/${key}`)()*count);
+    return Number((rule.min+Math.sign(rule.max-rule.min)*index*rule.step).toFixed(8));
+  }
+  function contract(movie,cinemaID,seed){
+    const rules=root.CinemaParameters.DATA.compute,key=movie.id;
+    if(movie.tier==='special')return{id:key,tier:movie.tier,share:0,guarantee:0,rental:0};
+    if(!['hit','bomb','average'].includes(movie.tier))throw Error('電影拆帳分類錯誤');
+    if(cinemaID==='C02')return{id:key,tier:movie.tier,share:0,guarantee:0,rental:draw(seed,key+'/rental',rules[`second_run_${movie.tier}_film_pay`])};
+    return{id:key,tier:movie.tier,share:draw(seed,key+'/share',rules[`${movie.tier}_film_distributor_share`])*(cinemaID==='C05'?.5:1),guarantee:movie.tier==='bomb'&&cinemaID!=='C05'?draw(seed,key+'/guarantee',rules.bomb_film_distributor_guarantee):0,rental:0};
+  }
+  function create(cinemaID,seed){return{version:1,cinemaID,seed,lastGrossWeek:null,contracts:{},receipts:[]};}
+  function sync(saved,{database,movies,boxOffice,cinemaID,now,year}){
+    const old=saved||create(cinemaID,movies.seed);
+    const state={...old,contracts:{...old.contracts},receipts:[...old.receipts]};
+    const byID=new Map(database.movies.map(m=>[m.id,m]));
+    const append=(type,filmID,at,accountingYear,gross,deduction)=>state.receipts.push({type,filmID,at,accountingYear,gross,deduction,net:gross+deduction});
+    for(const h of movies.history){
+      if(!state.contracts[h.id])state.contracts[h.id]={...contract(byID.get(h.id),cinemaID,movies.seed),releasedAt:h.releasedAt,rentalPaid:false,closedAt:null,paidShare:0};
+      const c={...state.contracts[h.id]};state.contracts[h.id]=c;
+      if(!c.rentalPaid){
+        if(c.rental)append('rental',h.id,h.releasedAt,yearOf(h.releasedAt),0,c.rental);
+        c.rentalPaid=true;
+      }
+    }
+    for(const r of boxOffice.receipts){
+      if(r.earnedAt<=(old.lastGrossWeek||0))continue;
+      for(const f of r.films){
+        const c=state.contracts[f.id];if(!c)throw Error('電影拆帳合約遺失');
+        const deduction=-money(f.gross*Math.abs(c.share))||0;
+        append('gross',f.id,r.bookedAt,r.accountingYear??yearOf(r.bookedAt),f.gross,deduction);
+        c.paidShare+=deduction;
+      }
+      state.lastGrossWeek=r.earnedAt;
+    }
+    for(const h of movies.history){
+      const c=state.contracts[h.id];
+      if(h.retiredAt==null||c.closedAt!==null)continue;
+      if(c.guarantee){
+        const deduction=Math.min(0,c.guarantee-c.paidShare);
+        // New retirements post when observed; legacy migration reconstructs the
+        // historical retirement date without changing gross receipts.
+        const at=saved?now:h.retiredAt,accountingYear=saved?year:yearOf(at);
+        if(deduction)append('guarantee',h.id,at,accountingYear,0,deduction);
+      }
+      c.closedAt=h.retiredAt;
+    }
+    if(state.receipts.some(r=>r.at>now||r.accountingYear>year))throw Error('拆帳入帳日期超前');
+    return state;
+  }
+  function totals(state,now,year=yearOf(now)){
+    let weekly=0,annual=0;for(const r of state?.receipts||[])if(r.accountingYear===year){annual+=r.net;if(r.at===now)weekly+=r.net;}
+    return{weekly,annual};
+  }
+  function resolve(saved,cinemaID,seed,now){
+    if(saved==null)return null;
+    if(saved.version!==1||saved.cinemaID!==cinemaID||saved.seed!==seed||!saved.contracts||!Array.isArray(saved.receipts)||saved.lastGrossWeek!==null&&(!Number.isInteger(saved.lastGrossWeek)||saved.lastGrossWeek>=now))throw Error('拆帳存檔錯誤');
+    const seen=new Set(),shares={};
+    for(const r of saved.receipts){
+      const key=`${r.type}/${r.filmID}/${r.at}`;
+      if(seen.has(key)||!['gross','rental','guarantee'].includes(r.type)||!saved.contracts[r.filmID]||!Number.isInteger(r.at)||r.at<1||r.at>now||!Number.isInteger(r.accountingYear)||![yearOf(r.at),yearOf(r.at)-1].includes(r.accountingYear)||!Number.isSafeInteger(r.gross)||r.gross<0||!Number.isSafeInteger(r.deduction)||r.deduction>0||r.net!==r.gross+r.deduction)throw Error('拆帳收據錯誤');
+      seen.add(key);if(r.type==='gross')shares[r.filmID]=(shares[r.filmID]||0)+r.deduction;
+    }
+    for(const [id,c]of Object.entries(saved.contracts))if(c.id!==id||!['hit','bomb','average','special'].includes(c.tier)||!Number.isFinite(c.share)||c.share>0||c.share< -1||!Number.isSafeInteger(c.guarantee)||c.guarantee>0||!Number.isSafeInteger(c.rental)||c.rental>0||!Number.isInteger(c.releasedAt)||c.releasedAt<1||c.releasedAt>now||typeof c.rentalPaid!=='boolean'||c.closedAt!==null&&(!Number.isInteger(c.closedAt)||c.closedAt<c.releasedAt||c.closedAt>now)||c.paidShare!==(shares[id]||0))throw Error('片商合約存檔錯誤');
+    return saved;
+  }
+  const api={draw,contract,create,sync,totals,resolve};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaDistributor=api;
+})(globalThis);
+
+;
 // Source: game.js
 'use strict';
 const cinemas = {
@@ -1534,7 +1611,7 @@ function initGame() {
   let exclusiveFood = null;
   let property = null, activation = null;
   let movies = null;
-  let boxOffice=null,foodRevenue=null,merchandise=null,advancing=false,annualMeeting=null;
+  let boxOffice=null,distributor=null,foodRevenue=null,merchandise=null,advancing=false,annualMeeting=null;
   let checkpoint = null, currentAllocation = null, restoring = true, bootFailed = false, storeAvailable = true;
   let saveQueue = Promise.resolve(false), saveRevision = 0;
   const gameDate = {year:2022,week:1};
@@ -1555,6 +1632,7 @@ function initGame() {
       foodRevenue=CinemaConcessions.resolve(checkpoint?.foodRevenue,currentWeek());
       merchandise=CinemaMerchandise.resolve(checkpoint?.merchandise,currentWeek());
       if(!annualMeeting?.settled)movies=CinemaBoxOffice.retireLowGross(movies,boxOffice);
+      distributor=CinemaDistributor.sync(CinemaDistributor.resolve(checkpoint?.distributor,id,movies.seed,currentWeek()),{database:CinemaMovieDatabase,movies,boxOffice,cinemaID:id,now:currentWeek(),year:gameDate.year});
       renderMovieWeek(restoredDraft||{});
       renderBulletin();
       CinemaVenue.render(allocation);
@@ -1639,7 +1717,7 @@ function initGame() {
     films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{},byID.get(CinemaBoxOffice.carryCandidate(movies,boxOffice))||null);
   }
   function renderBulletin(){
-    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise),topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),showRanking:!secondRun});
+    if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),showRanking:!secondRun});
     else CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,currentWeek())});
   }
   function renderFinance(){
@@ -1647,6 +1725,9 @@ function initGame() {
     document.querySelector('.week-badge').textContent=`${displayPeriod()}`;
     document.querySelector('#report-weekly .report-period').textContent=`${displayPeriod()}`;
     document.querySelector('#report-annual .report-period').textContent=String(gameDate.year);
+    const net=CinemaDistributor.totals(distributor,now,gameDate.year);
+    document.querySelector('#weekly-net-box-office').textContent=net.weekly.toLocaleString('zh-TW');
+    document.querySelector('#annual-net-box-office').textContent=net.annual.toLocaleString('zh-TW');
     document.querySelector('#weekly-box-office').textContent=(receipt?.total||0).toLocaleString('zh-TW');
     const concessions=CinemaConcessions.totals(foodRevenue,now,gameDate.year);
     const merchIncome=CinemaMerchandise.totals(merchandise,now,gameDate.year);
@@ -1882,7 +1963,7 @@ function initGame() {
     const values=formValues();
     const budgetLocks=Object.fromEntries(['maintenance','consumables'].map(name=>[name,form.elements[name].disabled ? document.querySelector(`#${name}-lock`).title || true : false]));
     const snapshot={cinemaID:id,cinemaName:cinema.name,runId,year:gameDate.year,week:gameDate.week,
-      values,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,exclusiveFood,property,activation,annualMeeting,movies,boxOffice,foodRevenue,merchandise,budgetLocks,
+      values,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,exclusiveFood,property,activation,annualMeeting,movies,boxOffice,distributor,foodRevenue,merchandise,budgetLocks,
       tabID:tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       reportTabID:reportTabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};
@@ -1942,6 +2023,7 @@ function initGame() {
         merchandise=nextMerchandise;foodRevenue=nextFood;activation=nextActivation;movies=next.movies;boxOffice=next.ledger;gameDate.year=next.year;gameDate.week=next.week;
         annualMeeting=closing?CinemaMeeting.create(gameDate.year,runId,true):null;
       }
+      distributor=CinemaDistributor.sync(distributor,{database:CinemaMovieDatabase,movies,boxOffice,cinemaID:id,now:currentWeek(),year:gameDate.year});
       for(const kind of CinemaMerchandise.KINDS){values[kind+'Quantity']='0';values[kind+'Scrap']=false;form.elements[kind+'Quantity'].value='0';form.elements[kind+'Scrap'].checked=false;}
       delete values.featuredFilm;values.featuredSlots=String(CinemaFilms.screeningCapacity(venueScreenCount,id)-1);values.specialCount='1';
       for(let i=1;i<=5;i++)values['specialMovie'+(i===1?'':i)]='';
@@ -1949,7 +2031,7 @@ function initGame() {
       films.setVenue(venueScreenCount,gameDate.week);renderFinance();
       renderBulletin();
       if(annualMeeting?.settled){activateReport(reportTabs.find(tab=>tab.id==='tab-annual'));document.querySelector('#weekly-events').scrollIntoView({block:'start',behavior:'smooth'});}
-      checkpoint={...checkpoint,movies,boxOffice,foodRevenue,merchandise,activation,annualMeeting,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,values,year:gameDate.year,week:gameDate.week};
+      checkpoint={...checkpoint,movies,boxOffice,distributor,foodRevenue,merchandise,activation,annualMeeting,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,values,year:gameDate.year,week:gameDate.week};
       saveDraft();
     }catch(error){document.querySelector('#dialog-save-status').textContent=error.message;document.querySelector('#week-dialog').showModal();console.error('Weekly settlement failed:',error);}
     finally{advancing=false;updateControls();}

@@ -1,6 +1,6 @@
 'use strict';
 // Parameter.xlsx, imported 2026-10-20; guarantee step corrected by user to 5000.
-// Negative compute deductions reduce box office; calculation is not activated.
+// Negative distributor parameters reduce gross box office via distributor-rules.js.
 (function(root) {
   const DATA={
   "playerControl": {
