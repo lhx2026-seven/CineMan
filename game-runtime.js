@@ -1945,13 +1945,13 @@ function initGame() {
   counter.decoding = 'async';
   document.body.dataset.cinema = cinema.slug;
   function renderYearVisuals() {
-    const interior=gameDate.year>=2023,projection=gameDate.year>=2024;
-    const heroFile=interior?`${cinema.slug}-interior.webp`:cinema.exterior;
+    const ticket=gameDate.year>=2025,interior=gameDate.year>=2023,projection=gameDate.year>=2024;
+    const heroFile=ticket?`${cinema.slug}-ticket.webp`:interior?`${cinema.slug}-interior.webp`:cinema.exterior;
     if(exterior.dataset.asset!==heroFile){
-      exterior.dataset.asset=heroFile;
-      exterior.srcset=`assets/cinemas/optimized/${heroFile.replace('.webp','-640.webp')} 640w, assets/cinemas/landscape/${heroFile} 1774w`;
-      exterior.src=`assets/cinemas/landscape/${heroFile}`;
-      exterior.alt=`${cinema.name}${interior?'影廳內部':'外觀'}`;
+      exterior.dataset.asset=heroFile;exterior.dataset.scene=ticket?'ticket':interior?'interior':'exterior';
+      exterior.srcset=`assets/cinemas/optimized/${heroFile.replace('.webp','-640.webp')} 640w, assets/cinemas/${ticket?'tickets':'landscape'}/${heroFile} 1774w`;
+      exterior.src=`assets/cinemas/${ticket?'tickets':'landscape'}/${heroFile}`;
+      exterior.alt=`${cinema.name}${ticket?'電影票，片名CineMan':interior?'影廳內部':'外觀'}`;
     }
     const counterVersion=id==='C02'?'':id==='C01'?'-v4':'-v2';
     const footerFile=projection?`${cinema.slug}-projection.webp`:`${cinema.slug}-counter${counterVersion}.webp`;

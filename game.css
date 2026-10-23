@@ -628,3 +628,6 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 
 /* Keep rear projection windows visible in the compact footer after 2024. */
 .game-page .counter-scene > img[data-scene="projection"] { object-position:center 30%; }
+
+/* Show the entire ticket and tear-off stub from 2025, including tall desktop headers. */
+.cinema-overview .cinema-hero > img[data-scene="ticket"] { object-fit:contain; object-position:center; background:#100e0b; }
