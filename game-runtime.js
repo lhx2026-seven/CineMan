@@ -619,7 +619,6 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
 (function(root) {
   const OLD_FILMS = [{id:'MV0001',title:'魔猴'},{id:'MV0002',title:'恐怖速食店'},{id:'MV0003',title:'酆都'}];
   const POSTER_VERSIONS = {"MV0001": "c6bb028955b9", "MV0002": "c55e552e31bf", "MV0003": "d35e30859d3d"};
-  const canonicalId = id => ({MV001:'MV0001',MV002:'MV0002',MV003:'MV0003'})[id] || id;
   function screeningCapacity(screenCount,cinemaID='C01') {
     return root.CinemaMovieRules.screeningCapacity(screenCount,cinemaID);
   }
@@ -721,7 +720,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
       if(!pointer)return;const dx=event.clientX-pointer.x,dy=event.clientY-pointer.y;pointer=null;
       if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3){swiped=true;browse(center+(dx<0?1:-1));setTimeout(()=>{swiped=false;},0);}
     });
-    function setMovies(movies,values={},retained=OLD_FILMS,totals={},carry=null) {
+    function setMovies(movies,values={},retained=[],totals={},carry=null) {
       document.querySelector('#carry-feature').hidden=!carry;carryRadio.disabled=!carry;carryRadio.value=carry?.id||'';carryRadio.checked=!!carry&&values.featuredFilm===carry.id;document.querySelector('#carry-film-title').textContent=carry?.title||'';
       const legacy={'new-01':movies[0]?.id,'new-02':movies[1]?.id};
       available=movies.length;midpoint=(available-1)/2;carousel.hidden=!available;
@@ -749,16 +748,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
       oldContainer.hidden=!retained.length;document.querySelector('.old-films-heading').hidden=!retained.length;
       const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?midpoint:selected);
     }
-    return {update,setMovies,setVenue(screenCount,week){
-      const exclude=!document.querySelector('.old-films').children.length;
-      document.querySelector('.old-films-heading').hidden=exclude;
-      document.querySelector('.old-films').hidden=exclude;
-      specialRows.forEach(row=>{
-        const select=row.querySelector('select');
-        [...select.options].forEach(option=>{if(OLD_FILMS.some(movie=>movie.id===canonicalId(option.value))){option.hidden=exclude;option.disabled=exclude;if(exclude&&option.selected)select.value='';}});
-      });
-      update();
-    },restoreView(){const selected=cards.findIndex(card=>card.querySelector('input').checked);browse(selected<0?midpoint:selected);},
+    return {update,setMovies,
       titleFor(value){return value===carryRadio.value&&!carryRadio.disabled?document.querySelector('#carry-film-title').textContent:cards.find(card=>card.dataset.filmValue===value)?.querySelector('h4').textContent||'';}};
   }
   root.CinemaFilms = {OLD_FILMS,screeningCapacity,sharePercentage,init};
@@ -1884,10 +1874,12 @@ function initGame() {
   const gameDate = {year:2022,week:1};
   const currentWeek=()=>CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week)+(annualMeeting?.settled?1:0);
   const displayPeriod=()=>annualMeeting?.settled?`${gameDate.year}年度會議`:`${gameDate.year} W${gameDate.week}`;
+  const moviesByID=new Map(CinemaMovieDatabase.movies.map(movie=>[movie.id,movie]));
   let venueReady = false;
   let venueScreenCount = 0;
   const venueRetry = document.querySelector('#venue-retry');
   async function loadVenue() {
+    venueReady=false;form.inert=true;tabList.inert=true;
     venueRetry.hidden = true;
     const message = document.querySelector('#venue-loading');
     message.hidden = true;
@@ -1909,7 +1901,6 @@ function initGame() {
       CinemaVenue.render(allocation);
       renderSpecialPricing(allocation);
       venueScreenCount = allocation.screenCount;
-      films.setVenue(venueScreenCount,gameDate.week);
       const share = document.querySelector('#featured-share');
       const capacity = CinemaFilms.screeningCapacity(venueScreenCount,id);
       let slots = capacity - 1;
@@ -1928,6 +1919,8 @@ function initGame() {
       renderBulletin();
       saveDraft();
     } catch (error) {
+      venueReady=false;form.inert=true;tabList.inert=true;
+      document.querySelector('#next-week').disabled=true;
       message.hidden = false;
       message.textContent = '營運資料暫時無法載入，請重試。';
       venueRetry.hidden = false;
@@ -1984,7 +1977,7 @@ function initGame() {
   CinemaParameters.apply(form,id);
   const films = CinemaFilms.init(form,{showBoxOffice:!secondRun});
   function renderMovieWeek(values={}) {
-    const byID=new Map(CinemaMovieDatabase.movies.map(movie=>[movie.id,movie]));
+    const byID=moviesByID;
     const retained=CinemaBoxOffice.showing(movies).filter(h=>!movies.current.includes(h.id)).map(h=>byID.get(h.id));
     films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{},byID.get(CinemaBoxOffice.carryCandidate(movies,boxOffice))||null);
   }
@@ -2027,8 +2020,8 @@ function initGame() {
     document.querySelector('#annual-profit').textContent=financialSummary.annual.afterTaxProfit.toLocaleString('zh-TW');
     document.querySelector('#weekly-profit').textContent=financialSummary.weekly.profit.toLocaleString('zh-TW');
     document.querySelector('#annual-pretax-profit').textContent=financialSummary.annual.profit.toLocaleString('zh-TW');
-    document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，票房、餐飲與空間活化收入依入帳週列計，其餘項目待結算`;
-    document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，票房、餐飲與空間活化收入依入帳年度累計，其餘項目待結算`;
+    document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，依本週實際入帳收入與已出帳支出列計`;
+    document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，依本年度累計入帳收支及預扣稅金列計`;
   }
   function renderProperty() {
     const location=CinemaDatabase.locations.find(location=>location.locationID===property.locationID);
@@ -2111,7 +2104,8 @@ function initGame() {
   const draftStatus = document.querySelector('#draft-status');
   form.inert = true;
   async function bootstrap() {
-    restoring=true;form.inert=true;
+    restoring=true;form.inert=true;tabList.inert=true;
+    document.querySelector('#next-week').disabled=true;
     bootFailed = false;venueRetry.hidden = true;
     try {
       const [settings,record] = freshEntry ? [{enabled:null},null] : await Promise.all([
@@ -2137,8 +2131,6 @@ function initGame() {
         document.querySelector('.workspace-bar .week-badge').textContent=`${displayPeriod()}`;
         document.querySelector('#report-weekly .report-period').textContent=`${displayPeriod()}`;
         document.querySelector('#report-annual .report-period').textContent=String(gameDate.year);
-        document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，結算規則尚未設定，金額均待結算`;
-        document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，結算規則尚未設定，金額均待結算`;
       }
       if (restoredDraft) {
         for (const control of form.elements) {
@@ -2175,8 +2167,8 @@ function initGame() {
       if(!property){property=CinemaProperty.draw(CinemaDatabase,id,runId);renderProperty();}
       draftStatus.textContent='自動存檔暫時無法使用，本次設定尚未保存。';
     }
-    restoring=false;form.inert=false;
-    films.restoreView();updateControls();await loadVenue();
+    restoring=false;
+    await loadVenue();
   }
 
   function updateTicketLocks(){
@@ -2201,7 +2193,7 @@ function initGame() {
   }
   function updateControls() {
     updateTicketLocks();updateActivationLock();
-    form.inert=restoring||!!annualMeeting;tabList.inert=!!annualMeeting;form.hidden=!!annualMeeting;tabList.hidden=!!annualMeeting;
+    form.inert=restoring||!venueReady||!!annualMeeting;tabList.inert=!venueReady||!!annualMeeting;form.hidden=!!annualMeeting;tabList.hidden=!!annualMeeting;
     document.querySelector('#next-week').hidden=false;
     const nextLabel=annualMeeting?'開始下一年度':gameDate.week===50?'年度會議':'下一週';
     const nextButton=document.querySelector('#next-week');if(nextButton.dataset.label!==nextLabel){nextButton.dataset.label=nextLabel;nextButton.replaceChildren(nextLabel+' ');const arrow=document.createElement('span');arrow.setAttribute('aria-hidden','true');arrow.textContent='→';nextButton.append(arrow);}
@@ -2322,7 +2314,7 @@ function initGame() {
       delete values.featuredFilm;values.featuredSlots=String(CinemaFilms.screeningCapacity(venueScreenCount,id)-1);values.specialCount='1';
       for(let i=1;i<=5;i++)values['specialMovie'+(i===1?'':i)]='';
       restoredDraft=values;if(!annualMeeting?.settled)renderMovieWeek(values);form.elements.specialCount.value='1';form.elements.featuredSlots.value=values.featuredSlots;
-      films.setVenue(venueScreenCount,gameDate.week);renderFinance();
+      renderFinance();
       renderBulletin();
       if(annualMeeting?.settled){activateReport(reportTabs.find(tab=>tab.id==='tab-annual'));document.querySelector('#weekly-events').scrollIntoView({block:'start',behavior:'smooth'});}
       checkpoint={...checkpoint,movies,boxOffice,distributor,rent,propertyTax,managementFee,operatingExpenses,utilityBills,foodRevenue,merchandise,activation,annualMeeting,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,values,year:gameDate.year,week:gameDate.week};

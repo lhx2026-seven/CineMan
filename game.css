@@ -464,8 +464,6 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 #panel-films .old-films { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; border:0; }
 #panel-films .old-film { display:flex; flex-direction:column; align-items:center; padding:10px 6px; border:1px solid #ffffff0b; border-radius:7px; background:#08080760; gap:7px; }
 #panel-films .old-film .old-film-poster { display:grid; place-items:center; width:80px; max-width:100%; height:100px; background:linear-gradient(145deg,#3b302340,#0b0907); border:1px solid #a1875320; }
-#panel-films .old-film .old-film-poster-2 { background:linear-gradient(145deg,#34232360,#0b0907); }
-#panel-films .old-film .old-film-poster-3 { background:linear-gradient(145deg,#26342d50,#0b0907); }
 #panel-films .old-film h4 { font-size:12px; text-align:center; margin:0; }
 .special-screenings { margin-top:18px; border:0; padding-top:12px; }
 .special-screenings > legend { color:#cbbb9e; font-size:13px; padding:12px 0 0; }

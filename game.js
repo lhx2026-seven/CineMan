@@ -51,10 +51,12 @@ function initGame() {
   const gameDate = {year:2022,week:1};
   const currentWeek=()=>CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week)+(annualMeeting?.settled?1:0);
   const displayPeriod=()=>annualMeeting?.settled?`${gameDate.year}年度會議`:`${gameDate.year} W${gameDate.week}`;
+  const moviesByID=new Map(CinemaMovieDatabase.movies.map(movie=>[movie.id,movie]));
   let venueReady = false;
   let venueScreenCount = 0;
   const venueRetry = document.querySelector('#venue-retry');
   async function loadVenue() {
+    venueReady=false;form.inert=true;tabList.inert=true;
     venueRetry.hidden = true;
     const message = document.querySelector('#venue-loading');
     message.hidden = true;
@@ -76,7 +78,6 @@ function initGame() {
       CinemaVenue.render(allocation);
       renderSpecialPricing(allocation);
       venueScreenCount = allocation.screenCount;
-      films.setVenue(venueScreenCount,gameDate.week);
       const share = document.querySelector('#featured-share');
       const capacity = CinemaFilms.screeningCapacity(venueScreenCount,id);
       let slots = capacity - 1;
@@ -95,6 +96,8 @@ function initGame() {
       renderBulletin();
       saveDraft();
     } catch (error) {
+      venueReady=false;form.inert=true;tabList.inert=true;
+      document.querySelector('#next-week').disabled=true;
       message.hidden = false;
       message.textContent = '營運資料暫時無法載入，請重試。';
       venueRetry.hidden = false;
@@ -151,7 +154,7 @@ function initGame() {
   CinemaParameters.apply(form,id);
   const films = CinemaFilms.init(form,{showBoxOffice:!secondRun});
   function renderMovieWeek(values={}) {
-    const byID=new Map(CinemaMovieDatabase.movies.map(movie=>[movie.id,movie]));
+    const byID=moviesByID;
     const retained=CinemaBoxOffice.showing(movies).filter(h=>!movies.current.includes(h.id)).map(h=>byID.get(h.id));
     films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{},byID.get(CinemaBoxOffice.carryCandidate(movies,boxOffice))||null);
   }
@@ -194,8 +197,8 @@ function initGame() {
     document.querySelector('#annual-profit').textContent=financialSummary.annual.afterTaxProfit.toLocaleString('zh-TW');
     document.querySelector('#weekly-profit').textContent=financialSummary.weekly.profit.toLocaleString('zh-TW');
     document.querySelector('#annual-pretax-profit').textContent=financialSummary.annual.profit.toLocaleString('zh-TW');
-    document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，票房、餐飲與空間活化收入依入帳週列計，其餘項目待結算`;
-    document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，票房、餐飲與空間活化收入依入帳年度累計，其餘項目待結算`;
+    document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，依本週實際入帳收入與已出帳支出列計`;
+    document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，依本年度累計入帳收支及預扣稅金列計`;
   }
   function renderProperty() {
     const location=CinemaDatabase.locations.find(location=>location.locationID===property.locationID);
@@ -278,7 +281,8 @@ function initGame() {
   const draftStatus = document.querySelector('#draft-status');
   form.inert = true;
   async function bootstrap() {
-    restoring=true;form.inert=true;
+    restoring=true;form.inert=true;tabList.inert=true;
+    document.querySelector('#next-week').disabled=true;
     bootFailed = false;venueRetry.hidden = true;
     try {
       const [settings,record] = freshEntry ? [{enabled:null},null] : await Promise.all([
@@ -304,8 +308,6 @@ function initGame() {
         document.querySelector('.workspace-bar .week-badge').textContent=`${displayPeriod()}`;
         document.querySelector('#report-weekly .report-period').textContent=`${displayPeriod()}`;
         document.querySelector('#report-annual .report-period').textContent=String(gameDate.year);
-        document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，結算規則尚未設定，金額均待結算`;
-        document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，結算規則尚未設定，金額均待結算`;
       }
       if (restoredDraft) {
         for (const control of form.elements) {
@@ -342,8 +344,8 @@ function initGame() {
       if(!property){property=CinemaProperty.draw(CinemaDatabase,id,runId);renderProperty();}
       draftStatus.textContent='自動存檔暫時無法使用，本次設定尚未保存。';
     }
-    restoring=false;form.inert=false;
-    films.restoreView();updateControls();await loadVenue();
+    restoring=false;
+    await loadVenue();
   }
 
   function updateTicketLocks(){
@@ -368,7 +370,7 @@ function initGame() {
   }
   function updateControls() {
     updateTicketLocks();updateActivationLock();
-    form.inert=restoring||!!annualMeeting;tabList.inert=!!annualMeeting;form.hidden=!!annualMeeting;tabList.hidden=!!annualMeeting;
+    form.inert=restoring||!venueReady||!!annualMeeting;tabList.inert=!venueReady||!!annualMeeting;form.hidden=!!annualMeeting;tabList.hidden=!!annualMeeting;
     document.querySelector('#next-week').hidden=false;
     const nextLabel=annualMeeting?'開始下一年度':gameDate.week===50?'年度會議':'下一週';
     const nextButton=document.querySelector('#next-week');if(nextButton.dataset.label!==nextLabel){nextButton.dataset.label=nextLabel;nextButton.replaceChildren(nextLabel+' ');const arrow=document.createElement('span');arrow.setAttribute('aria-hidden','true');arrow.textContent='→';nextButton.append(arrow);}
@@ -489,7 +491,7 @@ function initGame() {
       delete values.featuredFilm;values.featuredSlots=String(CinemaFilms.screeningCapacity(venueScreenCount,id)-1);values.specialCount='1';
       for(let i=1;i<=5;i++)values['specialMovie'+(i===1?'':i)]='';
       restoredDraft=values;if(!annualMeeting?.settled)renderMovieWeek(values);form.elements.specialCount.value='1';form.elements.featuredSlots.value=values.featuredSlots;
-      films.setVenue(venueScreenCount,gameDate.week);renderFinance();
+      renderFinance();
       renderBulletin();
       if(annualMeeting?.settled){activateReport(reportTabs.find(tab=>tab.id==='tab-annual'));document.querySelector('#weekly-events').scrollIntoView({block:'start',behavior:'smooth'});}
       checkpoint={...checkpoint,movies,boxOffice,distributor,rent,propertyTax,managementFee,operatingExpenses,utilityBills,foodRevenue,merchandise,activation,annualMeeting,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,values,year:gameDate.year,week:gameDate.week};
