@@ -2,7 +2,7 @@ const assert=require('node:assert/strict');globalThis.CinemaRules=require('../as
 const db={movies:[{id:'MV0100',tier:'hit'},{id:'MV0200',tier:'bomb'},{id:'MV0300',tier:'average'},{id:'MV0500',tier:'special'}]};
 const context=(history,receipts,now,cinemaID='C01',year=2022)=>({database:db,movies:{seed:'net-test',history},boxOffice:{receipts},cinemaID,now,year});
 const h=(id,week=1,off=null)=>({id,releasedAt:week,retiredAt:off});
-const r=(earnedAt,films,accountingYear)=>({earnedAt,bookedAt:earnedAt+1,films:films.map(([id,gross])=>({id,gross})),...(accountingYear?{accountingYear}:{})});
+const r=(earnedAt,films,accountingYear,featuredID=films[0]?.[0]??null)=>({earnedAt,bookedAt:earnedAt+1,featuredID,films:films.map(([id,gross])=>({id,gross})),...(accountingYear?{accountingYear}:{})});
 for(let n=0;n<1000;n++)for(const tier of['hit','bomb','average']){const movie=db.movies.find(m=>m.tier===tier),a=D.contract(movie,'C01','seed'+n),b=D.contract(movie,'C05','seed'+n),c=D.contract(movie,'C02','seed'+n);const rule=CinemaParameters.DATA.compute[`${tier}_film_distributor_share`];assert(a.share<=Math.max(rule.min,rule.max)&&a.share>=Math.min(rule.min,rule.max));assert(Math.abs((a.share-rule.min)/rule.step-Math.round((a.share-rule.min)/rule.step))<1e-8);assert.equal(b.share,a.share/2);assert.equal(b.guarantee,0);assert.equal(c.share,0);assert(c.rental<0);assert.deepEqual(a,D.contract(movie,'C01','seed'+n));}
 for(const cinema of['C01','C02','C03','C04','C05'])assert.deepEqual(D.contract(db.movies[3],cinema,'seed'),{id:'MV0500',tier:'special',share:0,guarantee:0,rental:0});
 // Explicit stable contracts make the hand-calculated true-up independent of draw.
@@ -18,3 +18,17 @@ let year=D.sync(null,context([h('MV0200',50)],[],50));year.contracts.MV0200.shar
 const legacy=D.sync(null,context([h('MV0200',1,3)],[r(1,[['MV0200',100000]])],4));assert.equal(legacy.receipts.filter(x=>x.type==='guarantee').length,1);assert.deepEqual(D.sync(legacy,context([h('MV0200',1,3)],[r(1,[['MV0200',100000]])],4)),legacy);
 const bad=structuredClone(year);bad.receipts[0].net++;assert.throws(()=>D.resolve(bad,'C01','net-test',51));const duplicate=structuredClone(year);duplicate.receipts.push(duplicate.receipts[0]);assert.throws(()=>D.resolve(duplicate,'C01','net-test',51));
 console.log('PASS parameter-grid contracts, once-per-film draws, gross including special sessions, special exemptions, public half-share/no guarantee, cumulative bomb true-up/no duplicate, negative net, first-week second-run rent, year-close attribution, legacy migration and corrupted receipts');
+
+let secondary=D.sync(null,context([h('MV0200'),h('MV0100')],[],1));secondary.contracts.MV0200.share=-.5;secondary.contracts.MV0200.guarantee=-80000;
+const backgroundReceipt=r(1,[['MV0200',10000],['MV0100',100000]],undefined,'MV0100');
+secondary=D.sync(secondary,context([h('MV0200',1,2),h('MV0100')],[backgroundReceipt],2));
+assert.equal(secondary.contracts.MV0200.paidShare,-5000);assert.equal(secondary.contracts.MV0200.closedAt,2);assert(!secondary.receipts.some(x=>x.type==='guarantee'));
+assert.deepEqual(D.sync(secondary,context([h('MV0200',1,2),h('MV0100')],[backgroundReceipt],2)),secondary);
+D.resolve(secondary,'C01','net-test',2);
+let former=D.sync(null,context([h('MV0200'),h('MV0100')],[],1));former.contracts.MV0200.share=-.5;former.contracts.MV0200.guarantee=-80000;
+const formerReceipts=[r(1,[['MV0200',10000],['MV0100',100000]],undefined,'MV0200'),r(2,[['MV0200',10000],['MV0100',100000]],undefined,'MV0100')];
+former=D.sync(former,context([h('MV0200'),h('MV0100')],[formerReceipts[0]],2));former=D.sync(former,context([h('MV0200',1,3),h('MV0100')],formerReceipts,3));
+assert.equal(former.receipts.find(x=>x.type==='guarantee').deduction,-70000);assert.equal(former.receipts.filter(x=>x.type==='guarantee').length,1);
+const noRecord={...r(1,[['MV0200',10000]]),featuredID:undefined};const unknown=D.sync(null,context([h('MV0200',1,2)],[noRecord],2));assert(!unknown.receipts.some(x=>x.type==='guarantee'));
+assert.deepEqual(D.sync(next,context([h('MV0200',1,3)],[{...r(1,[['MV0200',100000]]),featuredID:null}],3)).receipts,next.receipts);
+console.log('PASS never-featured films pay shares but no guarantee, former-featured films true-up once, missing history is not guessed and settled charges remain unchanged');

@@ -20,6 +20,7 @@
     const old=saved||create(cinemaID,movies.seed);
     const state={...old,contracts:{...old.contracts},receipts:[...old.receipts]};
     const byID=new Map(database.movies.map(m=>[m.id,m]));
+    const featuredIDs=new Set(boxOffice.receipts.map(r=>r.featuredID).filter(Boolean));
     const append=(type,filmID,at,accountingYear,gross,deduction)=>state.receipts.push({type,filmID,at,accountingYear,gross,deduction,net:gross+deduction});
     for(const h of movies.history){
       if(!state.contracts[h.id])state.contracts[h.id]={...contract(byID.get(h.id),cinemaID,movies.seed),releasedAt:h.releasedAt,rentalPaid:false,closedAt:null,paidShare:0};
@@ -42,7 +43,7 @@
     for(const h of movies.history){
       const c=state.contracts[h.id];
       if(h.retiredAt==null||c.closedAt!==null)continue;
-      if(c.guarantee){
+      if(c.guarantee&&featuredIDs.has(h.id)){
         const deduction=Math.min(0,c.guarantee-c.paidShare);
         // New retirements post when observed; legacy migration reconstructs the
         // historical retirement date without changing gross receipts.

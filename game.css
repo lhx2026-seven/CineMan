@@ -309,7 +309,7 @@ input::placeholder { font-size:12px; }
 .ledger-table th:first-child { width:54%; text-align:left; }
 .ledger-table th { font-weight:400; color:#b8ac96; }
 .ledger-table td, .ledger-table thead th:not(:first-child) { text-align:right; }
-.ledger-table td { font-family:ui-monospace,monospace; color:#dfc48e; }
+.ledger-table td { white-space:nowrap; font-family:ui-monospace,monospace; color:#dfc48e; }
 .ledger-table thead { background:#b9934a0b; }
 .ledger-table thead th { color:#bda67b; font-size:11px; }
 .ledger-table .not-applicable { color:#514a3d; }
