@@ -14,7 +14,7 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8144';
       await page.waitForFunction(()=>['cinema-exterior','cinema-counter'].every(id=>{const img=document.getElementById(id);return img.complete&&img.naturalWidth>0;}));
       const visuals=await page.evaluate(()=>['cinema-exterior','cinema-counter'].map(id=>{const e=document.getElementById(id);return{src:e.currentSrc,alt:e.alt,scene:e.dataset.scene};}));
       assert(visuals[0].src.includes(year>=2025?`${slug}-ticket`:year>=2023?`${slug}-interior`:slug+'-exterior'),JSON.stringify(visuals));
-      if(year>=2025){assert(visuals[0].src.includes(`${slug}-ticket-pair-v1`));assert(visuals[0].alt.includes('兩張電影票'));}
+      if(year>=2025){assert(visuals[0].src.includes(`${slug}-ticket-scene-v1`));assert(visuals[0].alt.includes('單張電影票情境照'));}
       assert(visuals[1].src.includes(`${slug}-${year>=2024?'projection':'counter'}`),JSON.stringify(visuals));
       assert.equal(visuals[1].scene,year>=2024?'projection':'counter');
       assert(!await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth));
