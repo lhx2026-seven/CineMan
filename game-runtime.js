@@ -1945,22 +1945,22 @@ function initGame() {
   counter.decoding = 'async';
   document.body.dataset.cinema = cinema.slug;
   function renderYearVisuals() {
-    const ticket=gameDate.year>=2025,interior=gameDate.year>=2023,projection=gameDate.year>=2024;
-    const heroFile=ticket?`${cinema.slug}-ticket-scene-v${id==='C01'?2:1}.webp`:interior?`${cinema.slug}-interior.webp`:cinema.exterior;
-    if(exterior.dataset.asset!==heroFile){
-      exterior.dataset.asset=heroFile;exterior.dataset.scene=ticket?'ticket':interior?'interior':'exterior';
-      exterior.srcset=`assets/cinemas/optimized/${heroFile.replace('.webp','-640.webp')} 640w, assets/cinemas/${ticket?'tickets':'landscape'}/${heroFile} 1774w`;
-      exterior.src=`assets/cinemas/${ticket?'tickets':'landscape'}/${heroFile}`;
-      exterior.alt=`${cinema.name}${ticket?'單張電影票情境照，'+(id==='C01'?'復古全票，票號A199308，手寫8排5號、1月1日第1場':id==='C02'?'全票，世紀戲院紅章，藍色蓋印日期2025.01.01':id==='C05'?'全票，片名CineMan，日期2025.01.01，時間11：00，1廳8排5號':'電影票，片名CineMan'):interior?'影廳內部':'外觀'}`;
-    }
+    const year=gameDate.year;
+    const heroScene=[2023,2025].includes(year)?'interior':'exterior';
+    const footerScene=[2024,2025].includes(year)?'ticket':'counter';
+    const ticketFile=`${cinema.slug}-ticket-scene-v${id==='C01'?2:1}.webp`;
+    const ticketDescription='單張電影票情境照，'+(id==='C01'?'復古全票，票號A199308，手寫8排5號、1月1日第1場':id==='C02'?'全票，世紀戲院紅章，藍色蓋印日期2025.01.01':id==='C05'?'全票，片名CineMan，日期2025.01.01，時間11：00，1廳8排5號':'電影票，片名CineMan');
     const counterVersion=id==='C02'?'':id==='C01'?'-v4':'-v2';
-    const footerFile=projection?`${cinema.slug}-projection.webp`:`${cinema.slug}-counter${counterVersion}.webp`;
-    if(counter.dataset.asset!==footerFile){
-      counter.dataset.asset=footerFile;counter.dataset.scene=projection?'projection':'counter';
-      counter.srcset=`assets/cinemas/optimized/${footerFile.replace('.webp','-960.webp')} 960w, assets/cinemas/${projection?'projection':'counters'}/${footerFile} ${!projection&&id==='C01'?2048:1774}w`;
-      counter.src=`assets/cinemas/${projection?'projection':'counters'}/${footerFile}`;
-      counter.alt=`${cinema.name}${projection?'觀眾席後方與放映窗':'售票櫃台'}`;
-      counter.closest('.counter-scene').setAttribute('aria-label',counter.alt);
+    for(const [image,scene] of [[exterior,heroScene],[counter,footerScene]]){
+      const file=scene==='ticket'?ticketFile:scene==='interior'?`${cinema.slug}-interior.webp`:scene==='exterior'?cinema.exterior:scene==='projection'?`${cinema.slug}-projection.webp`:`${cinema.slug}-counter${counterVersion}.webp`;
+      if(image.dataset.asset===file)continue;
+      const folder=scene==='ticket'?'tickets':scene==='counter'?'counters':scene==='projection'?'projection':'landscape';
+      const smallWidth=image===counter?960:640,fullWidth=scene==='counter'&&id==='C01'?2048:1774;
+      image.dataset.asset=file;image.dataset.scene=scene;
+      image.srcset=`assets/cinemas/optimized/${file.replace('.webp',`-${smallWidth}.webp`)} ${smallWidth}w, assets/cinemas/${folder}/${file} ${fullWidth}w`;
+      image.src=`assets/cinemas/${folder}/${file}`;
+      image.alt=cinema.name+(scene==='ticket'?ticketDescription:scene==='interior'?'影廳內部':scene==='exterior'?'外觀':scene==='projection'?'觀眾席後方與放映窗':'售票櫃台');
+      if(image===counter)image.closest('.counter-scene').setAttribute('aria-label',image.alt);
     }
   }
   document.querySelector('#game-content').hidden = false;
