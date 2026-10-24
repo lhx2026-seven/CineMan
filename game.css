@@ -304,11 +304,12 @@ input::placeholder { font-size:12px; }
 /* A persistent weekly ledger sits above the three configuration tabs. */
 .financial-report { margin:10px 0; border-radius:6px; background:#100e0bbf; }
 .financial-report .section-heading { border-bottom:1px solid #a1875359; padding-bottom:10px; margin-bottom:0; }
-.ledger-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:12px; font-variant-numeric:tabular-nums; }
+.ledger-table { width:100%; border-collapse:collapse; table-layout:auto; font-size:12px; font-variant-numeric:tabular-nums; }
 .ledger-table th, .ledger-table td { padding:6px 10px; border-bottom:1px solid #ffffff0a; }
-.ledger-table th:first-child { width:54%; text-align:left; }
+.ledger-table th:first-child { text-align:left; overflow-wrap:anywhere; }
 .ledger-table th { font-weight:400; color:#b8ac96; }
 .ledger-table td, .ledger-table thead th:not(:first-child) { text-align:right; }
+.ledger-table thead th:not(:first-child) { width:1%; white-space:nowrap; }
 .ledger-table td { white-space:nowrap; font-family:ui-monospace,monospace; color:#dfc48e; }
 .ledger-table thead { background:#b9934a0b; }
 .ledger-table thead th { color:#bda67b; font-size:11px; }

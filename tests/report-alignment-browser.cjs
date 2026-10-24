@@ -16,7 +16,7 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8163';
       await page.locator(`#tab-${period}`).click();
       const aligned=()=>page.evaluate(period=>['box-office','net-box-office','concessions','goods'].every(key=>{
         const cell=document.getElementById(`${period}-${key}`),style=getComputedStyle(cell),box=cell.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(cell);const text=range.getBoundingClientRect();
-        return Math.abs(text.right-(box.right-parseFloat(style.paddingRight)))<1&&text.left>=box.left+parseFloat(style.paddingLeft)-1&&text.height<25;
+        return Math.abs(text.right-(box.right-parseFloat(style.paddingRight)))<1&&text.left>=box.left+parseFloat(style.paddingLeft)-1&&text.height<25&&parseFloat(style.fontSize)===12&&!cell.style.fontSize;
       }),period);
       assert(await aligned(),`${width} ${period} amounts overflow or have unequal right edges`);
       await page.setViewportSize({width:width+30,height:1000});await page.setViewportSize({width,height:1000});

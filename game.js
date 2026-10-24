@@ -140,21 +140,6 @@ function initGame() {
   document.querySelector('#game-content').hidden = false;
   const reportTabList = document.querySelector('.report-tabs');
   const reportTabs = [...reportTabList.querySelectorAll('[role="tab"]')];
-  const reportMeasure=document.createElement('canvas').getContext('2d');
-  function fitReportAmounts(){
-    const cells=[...document.querySelectorAll('.ledger-table td:not(.not-applicable)')];
-    cells.forEach(cell=>cell.style.fontSize='');
-    const fits=cells.map(cell=>{
-      if(!cell.clientWidth)return null;
-      const style=getComputedStyle(cell),available=cell.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);
-      reportMeasure.font=`${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-      const width=reportMeasure.measureText(cell.textContent).width+Math.max(0,cell.textContent.length-1)*(parseFloat(style.letterSpacing)||0);
-      return width>available?{cell,size:Math.floor(parseFloat(style.fontSize)*(available-.5)/width*100)/100}:null;
-    });
-    fits.forEach(fit=>{if(fit)fit.cell.style.fontSize=`${fit.size}px`;});
-  }
-  let reportWidth=0;
-  new ResizeObserver(([entry])=>{if(entry.contentRect.width===reportWidth)return;reportWidth=entry.contentRect.width;fitReportAmounts();}).observe(document.querySelector('#financial-report'));
   function activateReport(tab, focus = false) {
     reportTabs.forEach(button => {
       const active = button === tab;
@@ -162,7 +147,6 @@ function initGame() {
       button.tabIndex = active ? 0 : -1;
       document.getElementById(button.getAttribute('aria-controls')).hidden = !active;
     });
-    fitReportAmounts();
     if (focus) tab.focus({ preventScroll:true });
   }
   reportTabs.forEach(tab => tab.addEventListener('click', () => activateReport(tab)));
@@ -226,7 +210,6 @@ function initGame() {
     document.querySelector('#annual-profit').textContent=financialSummary.annual.afterTaxProfit.toLocaleString('zh-TW');
     document.querySelector('#weekly-profit').textContent=financialSummary.weekly.profit.toLocaleString('zh-TW');
     document.querySelector('#annual-pretax-profit').textContent=financialSummary.annual.profit.toLocaleString('zh-TW');
-    fitReportAmounts();
     document.querySelector('#report-weekly caption').textContent=`${displayPeriod()} 週報，依本週實際入帳收入與已出帳支出列計`;
     document.querySelector('#report-annual caption').textContent=`${gameDate.year} 年報，依本年度累計入帳收支及預扣稅金列計`;
   }
