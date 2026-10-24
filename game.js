@@ -120,7 +120,7 @@ function initGame() {
   document.body.dataset.cinema = cinema.slug;
   function renderYearVisuals() {
     const ticket=gameDate.year>=2025,interior=gameDate.year>=2023,projection=gameDate.year>=2024;
-    const heroFile=ticket?`${cinema.slug}-ticket${id==='C01'?'-v5':id==='C02'?'-v2':id==='C05'?'-v4':''}.webp`:interior?`${cinema.slug}-interior.webp`:cinema.exterior;
+    const heroFile=ticket?`${cinema.slug}-ticket${id==='C01'?'-v5':id==='C02'?'-v2':id==='C05'?'-v5':''}.webp`:interior?`${cinema.slug}-interior.webp`:cinema.exterior;
     if(exterior.dataset.asset!==heroFile){
       exterior.dataset.asset=heroFile;exterior.dataset.scene=ticket?'ticket':interior?'interior':'exterior';
       exterior.srcset=`assets/cinemas/optimized/${heroFile.replace('.webp','-640.webp')} 640w, assets/cinemas/${ticket?'tickets':'landscape'}/${heroFile} 1774w`;
