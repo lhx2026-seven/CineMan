@@ -24,29 +24,46 @@
     if(foodCost*prices.length*100<base*33)return[11,20];
     return[30,60];
   }
+  function attendanceBonus(dailyViewers,totalSeats){
+    if(!Number.isSafeInteger(dailyViewers)||dailyViewers<0||!Number.isSafeInteger(totalSeats)||totalSeats<1)throw Error('餐飲上座率資料錯誤');
+    const capacity=totalSeats*6;
+    return dailyViewers*10>capacity*9?30:dailyViewers*10>capacity*7?20:dailyViewers*2>capacity?10:0;
+  }
   function resolve(saved,now){
     if(saved==null)return create();
     if(saved.version!==1||!Array.isArray(saved.receipts))throw Error('餐飲收入存檔錯誤');
     let previous=0;for(const r of saved.receipts){
       if(r.accountingYear!==undefined&&(r.earnedAt%50!==0||r.accountingYear!==2022+Math.floor((r.earnedAt-1)/50)))throw Error('收入年度歸屬錯誤');
       if(!Number.isInteger(r.earnedAt)||r.earnedAt<=previous||r.bookedAt!==r.earnedAt+1||r.bookedAt>now||!Array.isArray(r.items)||r.items.some(i=>typeof i.name!=='string')||!Number.isSafeInteger(r.gross)||r.gross!==calculate(r.items.map(i=>i.price),r.viewers,r.purchaseRate,r.marketing??0,r.foodCost,r.ruleVersion??1))throw Error('餐飲收入收據錯誤');
-      if(r.ruleVersion!==undefined){if(r.ruleVersion!==2)throw Error('餐飲規則版本錯誤');const [min,max]=purchaseRange(r.items.map(i=>i.price),r.viewers,r.foodCost,r.staffing,r.screenCount);if(Math.round(r.purchaseRate*100)<min||Math.round(r.purchaseRate*100)>max)throw Error('餐飲購買率存檔錯誤');}
+      if(r.ruleVersion!==undefined){
+        if(![2,3].includes(r.ruleVersion))throw Error('餐飲規則版本錯誤');
+        const [min,max]=purchaseRange(r.items.map(i=>i.price),r.viewers,r.foodCost,r.staffing,r.screenCount);
+        let baseRate=r.purchaseRate;
+        if(r.ruleVersion===3){
+          const bonus=attendanceBonus(r.regularDailyViewers,r.totalSeats);
+          if(r.regularDailyViewers*3>r.viewers||r.attendanceBonus!==bonus||!Number.isInteger(r.basePurchasePercent)||Math.round(r.purchaseRate*100)!==r.basePurchasePercent+bonus)throw Error('餐飲上座率加成存檔錯誤');
+          baseRate=r.basePurchasePercent/100;
+        }
+        if(Math.round(baseRate*100)<min||Math.round(baseRate*100)>max)throw Error('餐飲購買率存檔錯誤');
+      }
       const average=r.items.reduce((s,i)=>s+i.price,0)/r.items.length;if(r.averagePrice!==average)throw Error('餐飲均價存檔錯誤');previous=r.earnedAt;
     }
     if(saved.lastSettledWeek!==(previous||null))throw Error('餐飲結算週次錯誤');return structuredClone(saved);
   }
-  function advance(state,ticketReceipt,values,exclusiveFood,seed,screenCount=1){
+  function advance(state,ticketReceipt,values,exclusiveFood,seed,screenCount,totalSeats){
     const now=ticketReceipt.earnedAt;if(!Number.isInteger(now)||now<1||ticketReceipt.bookedAt!==now+1||state.lastSettledWeek!==null&&now!==state.lastSettledWeek+1)throw Error('餐飲收入重複或錯週結算');
     const items=[{name:'爆米花',price:Number(values.popcornPrice)},{name:'飲料',price:Number(values.drinkPrice)}];
     if(exclusiveFood!==null){if(typeof exclusiveFood!=='string'||!exclusiveFood)throw Error('獨家餐飲錯誤');items.push({name:exclusiveFood,price:Number(values.exclusiveFoodPrice)});}
     const viewers=ticketReceipt.films.reduce((sum,f)=>{if(!Number.isSafeInteger(f.dailyViewers)||f.dailyViewers<0||!Number.isSafeInteger(f.specialViewers)||f.specialViewers<0)throw Error('觀影人次錯誤');return sum+f.dailyViewers*3+f.specialViewers;},0);
     const marketing=Number(values.marketing??0),foodCost=Number(values.foodCost??0),staffing=Number(values.staffing??0);
     const [min,max]=purchaseRange(items.map(i=>i.price),viewers,foodCost,staffing,screenCount);
-    const purchaseRate=(min+Math.floor(root.CinemaRules.seededRandom(`concessions/v2/${seed}/${now}/purchase`)()*(max-min+1)))/100;
-    const gross=calculate(items.map(i=>i.price),viewers,purchaseRate,marketing,foodCost,2),receipt={ruleVersion:2,earnedAt:now,bookedAt:now+1,items,averagePrice:items.reduce((s,i)=>s+i.price,0)/items.length,viewers,purchaseRate,marketing,foodCost,staffing,screenCount,gross};
+    const basePurchasePercent=(min+Math.floor(root.CinemaRules.seededRandom(`concessions/v2/${seed}/${now}/purchase`)()*(max-min+1)));
+    const regularDailyViewers=ticketReceipt.films.reduce((sum,f)=>sum+f.dailyViewers,0),bonus=attendanceBonus(regularDailyViewers,totalSeats);
+    const purchaseRate=(basePurchasePercent+bonus)/100;
+    const gross=calculate(items.map(i=>i.price),viewers,purchaseRate,marketing,foodCost,3),receipt={ruleVersion:3,basePurchasePercent,regularDailyViewers,totalSeats,attendanceBonus:bonus,earnedAt:now,bookedAt:now+1,items,averagePrice:items.reduce((s,i)=>s+i.price,0)/items.length,viewers,purchaseRate,marketing,foodCost,staffing,screenCount,gross};
     if(ticketReceipt.accountingYear!==undefined)receipt.accountingYear=ticketReceipt.accountingYear;
     return{version:1,lastSettledWeek:now,receipts:[...state.receipts,receipt]};
   }
   function totals(state,now,year=2022+Math.floor((now-1)/50)){return{weekly:(state?.receipts||[]).filter(r=>r.bookedAt===now&&(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.gross,0),annual:(state?.receipts||[]).filter(r=>(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.gross,0)};}
-  const api={create,calculate,purchaseRange,resolve,advance,totals};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaConcessions=api;
+  const api={create,calculate,purchaseRange,attendanceBonus,resolve,advance,totals};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaConcessions=api;
 })(globalThis);

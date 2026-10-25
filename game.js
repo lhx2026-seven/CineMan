@@ -490,7 +490,7 @@ function initGame() {
         captureActivation();
         const next=CinemaBoxOffice.advance({database:CinemaMovieDatabase,movies,cinemaID:id,locationID:property.locationID,allocation:currentAllocation,values},boxOffice,{deferRelease:closing});
         const nextActivation=activation?CinemaActivation.advance(activation,movies.lastWeek,next.receipt.films.reduce((sum,f)=>sum+f.dailyViewers,0),runId,next.receipt.accountingYear):null;
-        const nextFood=CinemaConcessions.advance(foodRevenue,next.receipt,values,exclusiveFood,runId,venueScreenCount);
+        const nextFood=CinemaConcessions.advance(foodRevenue,next.receipt,values,exclusiveFood,runId,venueScreenCount,currentAllocation.totalSeats);
         const nextMerchandise=CinemaMerchandise.advance(merchandise,next.receipt,values);
         const nextExpenses=CinemaOperatingExpenses.advance(operatingExpenses,next.receipt,values,nextMerchandise.receipts.at(-1));
         operatingExpenses=nextExpenses;merchandise=nextMerchandise;foodRevenue=nextFood;activation=nextActivation;movies=next.movies;boxOffice=next.ledger;gameDate.year=next.year;gameDate.week=next.week;
