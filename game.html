@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜電影院營業中</title>
-<link rel="stylesheet" href="game.css?v=ba5e4d6845f8">
-<script src="game-runtime.js?v=b850cdbf898c" defer></script>
+<link rel="stylesheet" href="game.css?v=2e833b32093c">
+<script src="game-runtime.js?v=485ae436c6b6" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -17,7 +17,7 @@
   <section class="cinema-hero" aria-labelledby="cinema-name">
     <img id="cinema-exterior" width="1774" height="887" alt="">
     <div class="hero-shade"></div>
-    <div class="hero-caption"><div><p class="overline">你的電影院</p><h2 id="cinema-name"></h2><p id="cinema-type"></p><p id="property-summary" hidden><svg class="location-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span id="property-summary-text"></span></p></div></div>
+    <div class="hero-caption"><div><p class="overline">你的電影院</p><div class="hero-title-row"><h2 id="cinema-name"></h2><span class="week-badge">2022 W1</span></div><p id="cinema-type"></p><p id="property-summary" hidden><svg class="location-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span id="property-summary-text"></span></p></div></div>
     <section class="venue-profile" id="venue-profile" aria-label="影廳與座位">
       <p id="venue-loading" role="status" hidden></p>
       <div id="venue-data" hidden>
@@ -29,7 +29,6 @@
     </section>
   </section>
   <section class="panel finance-panel financial-report" id="financial-report" aria-labelledby="finance-title">
-    <div class="section-heading"><span class="week-badge">2022 W1</span></div>
     <div class="report-toolbar"><h2 id="finance-title">財務報表</h2>
     <div class="report-tabs" role="tablist" aria-label="財報期間">
       <button type="button" role="tab" id="tab-weekly" aria-controls="report-weekly" aria-selected="true" tabindex="0">週報</button>
@@ -83,6 +82,7 @@
   </section>
   </div>
   <section class="panel annual-meeting" id="annual-meeting-section" aria-label="年度會議" hidden><div id="annual-meeting-content"></div></section>
+  <section class="operations-section" aria-label="營運設定">
   <div class="management-tabs" role="tablist" aria-label="營運配置">
     <button type="button" role="tab" id="tab-budget" aria-controls="panel-budget" aria-selected="true" tabindex="0">行政管理</button>
     <button type="button" role="tab" id="tab-pricing" aria-controls="panel-pricing" aria-selected="false" tabindex="-1">銷售規劃</button>
@@ -172,6 +172,7 @@
     </section>
 
   </form>
+  </section>
   <section class="counter-scene" aria-label="電影院售票櫃台"><img id="cinema-counter" width="1774" height="887" alt="" loading="lazy"><div class="counter-shade"></div><div class="next-week-area"><button type="button" id="next-week" class="gold-button" disabled>下一週 <span aria-hidden="true">→</span></button></div></section>
   <p id="draft-status" class="draft-status" role="status"></p>
 </main>

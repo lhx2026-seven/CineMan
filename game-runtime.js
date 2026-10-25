@@ -2264,6 +2264,7 @@ function initGame() {
   function updateControls() {
     updateTicketLocks();updateActivationLock();
     form.inert=restoring||!venueReady||!!annualMeeting;tabList.inert=!venueReady||!!annualMeeting;form.hidden=!!annualMeeting;tabList.hidden=!!annualMeeting;
+    document.querySelector('.operations-section').hidden=!!annualMeeting;
     document.querySelector('#next-week').hidden=false;
     const nextLabel=annualMeeting?'開始下一年度':gameDate.week===50?'年度會議':'下一週';
     const nextButton=document.querySelector('#next-week');if(nextButton.dataset.label!==nextLabel){nextButton.dataset.label=nextLabel;nextButton.replaceChildren(nextLabel+' ');const arrow=document.createElement('span');arrow.setAttribute('aria-hidden','true');arrow.textContent='→';nextButton.append(arrow);}
