@@ -14,7 +14,7 @@
     const base=standardPrice(cinemaID,values,allocation.screenCount);let seatSum=0,weighted=0;const specials=[];
     for(const screen of allocation.screens){if(!Number.isInteger(screen.size)||screen.size<=0)throw Error('影廳座位資料錯誤');const price=screen.type==='EXTRA'?amount(values[extraKey(screen)]):base;seatSum+=screen.size;weighted+=price*screen.size;if(screen.type==='EXTRA')specials.push(price);}
     if(seatSum!==allocation.totalSeats||allocation.screens.length!==allocation.screenCount)throw Error('影廳合計資料錯誤');
-    return {averagePrice:weighted/seatSum,ticketFull:cinemaID==='C02'?undefined:amount(values.ticketFull),secondRunMode:values.secondRunMode,specialHallPrices:specials};
+    return {maintenance:amount(values.maintenance??0),averagePrice:weighted/seatSum,ticketFull:cinemaID==='C02'?undefined:amount(values.ticketFull),secondRunMode:values.secondRunMode,specialHallPrices:specials};
   }
   function hydrate(database,state){
     const copy=structuredClone(state),by=new Map(database.movies.map(m=>[m.id,m]));

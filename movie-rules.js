@@ -82,15 +82,18 @@
     }
     return Math.max(0,Math.min(1,rate));
   }
-  function ticketAttendance({attendanceRate,cinemaID,screenCount,ticketFull,secondRunMode,specialHallPrices=[]}) {
+  function ticketAttendance({attendanceRate,cinemaID,screenCount,ticketFull,secondRunMode,specialHallPrices=[],maintenance=0}) {
     if(!Number.isFinite(attendanceRate)||attendanceRate<0||attendanceRate>1||!/^C0[1-5]$/.test(cinemaID)||!Number.isInteger(screenCount)||screenCount<1||!Array.isArray(specialHallPrices)||specialHallPrices.length>screenCount||specialHallPrices.some(price=>!Number.isFinite(price)||price<0))throw Error('Invalid ticket attendance context');
     if(cinemaID==='C02'?!['single','double','unlimited'].includes(secondRunMode):!Number.isFinite(ticketFull)||ticketFull<0)throw Error('Invalid ticket pricing');
+    if(!Number.isSafeInteger(maintenance)||maintenance<0)throw Error('Invalid maintenance budget');
     let penalty=0;
     if(['C01','C03','C04'].includes(cinemaID)&&ticketFull>350)penalty+=.5;
     if(cinemaID==='C02'&&secondRunMode==='single')penalty+=.5;
     if(cinemaID==='C05'&&ticketFull>200)penalty+=.05;
     // One entry per physical EXTRA hall, even when multiple halls share a price.
     penalty+=specialHallPrices.filter(price=>price>500).length/screenCount;
+    const maintenanceThreshold=(screenCount-specialHallPrices.length)*5000+specialHallPrices.length*10000;
+    if(maintenance>maintenanceThreshold)penalty*=.5;
     return Math.max(0,Math.min(1,attendanceRate-penalty));
   }
   function effectiveAttendance(movie,record,now,seed,venue,pricing){

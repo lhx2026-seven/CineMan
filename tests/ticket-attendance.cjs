@@ -12,3 +12,21 @@ const movie=db.movies.find(m=>m.id==='MV0504'),record={releasedAt:1,initial:fals
 const hit=db.movies.find(m=>m.tier==='hit');const location=R.effectiveAttendance(hit,record,1,'seed',venue);near(R.effectiveAttendance(hit,record,1,'seed',venue,{ticketFull:360,specialHallPrices:[]}),Math.max(0,location-.5));
 for(const bad of [{ticketFull:NaN},{specialHallPrices:[undefined]},{specialHallPrices:[-1]},{screenCount:1,specialHallPrices:[600,600]},{cinemaID:'C02',secondRunMode:'invalid'}])assert.throws(()=>apply(bad));
 console.log('PASS strict >350/>500/>200 boundaries, all five cinema types, second-run modes, actual extra-hall counts, cumulative point deductions and 0–100% bounds');
+
+for(const cinemaID of ['C01','C03','C04']){
+ near(apply({cinemaID,ticketFull:360,maintenance:50000}),.4);
+ near(apply({cinemaID,ticketFull:360,maintenance:50001}),.65);
+ near(apply({cinemaID,ticketFull:360,specialHallPrices:[600,600,500,400],maintenance:70000}),.2);
+ near(apply({cinemaID,ticketFull:360,specialHallPrices:[600,600,500,400],maintenance:70001}),.55);
+}
+near(apply({cinemaID:'C02',secondRunMode:'single',maintenance:50001}),.65);
+near(apply({cinemaID:'C05',ticketFull:201,maintenance:50001}),.875);
+near(apply({specialHallPrices:[600,600],maintenance:60000}),.7);
+near(apply({specialHallPrices:[600,600],maintenance:60001}),.8);
+near(apply({specialHallPrices:[500,500],maintenance:60001}),.9);
+near(apply({screenCount:1,specialHallPrices:[501],maintenance:10000}),0);
+near(apply({screenCount:1,specialHallPrices:[501],maintenance:10001}),.4);
+near(apply({attendanceRate:.4,ticketFull:400,maintenance:50001}),.15);
+near(R.effectiveAttendance(movie,record,1,'seed',venue,{ticketFull:360,specialHallPrices:[600,600],maintenance:1000000}),1);
+for(const maintenance of [-1,NaN,Infinity,.5])assert.throws(()=>apply({maintenance}));
+console.log('PASS maintenance strict threshold, actual normal/extra hall counts, all four halved deductions before clamping, stacking, special exemption and invalid budgets');

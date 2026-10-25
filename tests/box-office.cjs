@@ -33,3 +33,14 @@ const dropped=B.advance(lowContext,B.createLedger());assert.equal(dropped.movies
 const rescued=B.advance({...lowContext,values:{...lowContext.values,specialMovie:'MV0505',specialPrice:400}},B.createLedger());assert.equal(rescued.movies.history.find(h=>h.id==='MV0505').retiredAt,null);
 assert.equal(R.eventsFor({history:[{id:'MV0503',releasedAt:1,retiredAt:2}]},4).length,0);
 console.log('PASS prior-week-only <2000 retirement, exactly 2000 survives, high cumulative does not protect, zero gross retires, fresh movies excluded, special revenue included and special long-run protection overridden');
+
+const priced=B.pricing('C01',alloc,{ticketFull:360,ticketExtra_VIP:600,maintenance:'15001'});
+assert.equal(priced.maintenance,15001);assert.deepEqual(priced.specialHallPrices,[600]);
+assert.equal(R.ticketAttendance({...priced,cinemaID:'C01',screenCount:2,attendanceRate:1}),.5);
+assert.equal(R.ticketAttendance({...priced,maintenance:15000,cinemaID:'C01',screenCount:2,attendanceRate:1}),0);
+const ordinary=db.movies.find(m=>m.tier==='hit');
+const maintenanceMovies={...knownMovies,current:[ordinary.id],history:[{id:ordinary.id,releasedAt:1,initial:false,retiredAt:null}]};
+const maintenanceContext={database:db,movies:maintenanceMovies,cinemaID:'C01',locationID:'LOC01',allocation:alloc,values:{marketing:5000,ticketFull:360,ticketExtra_VIP:500,featuredFilm:ordinary.id,featuredSlots:6,maintenance:15000,specialMovie:ordinary.id,specialPrice:500}};
+const lowMaintenance=B.settle(maintenanceContext),highMaintenance=B.settle({...maintenanceContext,values:{...maintenanceContext.values,maintenance:15001}});
+assert(highMaintenance.films[0].dailyViewers>lowMaintenance.films[0].dailyViewers);assert.equal(highMaintenance.films[0].specialGross,lowMaintenance.films[0].specialGross);
+console.log('PASS maintenance budget flows through real pricing and weekly gross; regular viewers improve, special sessions unchanged');

@@ -7,13 +7,24 @@ Rates are decimals. Deductions are percentage points, deterministic, and cumulat
 - C05 公會堂: full price strictly >200 deducts 0.05.
 - All cinema types: count physical special halls priced strictly >500; deduct that count / total screenCount. Two qualifying halls out of ten deduct 0.20, not 0.002. A hall priced exactly 500 does not qualify.
 
-`CinemaMovieRules.ticketAttendance(context)` accepts a base attendanceRate, cinemaID, actual screenCount, ticketFull (except C02), secondRunMode (C02), and specialHallPrices. The latter array has one price per physical EXTRA hall, never one entry per price-field/format. Two VIP halls sharing the same 600 price must produce [600,600]. Normal halls do not belong in this array. If there are no special halls, use [].
+若本週硬體維護預算嚴格大於「一般廳數×5,000＋特殊廳數×10,000」，上述全部票價扣減幅度減半，再扣除並限制上座率範圍；等於門檻維持原懲罰。一般廳數＝總廳數－實際EXTRA廳數，所有特殊廳均計入維護門檻，與其是否超過500元無關。
+
+| 懲罰 | 維護達標後 |
+|---|---|
+| 寶宮／布洛威／YLC全票＞350元 | 減25個百分點 |
+| 世紀一票單片 | 減25個百分點 |
+| 公會堂全票＞200元 | 減2.5個百分點 |
+| 超價特殊廳數／總廳數 | 原扣減幅度×0.5 |
+
+例如10廳中2廳為特殊廳，維護門檻60,000元；須＞60,000元才減半。如果2個特殊廳均超價，扣減由20降至10個百分點。此減半不影響排片、行銷、區位或特殊場的獨立規則。
+
+`CinemaMovieRules.ticketAttendance(context)` accepts a base attendanceRate, cinemaID, actual screenCount, ticketFull (except C02), secondRunMode (C02), maintenance (defaults to 0), and specialHallPrices. The latter array has one price per physical EXTRA hall, never one entry per price-field/format. Two VIP halls sharing the same 600 price must produce [600,600]. Normal halls do not belong in this array. If there are no special halls, use [].
 
 `effectiveAttendance(movie, record, week, seed, venue, pricing)` returns special-tier attendance unchanged; for ordinary films it composes current-week attendance → initial location factor → location cinema/tier adjustments with 0–100% clamp → cumulative ticket-price deductions with 0–100% clamp. Omitting pricing preserves the earlier location-only helper behavior. Future financial calculation must supply actual saved prices, not omit pricing or rely on defaults. Inputs and the original first-week base are not mutated.
 
 The eventual formula is average ticket price × final effective attendance × total seats × 6 × film screening share. Do not multiply by location_weight or ticket_price_weight again: both are attendance adjustments, not extra gross-revenue factors. Average ticket-price rules remain separate from attendance penalties.
 
-The module is used by weekly gross box-office settlement; see `docs/box-office.md`. After-split ticket revenue and other income/expenses remain pending.
+The module is used by weekly gross box-office settlement; see `docs/box-office.md`. Historical settled receipts keep their posted amounts; maintenance changes apply to future weekly settlements.
 
 Test: `node tests/ticket-attendance.cjs`.
 
