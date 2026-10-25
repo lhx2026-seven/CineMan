@@ -633,3 +633,13 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 
 /* Footer ticket photographs stay complete, including portrait receipts and handwritten fields. */
 .game-page .counter-scene > img[data-scene="ticket"] { height:auto; min-height:0; max-height:320px; aspect-ratio:2/1; object-fit:contain; object-position:center; background:#100e0b; }
+
+/* Annual ticket confirmation: centered on desktop and mobile. */
+#ticket-confirm-dialog { box-sizing:border-box; width:min(390px,calc(100% - 36px)); max-width:none; max-height:calc(100dvh - 36px); margin:auto; padding:27px 22px 22px; border:1px solid #c8a36499; border-radius:12px; background:#17130eef; box-shadow:0 18px 70px #0008; text-align:center; }
+#ticket-confirm-dialog::backdrop { background:#0007; backdrop-filter:none; }
+#ticket-confirm-dialog h2 { margin:0; color:#ecd7b1; font-size:18px; font-weight:500; line-height:1.6; }
+#ticket-confirm-dialog p { margin:8px 0 23px; color:#b9aa93; font-size:12px; line-height:1.7; }
+.ticket-confirm-actions { display:flex; justify-content:center; gap:12px; }
+.ticket-confirm-actions button { flex:1; min-height:42px; padding:10px 14px; border:1px solid #b99b5d66; border-radius:6px; background:transparent; color:#dac5a2; font:inherit; font-size:13px; cursor:pointer; }
+#ticket-confirm-dialog .gold-button { margin:0; background:#c9a66b; color:#21180d; }
+.ticket-confirm-actions button:focus-visible { outline:2px solid #f4d397; outline-offset:3px; }

@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜電影院營業中</title>
-<link rel="stylesheet" href="game.css?v=c6e796cbc8d5">
-<script src="game-runtime.js?v=07fb52a5285a" defer></script>
+<link rel="stylesheet" href="game.css?v=1515f09a5917">
+<script src="game-runtime.js?v=9211d872bdff" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -178,6 +178,11 @@
   <section class="counter-scene" aria-label="電影院售票櫃台"><img id="cinema-counter" width="1774" height="887" alt="" loading="lazy"><div class="counter-shade"></div><div class="next-week-area"><button type="button" id="next-week" class="gold-button" disabled>下一週 <span aria-hidden="true">→</span></button></div></section>
   <p id="draft-status" class="draft-status" role="status"></p>
 </main>
+<dialog id="ticket-confirm-dialog" aria-labelledby="ticket-confirm-title" aria-describedby="ticket-confirm-description">
+  <h2 id="ticket-confirm-title">請確認今年度電影票價</h2>
+  <p id="ticket-confirm-description">（確認後今年度即不得再修改）</p>
+  <div class="ticket-confirm-actions"><button type="button" id="ticket-return">返回修改</button><button type="button" id="ticket-confirm" class="gold-button">確認</button></div>
+</dialog>
 <dialog id="week-dialog"><form method="dialog"><p class="overline">CineMan</p><h2>本週暫時無法結算</h2><p>請檢查本週配置後重試。</p><p id="dialog-save-status"></p><button class="gold-button" value="close">繼續調整</button></form></dialog>
 <footer class="site-footer">©2026 CineMan · Developed by <a href="https://www.facebook.com/FRONTDELIBERATIONCINEMA" target="_blank" rel="noopener noreferrer">電影解放陣線</a></footer>
 </body>

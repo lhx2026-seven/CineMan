@@ -18,3 +18,11 @@ The module is used by weekly gross box-office settlement; see `docs/box-office.m
 Test: `node tests/ticket-attendance.cjs`.
 
 After ticket deductions, effectiveAttendance applies C05 tier multipliers (hit×0.5, average×1.5) and clamps to [0,1]. Standalone ticketAttendance remains the ticket deduction helper; special-tier profiles bypass these modifiers.
+
+## 年度票價確認
+
+每年W1按「下一週」且已完成必要排片時，先開啟置中確認卡（桌機、手機相同）。深色半透明卡片、細金邊、背景略暗，使用原生dialog進行焦點限制與背景操作阻擋。
+
+文案：「請確認今年度電影票價」「（確認後今年度即不得再修改）」；按鈕「返回修改」「確認」。初始焦點在返回修改；返回或Esc會關閉卡片、切至銷售規劃，保留目前票價和主打選擇，不結算、不推進週次。確認才執行原每週結算並進入W2，原年度票價鎖定照常套用。其他週、年度會議、進入新年度W1時不彈出，僅W1往W2時提醒。載入失敗或未選主打造成下一週不可用時，不顯示確認卡。卡片本身不啟動計時器或新增存檔狀態。
+
+驗證：tests/annual-ticket-lock-browser.cjs（五戲院、390/1440px置中、返回/Esc、結算、重載鎖價、隔年再次確認及W2免提醒）。

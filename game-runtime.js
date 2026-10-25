@@ -2332,10 +2332,27 @@ function initGame() {
     saveDraft(true);
   });
   document.querySelector('#next-week').addEventListener('click',()=>advanceWeek(!!annualMeeting));
-  async function advanceWeek(fromMeeting=false) {
+  const ticketConfirmDialog=document.querySelector('#ticket-confirm-dialog');
+  function returnToTicketPricing(){
+    ticketConfirmDialog.close();
+    activateTab(tabs.find(tab=>tab.id==='tab-pricing'),true);
+    tabList.scrollIntoView({block:'start'});
+    saveDraft();
+  }
+  document.querySelector('#ticket-return').addEventListener('click',returnToTicketPricing);
+  ticketConfirmDialog.addEventListener('cancel',event=>{event.preventDefault();returnToTicketPricing();});
+  document.querySelector('#ticket-confirm').addEventListener('click',()=>{
+    ticketConfirmDialog.close();
+    advanceWeek(false,true);
+  });
+  async function advanceWeek(fromMeeting=false,ticketConfirmed=false) {
     if(advancing||!venueReady)return;
     if(annualMeeting&&!fromMeeting)return;
     if(!annualMeeting?.settled&&((movies.current.length||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!form.querySelector('[name="featuredFilm"]:checked')))return;
+    if(gameDate.week===1&&!annualMeeting&&!ticketConfirmed){
+      if(!ticketConfirmDialog.open){ticketConfirmDialog.showModal();document.querySelector('#ticket-return').focus();}
+      return;
+    }
     advancing=true;updateControls();
     try {
       const values=formValues(),finishing=annualMeeting?.settled===true,closing=gameDate.week===50&&!finishing;
