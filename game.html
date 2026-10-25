@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CineMan｜電影院營業中</title>
-<link rel="stylesheet" href="game.css?v=e3b28117b2ee">
-<script src="game-runtime.js?v=ba414a861deb" defer></script>
+<link rel="stylesheet" href="game.css?v=ba5e4d6845f8">
+<script src="game-runtime.js?v=b850cdbf898c" defer></script>
 </head>
 <body class="game-page page-entering">
 <header class="header">
@@ -29,13 +29,15 @@
     </section>
   </section>
   <section class="panel finance-panel financial-report" id="financial-report" aria-labelledby="finance-title">
-    <div class="section-heading"><h2 id="finance-title">財務報表</h2></div>
+    <div class="section-heading"><span class="week-badge">2022 W1</span></div>
+    <div class="report-toolbar"><h2 id="finance-title">財務報表</h2>
     <div class="report-tabs" role="tablist" aria-label="財報期間">
       <button type="button" role="tab" id="tab-weekly" aria-controls="report-weekly" aria-selected="true" tabindex="0">週報</button>
       <button type="button" role="tab" id="tab-annual" aria-controls="report-annual" aria-selected="false" tabindex="-1">年報</button>
     </div>
+    </div>
     <div id="report-weekly" role="tabpanel" aria-labelledby="tab-weekly" tabindex="0">
-      <p class="report-period">2022 W1</p>
+      <p class="report-period sr-only">2022 W1</p>
       <table class="ledger-table">
         <caption class="sr-only">2022 W1 週報，結算規則尚未設定，金額均待結算</caption>
         <thead><tr><th scope="col">項目</th><th scope="col">收入</th><th scope="col">支出</th></tr></thead>
@@ -56,7 +58,7 @@
       <div class="ledger-balance"><span>營業利益</span><strong id="weekly-profit">0</strong></div>
     </div>
     <div id="report-annual" role="tabpanel" aria-labelledby="tab-annual" tabindex="0" hidden>
-      <p class="report-period">2022</p>
+      <p class="report-period sr-only">2022</p>
       <table class="ledger-table">
         <caption class="sr-only">2022 年報，結算規則尚未設定，金額均待結算</caption>
         <thead><tr><th scope="col">項目</th><th scope="col">收入</th><th scope="col">支出</th></tr></thead>
@@ -80,12 +82,7 @@
     </div>
   </section>
   </div>
-  <section class="weekly-bulletin" id="weekly-bulletin" aria-label="本週公告">
-  <div class="workspace-bar"><div class="workspace-meta"><span class="week-badge">2022 W1</span><h2 id="weekly-events-title" hidden>本週大事</h2></div></div>
-  <section class="panel weekly-events" id="weekly-events" aria-labelledby="weekly-events-title" hidden>
-    <div id="weekly-event-list"></div>
-  </section>
-  </section>
+  <section class="panel annual-meeting" id="annual-meeting-section" aria-label="年度會議" hidden><div id="annual-meeting-content"></div></section>
   <div class="management-tabs" role="tablist" aria-label="營運配置">
     <button type="button" role="tab" id="tab-budget" aria-controls="panel-budget" aria-selected="true" tabindex="0">行政管理</button>
     <button type="button" role="tab" id="tab-pricing" aria-controls="panel-pricing" aria-selected="false" tabindex="-1">銷售規劃</button>
@@ -182,6 +179,11 @@
   <h2 id="ticket-confirm-title">請確認今年度電影票價</h2>
   <p id="ticket-confirm-description">（確認後今年度即不得再修改）</p>
   <div class="ticket-confirm-actions"><button type="button" id="ticket-return">返回修改</button><button type="button" id="ticket-confirm" class="gold-button">確認</button></div>
+</dialog>
+<dialog class="notice-dialog" id="event-notice-dialog" aria-labelledby="event-notice-title" aria-describedby="event-notice-message">
+  <h2 id="event-notice-title"></h2><p id="event-notice-message"></p>
+  <p id="event-notice-status" role="status" hidden></p>
+  <div class="ticket-confirm-actions" id="event-notice-actions"></div>
 </dialog>
 <dialog class="notice-dialog" id="payment-notice-dialog" aria-labelledby="payment-notice-title" aria-describedby="payment-notice-list">
   <h2 class="sr-only" id="payment-notice-title">本週繳費通知</h2>
