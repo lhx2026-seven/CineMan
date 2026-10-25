@@ -1,14 +1,20 @@
 # 非每週支出提醒
 
-本週大事合併顯示電影事件與繳費提醒；年度會議仍使用原會議畫面。提醒是唯讀文字，不新增決策或扣款，也不顯示「無法干預」等多餘字樣。首週沒有事件仍自然隱藏。
+實際出帳當週以置中確認卡顯示費用，不再放在本週大事裡。與年度票價確認共用深色半透明底、細金邊、微暗背景樣式，桌機和手機都置中，只有「了解」一個按鈕。同週多項費用合併為同一張卡，不逐張打斷操作。
 
-- 租金：依rent實際出帳紀錄，出帳週提醒「本週繳交租金」。
-- 布洛威／YLC：依managementFee實際出帳紀錄提醒管理費（W4起每4週）；與租金同週合併成「本週繳交租金及管理費」，自有無租金時為「本週繳交管理費」。
-- 公共事業帳單：依utilityBills實際出帳紀錄（每年W8／16／24／32／40／48）提醒「本週繳交水電網路費」。
-- 不動產稅：依propertyTax實際出帳紀錄提醒「本週繳交房屋稅、地價稅」，每年W46；承租或公會堂自有免稅時不提醒。
+文案依實際帳單及金額：
 
-租金與不動產稅金額必須大於0才產生繳費提醒。管理費與水電網路費均已連動實際出帳，提醒以各自收據為準。
+- 本週應繳租金 NT$金額。
+- 同週租金加管理費：本週應繳租金、管理費合計 NT$合計金額。
+- 自有的布洛威／YLC只有管理費：本週應繳管理費 NT$金額。
+- 本週應繳房屋稅、地價稅合計 NT$金額。
+- 本週應繳水電網路費 NT$金額。
 
-租金／管理費從絕對營運週計算，跨年不重置；水電費改按每年固定日曆週，2023首次出帳為W8（第58週），第56週不出水電帳單。提醒只在當週顯示，重載以相同資料還原，每項只有一則；下週沒有繳費時即消失。虛擬年度會議不產生額外提醒或帳單。
+從rent、managementFee、propertyTax、utilityBills當週實際出帳收據彙總正金額，免繳、0元及非出帳週不彈窗。這只是唯讀通知，不更動公式、出帳週次或重複扣費。不動產稅與房屋／地價稅是同一合計費用，沒有再拆算。
 
-程式weekly-events.js/paymentReminders與game.js/renderBulletin；測試tests/payment-reminders.cjs、tests/rent-browser.cjs、tests/property-tax-browser.cjs、tests/weekly-events-browser.cjs。
+按「了解」記錄paymentNoticeAcknowledgedWeek（絕對營運週）並走原自動存檔流程；開啟存檔時，刷新或繼續同一週不重複提醒。尚未了解就刷新，仍會提醒；存檔關閉時不為通知另行寫入。Esc不能跳過這張卡。週次及收支已完成原本出帳，了解不推進週次。舊存檔無已讀欄位時，只提示當週帳單，不補彈過往帳單。年度會議不顯示繳費通知；電影事件及決策維持原本區塊。
+
+跨年沿用絕對營運週，通知不影響虛擬年度會議、年度票價確認及各費用收取週期。
+
+程式weekly-events.js/paymentReminders、game.js/showPaymentNotice。
+測試tests/payment-reminders.cjs、tests/payment-notice-browser.cjs、tests/weekly-events-browser.cjs、tests/annual-ticket-lock-browser.cjs。

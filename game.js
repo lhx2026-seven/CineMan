@@ -47,7 +47,7 @@ function initGame() {
   let movies = null;
   let boxOffice=null,distributor=null,rent=null,propertyTax=null,managementFee=null,operatingExpenses=null,utilityBills=null,foodRevenue=null,merchandise=null,advancing=false,annualMeeting=null;
   let checkpoint = null, currentAllocation = null, restoring = true, bootFailed = false, storeAvailable = true;
-  let saveQueue = Promise.resolve(false), saveRevision = 0,financialSummary=null;
+  let saveQueue = Promise.resolve(false), saveRevision = 0,financialSummary=null,paymentNoticeAcknowledgedWeek=0;
   const gameDate = {year:2022,week:1};
   const currentWeek=()=>CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week)+(annualMeeting?.settled?1:0);
   const displayPeriod=()=>annualMeeting?.settled?`${gameDate.year}年度會議`:`${gameDate.year} W${gameDate.week}`;
@@ -172,7 +172,22 @@ function initGame() {
   }
   function renderBulletin(){
     if(annualMeeting)CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,figures:{...CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),expenses:financialSummary?.annual.expenses??null,preTaxProfit:financialSummary?.annual.profit??null,profit:financialSummary?.annual.afterTaxProfit??null},topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),showRanking:!secondRun});
-    else CinemaEvents.render({events:[...CinemaMovieRules.eventsFor(movies,currentWeek()),...CinemaEvents.paymentReminders({week:currentWeek(),rent,propertyTax,managementFee,utilityBills})]});
+    else CinemaEvents.render({events:CinemaMovieRules.eventsFor(movies,currentWeek())});
+    showPaymentNotice();
+  }
+  function showPaymentNotice(){
+    const week=currentWeek();
+    if(!venueReady||annualMeeting||paymentNoticeAcknowledgedWeek===week)return;
+    const notices=CinemaEvents.paymentReminders({week,rent,propertyTax,managementFee,utilityBills});
+    if(!notices.length||paymentNoticeDialog.open)return;
+    const rows=notices.map(notice=>{
+      const row=document.createElement('p'),label=document.createElement('span'),amount=document.createElement('strong');
+      label.textContent=notice.title;amount.textContent=`NT$${notice.amount.toLocaleString('zh-TW')}`;
+      row.append(label,' ',amount);return row;
+    });
+    document.querySelector('#payment-notice-list').replaceChildren(...rows);
+    paymentNoticeDialog.dataset.week=String(week);
+    paymentNoticeDialog.showModal();
   }
   function renderFinance(){
     renderYearVisuals();
@@ -322,6 +337,7 @@ function initGame() {
         document.querySelector('#report-weekly .report-period').textContent=`${displayPeriod()}`;
         document.querySelector('#report-annual .report-period').textContent=String(gameDate.year);
       }
+      paymentNoticeAcknowledgedWeek=Number.isSafeInteger(checkpoint?.paymentNoticeAcknowledgedWeek)?checkpoint.paymentNoticeAcknowledgedWeek:0;
       renderYearVisuals();
       if (restoredDraft) {
         for (const control of form.elements) {
@@ -435,7 +451,7 @@ function initGame() {
     const values=formValues();
     const budgetLocks=Object.fromEntries(['maintenance','consumables'].map(name=>[name,form.elements[name].disabled ? document.querySelector(`#${name}-lock`).title || true : false]));
     const snapshot={cinemaID:id,cinemaName:cinema.name,runId,year:gameDate.year,week:gameDate.week,
-      values,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,exclusiveFood,property,activation,annualMeeting,movies,boxOffice,distributor,rent,propertyTax,managementFee,operatingExpenses,utilityBills,foodRevenue,merchandise,budgetLocks,
+      values,featuredCapacity:CinemaFilms.screeningCapacity(venueScreenCount,id),allocation:currentAllocation,exclusiveFood,property,activation,annualMeeting,movies,boxOffice,distributor,rent,propertyTax,managementFee,operatingExpenses,utilityBills,foodRevenue,merchandise,budgetLocks,paymentNoticeAcknowledgedWeek,
       tabID:tabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       reportTabID:reportTabs.find(tab=>tab.getAttribute('aria-selected')==='true')?.id,
       detailsOpen:document.querySelector('#venue-details-title').getAttribute('aria-expanded')==='true'};
@@ -477,6 +493,13 @@ function initGame() {
   });
   document.querySelector('#next-week').addEventListener('click',()=>advanceWeek(!!annualMeeting));
   const ticketConfirmDialog=document.querySelector('#ticket-confirm-dialog');
+  const paymentNoticeDialog=document.querySelector('#payment-notice-dialog');
+  paymentNoticeDialog.addEventListener('cancel',event=>event.preventDefault());
+  document.querySelector('#payment-notice-ok').addEventListener('click',()=>{
+    paymentNoticeAcknowledgedWeek=Number(paymentNoticeDialog.dataset.week);
+    paymentNoticeDialog.close();
+    saveDraft();
+  });
   function returnToTicketPricing(){
     ticketConfirmDialog.close();
     activateTab(tabs.find(tab=>tab.id==='tab-pricing'),true);

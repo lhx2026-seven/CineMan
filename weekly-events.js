@@ -2,12 +2,12 @@
 (function(root) {
   function paymentReminders({week,rent,propertyTax,managementFee,utilityBills}) {
     const notices=[];
-    const add=(kind,title)=>notices.push({id:`payment/${kind}/${week}`,title,message:'',noticeOnly:true});
-    if(utilityBills?.receipts.some(r=>r.week===week&&r.amount>0))add('utilities','本週繳交水電網路費');
-    const rental=rent?.receipts.some(r=>r.week===week&&r.amount>0);
-    const management=managementFee?.receipts.some(r=>r.week===week&&r.amount>0);
-    if(rental||management)add('premises',rental?(management?'本週繳交租金及管理費':'本週繳交租金'):'本週繳交管理費');
-    if(propertyTax?.receipts.some(r=>r.week===week&&r.amount>0))add('property-tax','本週繳交房屋稅、地價稅');
+    const due=state=>(state?.receipts||[]).filter(r=>r.week===week&&r.amount>0).reduce((sum,r)=>sum+r.amount,0);
+    const add=(kind,title,amount)=>notices.push({id:`payment/${kind}/${week}`,title,amount,message:'',noticeOnly:true});
+    const utilities=due(utilityBills),rental=due(rent),management=due(managementFee),tax=due(propertyTax);
+    if(utilities)add('utilities','本週應繳水電網路費',utilities);
+    if(rental||management)add('premises',rental?(management?'本週應繳租金、管理費合計':'本週應繳租金'):'本週應繳管理費',rental+management);
+    if(tax)add('property-tax','本週應繳房屋稅、地價稅合計',tax);
     return notices;
   }
   // Called at the beginning of a week with that week's database-backed events.
