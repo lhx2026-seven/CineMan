@@ -52,7 +52,7 @@
     if(showRanking&&topFive.length){const heading=document.createElement('h4');heading.textContent='年度票房TOP 5';const ol=document.createElement('ol');for(const film of topFive){const li=document.createElement('li');li.textContent=film.title;li.dataset.movieId=film.id;ol.append(li);}ranking.append(heading,ol);}
     if(!ranking.children.length){const heading=document.createElement('h4');heading.textContent='年度票房TOP 5';const p=document.createElement('p');p.textContent=showRanking?'本年度尚無票房紀錄':'本院僅顯示合計票房';ranking.append(heading,p);}
     const response=document.createElement('div');response.className='meeting-response';response.dataset.role=state.role;const speaker=document.createElement('h4');speaker.textContent=state.role==='shareholders'?'股東回應':'董事長回應';const reply=document.createElement('p');reply.textContent='⋯';reply.setAttribute('aria-label','回應尚未公布');response.append(speaker,reply);
-    content.append(h,text);article.append(visual,content,ranking,response);list.replaceChildren(article);
+    content.append(h,text);article.append(content,visual,ranking,response);list.replaceChildren(article);
     let chartHeight=360;
     chartResizeObserver=new ResizeObserver(([entry])=>{
       const {width,height}=entry.contentRect;
