@@ -23,8 +23,12 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
       }else assert(visuals[1].src.includes(`${slug}-counter`),JSON.stringify(visuals));
       assert(!await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth));
     }
+    async function acknowledgeNotices(){
+      if(await page.locator('#payment-notice-dialog').isVisible())await page.locator('#payment-notice-ok').click();
+      while(await page.locator('#event-notice-dialog').isVisible())await page.locator('#event-notice-actions button').filter({hasText:'了解'}).click();
+    }
     async function reload(year){
-      requests.length=0;await page.reload();await page.locator('#venue-data').waitFor();await check(year);
+      requests.length=0;await page.reload();await page.locator('#venue-data').waitFor();await acknowledgeNotices();await check(year);
       await page.waitForFunction(()=>document.querySelector('#draft-status').textContent==='已自動存檔');
       const config=expected(year),unused=[config.hero==='interior'?'exterior':'interior',config.footer==='ticket'?'counter':'ticket','projection'];
       assert(!requests.some(url=>unused.some(kind=>url.includes(`${slug}-${kind}`))),`Loaded unused yearly image: ${requests.join(',')}`);

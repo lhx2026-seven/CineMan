@@ -117,6 +117,7 @@ function initGame() {
   const counter = document.querySelector('#cinema-counter');
   counter.sizes = '(max-width: 760px) calc(100vw - 32px), 960px';
   counter.decoding = 'async';
+  counter.fetchPriority = 'low';
   document.body.dataset.cinema = cinema.slug;
   function renderYearVisuals() {
     const year=gameDate.year;
@@ -129,9 +130,9 @@ function initGame() {
       const file=scene==='ticket'?ticketFile:scene==='interior'?`${cinema.slug}-interior.webp`:scene==='exterior'?cinema.exterior:scene==='projection'?`${cinema.slug}-projection.webp`:`${cinema.slug}-counter${counterVersion}.webp`;
       if(image.dataset.asset===file)continue;
       const folder=scene==='ticket'?'tickets':scene==='counter'?'counters':scene==='projection'?'projection':'landscape';
-      const smallWidth=image===counter?960:640,fullWidth=scene==='counter'&&id==='C01'?2048:1774;
+      const widths=image===counter?(scene==='projection'?[960]:[960,1280]):[640,960,1280],fullWidth=scene==='counter'&&id==='C01'?2048:1774;
       image.dataset.asset=file;image.dataset.scene=scene;
-      image.srcset=`assets/cinemas/optimized/${file.replace('.webp',`-${smallWidth}.webp`)} ${smallWidth}w, assets/cinemas/${folder}/${file} ${fullWidth}w`;
+      image.srcset=[...widths.map(width=>`assets/cinemas/optimized/${file.replace('.webp',`-${width}.webp`)} ${width}w`),`assets/cinemas/${folder}/${file} ${fullWidth}w`].join(', ');
       image.src=`assets/cinemas/${folder}/${file}`;
       image.alt=cinema.name+(scene==='ticket'?ticketDescription:scene==='interior'?'影廳內部':scene==='exterior'?'外觀':scene==='projection'?'觀眾席後方與放映窗':'售票櫃台');
       if(image===counter)image.closest('.counter-scene').setAttribute('aria-label',image.alt);
@@ -581,6 +582,14 @@ function initGame() {
       console.error('Game initialization failed:',error);
     } finally {
       renderYearVisuals();
+      // Give the selected hero a brief chance to decode, never an unbounded
+      // image/network wait. Footer images and recovery controls never block entry.
+      if(venueReady&&typeof exterior.decode==='function'){
+        let imageTimer;
+        try{await Promise.race([exterior.decode(),new Promise(resolve=>{imageTimer=setTimeout(resolve,180);})]);}
+        catch{ /* A failed image must never trap the game behind its curtains. */ }
+        finally{clearTimeout(imageTimer);}
+      }
       // Errors must never leave the retry control trapped behind the curtains.
       document.body.classList.add('reveal');
       setTimeout(() => document.body.classList.remove('page-entering', 'reveal'), matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 500);

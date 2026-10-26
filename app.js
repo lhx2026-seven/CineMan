@@ -37,7 +37,7 @@ function prepareGame(id) {
   for (const [href, as] of [
     [`game.html?cinema=${encodeURIComponent(id)}&fresh=1&v=entry-v39&run=${preparedRuns.get(id)}`, 'document'],
     ['game.css?v=31418ba9ecf1', 'style'],
-    ['game-runtime.js?v=c55b68447f3d', 'script'],
+    ['game-runtime.js?v=a2081dfff5a7', 'script'],
   ]) {
     const link = document.createElement('link');
     link.rel = as === 'document' ? 'prefetch' : 'preload';
@@ -45,6 +45,13 @@ function prepareGame(id) {
     link.as = as;
     document.head.append(link);
   }
+  const [,slug]=definitions.find(([cinemaID])=>cinemaID===id);
+  const stem=`${slug}-exterior${['C02','C03','C04'].includes(id)?'-v2':''}`;
+  const image=document.createElement('link');image.rel='preload';image.as='image';image.fetchPriority='high';
+  image.href=`assets/cinemas/landscape/${stem}.webp`;
+  image.imageSrcset=[...[640,960,1280].map(width=>`assets/cinemas/optimized/${stem}-${width}.webp ${width}w`),`${image.href} 1774w`].join(', ');
+  image.imageSizes='(max-width: 760px) calc(100vw - 20px), (max-width: 992px) 52vw, 510px';
+  document.head.append(image);
 }
 
 let enteringGame = false;
@@ -153,7 +160,7 @@ async function init() {
       card.dataset.cinemaId = id;
       card.innerHTML = `
         <figure class="cinema-visual">
-          <img draggable="false" src="assets/cinemas/landscape/${slug}-exterior${id === 'C02' || id === 'C03' || id === 'C04' ? '-v2' : ''}.webp" srcset="assets/cinemas/optimized/${slug}-exterior${['C02','C03','C04'].includes(id) ? '-v2' : ''}-640.webp 640w, assets/cinemas/landscape/${slug}-exterior${['C02','C03','C04'].includes(id) ? '-v2' : ''}.webp 1774w" sizes="320px" decoding="async" alt="${name}外觀示意" width="1774" height="887">
+          <img draggable="false" src="assets/cinemas/landscape/${slug}-exterior${id === 'C02' || id === 'C03' || id === 'C04' ? '-v2' : ''}.webp" srcset="assets/cinemas/optimized/${slug}-exterior${['C02','C03','C04'].includes(id) ? '-v2' : ''}-640.webp 640w, assets/cinemas/optimized/${slug}-exterior${['C02','C03','C04'].includes(id) ? '-v2' : ''}-960.webp 960w, assets/cinemas/landscape/${slug}-exterior${['C02','C03','C04'].includes(id) ? '-v2' : ''}.webp 1774w" sizes="320px" decoding="async" alt="${name}外觀示意" width="1774" height="887">
         </figure>
         <div class="card-content">
           <h2>${name}</h2><div class="type">${type}</div>
@@ -161,7 +168,7 @@ async function init() {
           <button type="button" class="select-button" aria-pressed="false">選擇${name}</button>
         </div>
         <figure class="cinema-visual">
-          <img draggable="false" src="assets/cinemas/landscape/${slug}-interior.webp" srcset="assets/cinemas/optimized/${slug}-interior-640.webp 640w, assets/cinemas/landscape/${slug}-interior.webp 1774w" sizes="320px" decoding="async" alt="${name}內裝示意" width="1774" height="887" loading="lazy">
+          <img draggable="false" src="assets/cinemas/landscape/${slug}-interior.webp" srcset="assets/cinemas/optimized/${slug}-interior-640.webp 640w, assets/cinemas/optimized/${slug}-interior-960.webp 960w, assets/cinemas/landscape/${slug}-interior.webp 1774w" sizes="320px" decoding="async" alt="${name}內裝示意" width="1774" height="887" loading="lazy">
         </figure>`;
       const choose = () => {
         if (selectedId !== id) {
