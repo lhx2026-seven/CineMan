@@ -16,6 +16,6 @@ assert.equal(B.screeningPlan(movies,'C03','MV0054',.8,ledger(10000,0)).removed.l
 assert.deepEqual(plan(ledger(10000,4999)).removed,plan(ledger(10000,4999)).removed);
 const allocation={screenCount:10,totalSeats:1000,screens:Array.from({length:10},()=>({type:'NORMAL',name:'normal',size:100}))};
 const context={database:db,movies,cinemaID:'C01',locationID:'LOC01',allocation,values:{marketing:5000,ticketFull:300,featuredFilm:'MV0054',featuredSlots:48}};
-const receipt=B.settle({...context,ledger:ledger(10000,5000)});assert.deepEqual(receipt.strategyRetirements,['MV0058']);assert.equal(receipt.films.filter(f=>!f.forcedOff).length,4);assert(Math.abs(receipt.films.reduce((s,f)=>s+f.share,0)-1)<1e-12);
+const receipt=B.settle({...context,ledger:ledger(10000,5000)});assert.deepEqual(receipt.strategyRetirements,[]);assert.equal(receipt.films.filter(f=>!f.forcedOff).length,5);assert(Math.abs(receipt.films.reduce((s,f)=>s+f.share,0)-1)<1e-12);
 const high=B.settle({...context,values:{...context.values,featuredSlots:49},ledger:ledger(10000,5000)});assert.equal(high.films.filter(f=>!f.forcedOff).length,2);
-console.log('PASS Baogong preserves two new releases, ranks old movies by immediate previous-week gross, inclusive 50%/2000 thresholds, up to four, carry preservation, >80% two-film exception and settlement shares');
+console.log('PASS Baogong preserves two new releases, ranks old movies by immediate previous-week gross, inclusive 50%/2000 thresholds, single-screen legacy retention, non-single 4–6 lineup, carry preservation, >80% two-film exception and settlement shares');

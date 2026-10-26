@@ -25,7 +25,7 @@ New runs draw new release pairs. Movie checkpoints record weeksPerYear=50. Older
 
 ## Attendance and retirement profiles
 
-First-week hit uses a weighted two-band draw: 90% probability for 50–79%, 10% for 80–100%; integer percentage points are uniform within the chosen band, inclusive. Bomb remains uniform 1–10% and average uniform 1–50%. The band and value use independent deterministic seed keys, so reload does not reroll. This changes the computed hit base for future settlements, including unbooked weeks in existing runs; already booked receipts are never recalculated. Test: node tests/hit-attendance.cjs. W2 retains 50–100% of its own first-week attendance; W3 retains 25–50%; W4 retains 1–50%. Each decline is sampled separately against the first-week base, so rebound is allowed. W5 onward: weekly retirement probability 90%, attendance 1% if retained.
+First-week hit uses a weighted two-band draw: 90% probability for 50–79%, 10% for 80–100%; integer percentage points are uniform within the chosen band, inclusive. Bomb remains uniform 1–10% and average uniform 1–50%. The band and value use independent deterministic seed keys, so reload does not reroll. This changes the computed hit base for future settlements, including unbooked weeks in existing runs; already booked receipts are never recalculated. Test: node tests/hit-attendance.cjs. W2 retains 50–100% of its own first-week attendance; W3 retains 25–50%; W4 retains 1–50%. Each decline is sampled separately against the first-week base, so rebound is allowed. W5 onward: base weekly retirement probability90%, attendance1% if retained. During settlement, non-single C01/C02/C03/C04 soft lineup targets may defer random retirement at the lower film-count goal, retaining stronger previous-week performers; mandatory low-gross and fixed expiry remain higher priority. See docs/box-office.md.
 
 - MV0001, MV0002: initial attendance fixed 50%; game W3 onward 90% retirement per week.
 - MV0003: initial 10%; forced off game W2.
@@ -33,6 +33,6 @@ First-week hit uses a weighted two-band draw: 90% probability for 50–79%, 10% 
 - MV0504: opening ages W1–W4 = 100%; W5–W8 = 90%; W9–W12 = 50%; W13 onward 1% attendance and 90% retirement.
 - MV0505: opening ages W1–W4 = 100%; W5–W8 = 80%; W9–W12 = 60%; W13 onward 1% attendance and 90% retirement.
 
-Weekly progression is now active for movie opening, retirement, events and delayed gross box-office recognition. See `docs/box-office.md`. After-split income, other revenue and expense/net settlement remain pending.
+Weekly progression is now active for movie opening, retirement, events and delayed gross box-office recognition. See `docs/box-office.md`. Movie-count targets only change future film retention; posted financial receipts are preserved.
 
 Tests: `node tests/movie-rules.cjs`, `node tests/films.cjs`, and `CINEMAN_BASE_URL=http://127.0.0.1:PORT node tests/movie-pool-browser.cjs`. Entry performance and property save regression tests also apply.

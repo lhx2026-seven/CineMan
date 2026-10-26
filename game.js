@@ -541,7 +541,7 @@ function initGame() {
     try {
       const values=formValues(),finishing=annualMeeting?.settled===true,closing=gameDate.week===50&&!finishing;
       if(finishing){
-        const next=CinemaBoxOffice.completeYear({database:CinemaMovieDatabase,movies},boxOffice);
+        const next=CinemaBoxOffice.completeYear({database:CinemaMovieDatabase,movies,cinemaID:id,allocation:currentAllocation},boxOffice);
         movies=next.movies;gameDate.year=next.year;gameDate.week=next.week;annualMeeting=null;
       }else{
         captureActivation();

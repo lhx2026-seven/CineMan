@@ -52,7 +52,7 @@
     if(!id||!showing(movies).some(h=>h.id===id)||ledger.receipts.some(r=>r.featuredID===id&&r.extendedFeatured===true))return null;
     return id;
   }
-  function screeningPlan(movies,cinemaID,selected,featuredShare,ledger){
+  function screeningPlan(movies,cinemaID,selected,featuredShare,ledger,screenCount=1){
     const live=showing(movies),featured=live.find(h=>h.id===selected);
     const cap=cinemaID==='C01'?(featured&&featuredShare>.8?2:3):live.length;
     const others=live.filter(h=>h.id!==selected).sort((a,b)=>Number(b.releasedAt===featured?.releasedAt&&!!b.initial===!!featured?.initial)-Number(a.releasedAt===featured?.releasedAt&&!!a.initial===!!featured?.initial)||b.releasedAt-a.releasedAt||a.id.localeCompare(b.id));
@@ -67,7 +67,7 @@
       const winners=retained.slice(0,1),second=retained[1];
       const highest=Math.max(0,...old.map(h=>gross.get(h.id)||0));
       if(second&&(gross.get(second.id)||0)>=2000&&(gross.get(second.id)||0)>=highest*.5)winners.push(second);
-      kept=[...fresh,...winners];
+      kept=[...fresh,...(screenCount>1?retained.slice(0,Math.max(0,6-fresh.length)):winners)];
     }
     const keepIDs=new Set(kept.map(h=>h.id));
     const secondary=featured?kept.find(h=>h.id!==selected):null;
@@ -83,7 +83,7 @@
     if((movies.current.length||carry)&&!selected||selected&&(!live.some(h=>h.id===selected)||!movies.current.includes(selected)&&selected!==carry))throw Error('請先選擇本週新片或可沿用的上週主打片');
     const slots=amount(values.featuredSlots),capacity=R().screeningCapacity(allocation.screenCount,cinemaID);if(!Number.isInteger(slots)||slots>R().maximumFeaturedSlots(allocation.screenCount,cinemaID))throw Error('場次占比錯誤');
     const p=pricing(cinemaID,allocation,values),venue={cinemaID,locationID,screenCount:allocation.screenCount},featuredShare=slots/capacity;
-    const plan=screeningPlan(movies,cinemaID,selected,featuredShare,ledger);
+    const plan=screeningPlan(movies,cinemaID,selected,featuredShare,ledger,allocation.screenCount);
     const result=live.map(h=>{
       const movie=by.get(h.id),share=plan.shares[h.id],forcedOff=plan.removed.includes(h.id);
       const rawRate=R().attendance(movie,h,now,movies.seed);
@@ -129,6 +129,44 @@
     for(const h of showing(copy))if(earned.has(h.id)&&earned.get(h.id)<2000){h.retiredAt=week;h.retirementReason='low-gross';}
     return copy;
   }
+  function lineupRange(cinemaID,screenCount){
+    if(!Number.isInteger(screenCount)||screenCount<1)throw Error('片量目標廳數錯誤');
+    if(screenCount===1||cinemaID==='C05')return null;
+    if(cinemaID==='C01')return{min:4,max:6};
+    if(cinemaID==='C02')return{min:Math.ceil(screenCount*5/3),max:screenCount*2};
+    if(cinemaID==='C03')return{min:8,max:10};
+    if(cinemaID==='C04')return{min:10,max:15};
+    return null;
+  }
+  function balanceLineup(database,movies,ledger,cinemaID,screenCount){
+    const hard=retireLowGross(movies,ledger,movies.lastWeek);
+    const next=hard===movies?{...movies,history:movies.history.map(h=>({...h}))}:hard,now=next.lastWeek;
+    const by=new Map(database.movies.map(m=>[m.id,m])),target=lineupRange(cinemaID,screenCount);
+    const retire=(h,reason)=>{h.retiredAt=now;h.retirementReason=reason;};
+    // Fixed initial-film expiry is never protected by a soft lineup target.
+    for(const h of showing(next))if(h.initial&&h.id==='MV0003'&&now>=2)retire(h,'fixed-expiry');
+    if(!target){
+      for(const h of showing(next))if(R().retirement(by.get(h.id),h,now,next.seed))retire(h,'random');
+      return next;
+    }
+    const previous=ledger?.receipts.find(r=>r.earnedAt===now-1),gross=new Map((previous?.films||[]).map(f=>[f.id,f.gross]));
+    const fresh=new Set(next.current),old=showing(next).filter(h=>!fresh.has(h.id)).sort((a,b)=>(gross.get(a.id)||0)-(gross.get(b.id)||0)||a.releasedAt-b.releasedAt||a.id.localeCompare(b.id));
+    const candidates=old.filter(h=>R().retirementEligible(by.get(h.id),h,now));
+    let count=showing(next).length;
+    // Existing random odds apply above the floor; weakest eligible titles leave
+    // first so the best previous-week performers receive shortage protection.
+    for(const h of candidates){
+      if(count<=target.min)break;
+      if(R().retirement(by.get(h.id),h,now,next.seed)){retire(h,'random');count--;}
+    }
+    // Do not retire young/special films early merely to force a soft target.
+    // Baogong already has an independent scheduling cap; expand it to six.
+    for(const h of cinemaID==='C01'?old:candidates){
+      if(count<=target.max)break;
+      if(h.retiredAt==null){retire(h,'lineup-cap');count--;}
+    }
+    return next;
+  }
   function advance(context,ledger,{deferRelease=false}={}){
     const now=context.movies.lastWeek;ledger=resolveLedger(ledger,now);if(ledger.lastSettledWeek!==null&&ledger.lastSettledWeek>=now)throw Error('本週已結算');
     const receipt=settle({...context,ledger}),nextNow=now+1,year=2022+Math.floor((nextNow-1)/50);
@@ -141,9 +179,8 @@
   function releaseAfterSettlement(context,next,receipt){
     const now=context.movies.lastWeek,nextNow=now+1,year=2022+Math.floor((nextNow-1)/50),week=(nextNow-1)%50+1;
     let movies=structuredClone(context.movies);for(const h of showing(movies))if(receipt.strategyRetirements.includes(h.id)){h.retiredAt=now;h.retirementReason='baogong-focus';}
-    movies=retireLowGross(movies,next,nextNow);const by=new Map(context.database.movies.map(m=>[m.id,m]));
-    for(const h of showing(movies))if(R().retirement(by.get(h.id),h,nextNow,movies.seed))h.retiredAt=nextNow;
     movies=R().releaseWeek(context.database,movies,year,week);for(const h of movies.history)h.retiredAt??=null;
+    movies=balanceLineup(context.database,movies,next,context.cinemaID,context.allocation?.screenCount??1);
     return{movies,ledger:next,year,week,receipt};
   }
   function completeYear(context,ledger){
@@ -152,5 +189,5 @@
     if(receipt?.earnedAt!==now||receipt.accountingYear!==2022+Math.floor((now-1)/50))throw Error('年度尚未結算');
     return releaseAfterSettlement(context,ledger,receipt);
   }
-  const api={extraKey,standardPrice,pricing,hydrate,showing,marketingFactor,specialBaseline,specialGross,carryCandidate,screeningPlan,settle,createLedger,resolveLedger,retireLowGross,advance,completeYear};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaBoxOffice=api;
+  const api={extraKey,standardPrice,pricing,hydrate,showing,marketingFactor,specialBaseline,specialGross,carryCandidate,screeningPlan,settle,createLedger,resolveLedger,retireLowGross,lineupRange,balanceLineup,advance,completeYear};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaBoxOffice=api;
 })(globalThis);

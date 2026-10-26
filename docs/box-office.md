@@ -68,15 +68,19 @@ Tests: `node tests/films.cjs`, `tests/second-run-share-browser.cjs`.
 
 ## Cinema scheduling limits
 
-C01 Baogong normally keeps both current new releases plus the surviving old film with the highest immediately previous operating week's gross (not lifetime cumulative). A second old film also survives if its previous-week gross is at least NT$2,000 and at least 50% of the highest old-film gross; both thresholds are inclusive. This normally gives three films, or at most four. Gross includes regular and special sessions. Ties use newer opening date then movie ID. No previous receipt (including W1) means a deterministic date/ID fallback for the first old slot and no fourth-film qualification. A manually carried feature is protected as the first old-film slot; the best remaining old film must still meet both fourth-film thresholds against the highest old gross.
+非單廳戲院採「新片＋同步上映」期望片量，包含當週實際抽到的新片：寶宮4–6部、布洛威8–10部、YLC 10–15部；世紀為約5/3～2倍廳數（下限ceil(廳數×5/3)、上限廳數×2），故2廳4部、3廳5–6部、4廳7–8部、6廳10–12部。公會堂與所有單廳不新增片量目標。
 
-Above 80% featured share the existing two-film exception takes priority: keep the feature and its surviving same-opening-week companion, then newest-film fallback. Initial old films are not treated as newly opened companions even when their stored dates match W1. Never revive retired films or add titles just to fill slots. Excess films receive zero regular AND special-session gross this operating week and are permanently retired at the source week with reason baogong-focus; their zero receipt rows and retirement dates survive reload. Existing low-gross and probabilistic retirements still apply before this selection; a good prior gross does not revive an already retired title.
+每週先依上週實際票房執行＜2,000元強制下片，保留MV0003在W2必下的規則，再以兩個原本新片池正常抽選（片池不足仍允許少於2部）。新片加入後，依上週單片票房由低到高處理已符合原隨機下片資格的舊片：片量高於下限時沿用原隨機機率；達下限就保護剩餘影片，讓較強舊片留下。仍超過上限時優先淘汰符合下片資格的較弱舊片。非寶宮不為強制達標提早淘汰尚未符合年齡門檻的普通／special片，可能暫時超過上限；開局、強制下片與片池不足也可能低於下限，不補造／復活電影。寶宮原本即有獨立結構性片數限制，非單廳正常上限由3／4放寬為6，保留當週新片及最強舊片，玩家指定沿用的主打仍優先保留。
+
+單廳寶宮沿用原規則：兩部新片＋上週票房最高的舊片；第二部舊片須上週至少2,000元且達最高舊片票房50%，最多四部。這個舊的50%第四片條件不再限制非單廳寶宮。既有單廳開局不放MV0001–MV0003規則不變。
+
+Above 80% featured share the existing two-film exception takes priority: keep the feature and its surviving same-opening-week companion, then newest-film fallback. Initial old films are not treated as newly opened companions even when their stored dates match W1. Never revive retired films or add titles just to fill slots. Excess films receive zero regular AND special-session gross this operating week and are permanently retired at the source week with reason baogong-focus; their zero receipt rows and retirement dates survive reload. Hard low-gross retirement retains priority; random retirement now respects the applicable soft lineup floor. A good prior gross does not revive an already retired title.
 
 C02 above 60% featured share halves non-featured ordinary-film attendance. C01 above 80% does the same to its surviving ordinary secondary. C03/C04 above 80% featured share multiply only the featured ordinary film attendance by 0.75; non-featured films are unchanged. Special sessions still use raw attendance. Any cinema with more than 7 halls and featured share strictly above 50% multiplies only the featured ordinary film attendance by 0.25. This stacks multiplicatively with the C03/C04 >80% factor (0.75×0.25=0.1875). Exactly 7 halls or 50% does not trigger it. Non-featured films, special-tier films and special sessions are exempt from this new rule. Exact thresholds do not trigger the penalty. Special-tier films bypass the attendance penalty, but remain subject to Baogong's structural film cap and mandatory retirement. Remaining screening share is divided only among survivors. Already booked receipts are never recalculated.
 
 Tests: node tests/scheduling-weights.cjs, plus the box-office and location/ticket suites.
 
-Retention thresholds and ledger integration: `node tests/baogong-retention.cjs`.
+Retention thresholds and ledger integration: `node tests/baogong-retention.cjs`; new lineup goals: `node tests/lineup-targets.cjs` and `tests/lineup-targets-browser.cjs`.
 
 ## Featured-share ceiling
 
@@ -101,3 +105,6 @@ After all attendance and scheduling adjustments, apply max(rate,0.001) for films
 ## Second-run player visibility
 
 C02 世紀 hides cumulative box-office lines below both new-release and retained-film posters. Weekly and annual whole-cinema aggregates remain visible. Its annual meeting also omits the per-film Top5 list, so player-facing reporting remains aggregate-only. Internal per-film receipts, cumulative totals, ranking helpers, retirement and carry rules continue to operate unchanged. Other cinemas retain per-film displays. Test: tests/second-run-revenue-visibility-browser.cjs.
+
+
+片量調整僅影響之後的營運週；已下片者、已入帳票房、歷史帳本不回算。每部片的retiredAt（含null保護狀態）繼續使用既有存檔欄位，讀檔不重抽隨機下片。W50會議期間不抽新片、不做下一週片量調整；開始下一年度時以同一戲院、廳數執行一次。每週僅對仍上映的少數影片排序，無迴圈抽到達標、無額外圖片或資料庫讀取。

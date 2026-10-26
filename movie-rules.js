@@ -103,11 +103,14 @@
     const tierFactor=venue.cinemaID==='C05'?(movie.tier==='hit'?.5:movie.tier==='average'?1.5:1):1;
     return Math.max(0,Math.min(1,priced*tierFactor));
   }
-  function retirement(movie,record,now,seed){
-    const age=now-record.releasedAt+1;
+  function retirementEligible(movie,record,now){
     if(record.initial&&movie.id==='MV0003')return now>=2;
     const threshold=record.initial?3:['MV0504','MV0505'].includes(movie.id)?13:5;
-    if((record.initial?now:age)<threshold)return false;
+    return(record.initial?now:now-record.releasedAt+1)>=threshold;
+  }
+  function retirement(movie,record,now,seed){
+    if(record.initial&&movie.id==='MV0003')return now>=2;
+    if(!retirementEligible(movie,record,now))return false;
     return random(seed,`retire/${movie.id}/${now}`)()<(movie.id==='MV0503'?.5:.9);
   }
   function eventsFor(state,now){return state.history.some(h=>h.id==='MV0503'&&(h.retiredAt==null||h.retiredAt>now)&&now-h.releasedAt+1===4)?[{id:'MV0503-week4',title:'影迷守護戲院',message:eventText}]:[];}
@@ -123,6 +126,6 @@
       if(saved?.version!==1||saved.weeksPerYear!==WEEKS_PER_YEAR||saved.seed!==seed||saved.lastWeek!==now||!Array.isArray(saved.history)||!Array.isArray(saved.current)||saved.current.length>2||new Set(saved.current).size!==saved.current.length||new Set(saved.history.map(h=>h.id)).size!==saved.history.length||saved.history.some(h=>!by.has(h.id)||h.initial!==by.get(h.id).initial||!Number.isInteger(h.releasedAt)||h.releasedAt<1||h.releasedAt>now)||saved.current.some(id=>!saved.history.some(h=>h.id===id&&h.releasedAt===now)))throw Error('Movie save is incompatible');return saved;}
     let state=create(seed,screenCount);for(let n=1;n<=now;n++)state=releaseWeek(database,state,2022+Math.floor((n-1)/WEEKS_PER_YEAR),(n-1)%WEEKS_PER_YEAR+1);return state;
   }
-  const api={WEEKS_PER_YEAR,LOCATION_INITIAL,screeningCapacity,maximumFeaturedSlots,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,locationAttendance,ticketAttendance,effectiveAttendance,retirement,eventsFor,resolve};
+  const api={WEEKS_PER_YEAR,LOCATION_INITIAL,screeningCapacity,maximumFeaturedSlots,POOLS,absoluteWeek,reservations,create,eligible,releaseWeek,attendance,locationAttendance,ticketAttendance,effectiveAttendance,retirementEligible,retirement,eventsFor,resolve};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMovieRules=api;
 })(globalThis);
