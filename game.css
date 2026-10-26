@@ -617,7 +617,7 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 .hero-caption > div { width:100%; min-width:0; }
 .hero-title-row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:7px; }
 .hero-title-row #cinema-name { min-width:0; margin:0; overflow-wrap:anywhere; }
-.hero-title-row .week-badge { flex-shrink:0; font-size:22px; font-weight:400; color:#ecd1a0; font-variant-numeric:tabular-nums; line-height:1.4; white-space:nowrap; }
+.hero-title-row .week-badge { flex-shrink:0; padding:4px 8px; border:1px solid #b98b4b66; border-radius:7px; font-size:22px; font-weight:400; color:#ecd1a0; font-variant-numeric:tabular-nums; line-height:1.4; white-space:nowrap; }
 .operations-section { margin:16px 0; border:1px solid var(--line); border-radius:12px; background:linear-gradient(140deg,#1b1710b5,#0e0d0ce8 65%); }
 .operations-section .management-tabs { margin:0; border:0; border-bottom:1px solid var(--line); border-radius:11px 11px 0 0; }
 .operations-section #management-form > .panel { margin:0; border:0; border-radius:0; background:transparent; }
