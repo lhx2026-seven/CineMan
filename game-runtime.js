@@ -1018,15 +1018,15 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     const upper=Math.max(0,Math.ceil(max/step)*step),lower=Math.min(0,Math.floor(min/step)*step);
     return upper===lower?{upper:1,lower:-1,step:1}:{upper,lower,step};
   }
-  function renderTrend(trend){
+  function renderTrend(trend,height=360){
     const ns='http://www.w3.org/2000/svg';
     const el=(tag,attrs={},text)=>{const node=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))node.setAttribute(k,v);if(text!==undefined)node.textContent=text;return node;};
-    const {points,min,max,year}=trend,last=points.at(-1),left=228,right=610,top=36,bottom=324;
+    const {points,min,max,year}=trend,last=points.at(-1),left=228,right=610,top=36,bottom=height-36;
     const axis=profitAxis(min,max);
     const x=week=>left+(week-1)/(points.length-1)*(right-left);
     const y=value=>bottom-(value-axis.lower)/(axis.upper-axis.lower)*(bottom-top);
-    const svg=el('svg',{viewBox:'0 0 640 360',width:640,height:360,role:'img','aria-label':`${year}年累計年度損益走勢，最低NT$${min.toLocaleString('zh-TW')}，最高NT$${max.toLocaleString('zh-TW')}，年度結算NT$${last.profit.toLocaleString('zh-TW')}`,class:'meeting-slide meeting-profit-chart','data-min':min,'data-max':max,'data-final-profit':last.profit,'data-axis-min':axis.lower,'data-axis-max':axis.upper});
-    svg.append(el('rect',{width:640,height:360,rx:14,fill:'#17130e'}));
+    const svg=el('svg',{viewBox:`0 0 640 ${height}`,width:640,height,role:'img','aria-label':`${year}年累計年度損益走勢，最低NT$${min.toLocaleString('zh-TW')}，最高NT$${max.toLocaleString('zh-TW')}，年度結算NT$${last.profit.toLocaleString('zh-TW')}`,class:'meeting-profit-chart','data-min':min,'data-max':max,'data-final-profit':last.profit,'data-axis-min':axis.lower,'data-axis-max':axis.upper});
+    svg.append(el('rect',{width:640,height,rx:14,fill:'#17130e'}));
     for(const value of new Set([axis.upper,0,axis.lower])){
       const pos=y(value);
       svg.append(el('line',{x1:left,y1:pos,x2:right,y2:pos,stroke:value===0?'#c4ac7b80':'#b699624d',...(value===0?{}:{'stroke-dasharray':'5 7'})}));
@@ -1037,10 +1037,12 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     for(const point of points){const dot=el('circle',{cx:x(point.week),cy:y(point.profit),r:point===last?5:3,fill:point===last?'#ffe0a2':'#d8b778'});dot.append(el('title',{},`${point.week===51?'年度結算':'W'+point.week}：NT$${point.profit.toLocaleString('zh-TW')}`));svg.append(dot);}
     return svg;
   }
+  let chartResizeObserver;
   function render({state,cinemaName,figures,trend,topFive=[],showRanking=true}){
+    chartResizeObserver?.disconnect();
     const section=document.querySelector('#annual-meeting-section'),list=document.querySelector('#annual-meeting-content');section.hidden=false;
     const article=document.createElement('article');article.className='meeting-layout';
-    const visual=renderTrend(trend);
+    const visual=document.createElement('div');visual.className='meeting-slide';visual.append(renderTrend(trend));
     const content=document.createElement('div');content.className='meeting-content';const h=document.createElement('h3');h.textContent=`${cinemaName}${state.year}年度損益摘要`;
     const money=n=>'NT$'+n.toLocaleString('zh-TW');
     const text=document.createElement('p');text.className='meeting-summary';text.textContent=`年度已入帳收入合計${money(figures.knownIncome)}。年度支出：${figures.expenses===null?'待結算':money(figures.expenses)}。${figures.preTaxProfit==null?'':`稅前淨利：${money(figures.preTaxProfit)}。`}年度損益：${figures.profit===null?(figures.preTaxProfit==null?'待結算':'待所得稅'):money(figures.profit)}。`;
@@ -1049,6 +1051,15 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     if(!ranking.children.length){const heading=document.createElement('h4');heading.textContent='年度票房TOP 5';const p=document.createElement('p');p.textContent=showRanking?'本年度尚無票房紀錄':'本院僅顯示合計票房';ranking.append(heading,p);}
     const response=document.createElement('div');response.className='meeting-response';response.dataset.role=state.role;const speaker=document.createElement('h4');speaker.textContent=state.role==='shareholders'?'股東回應':'董事長回應';const reply=document.createElement('p');reply.textContent='⋯';reply.setAttribute('aria-label','回應尚未公布');response.append(speaker,reply);
     content.append(h,text);article.append(visual,content,ranking,response);list.replaceChildren(article);
+    let chartHeight=360;
+    chartResizeObserver=new ResizeObserver(([entry])=>{
+      const {width,height}=entry.contentRect;
+      if(!width||!height)return;
+      const nextHeight=640*height/width;
+      if(Math.abs(nextHeight-chartHeight)<.1)return;
+      chartHeight=nextHeight;visual.replaceChildren(renderTrend(trend,nextHeight));
+    });
+    chartResizeObserver.observe(visual);
   }
   const api={create,resolve,summary,topFilms,profitAxis,renderTrend,render};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMeeting=api;
 })(globalThis);
