@@ -19,7 +19,12 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8171';
    assert(Math.abs(image.height-weeklyImage.height)<1,JSON.stringify({width,id,tab,image,weeklyImage}));
    assert(Math.abs(image.width/image.height-2)<.02);
    assert(image.bottom<=image.captionTop+1&&image.bottom<=image.profileTop+1);
+   if(width>760)assert(await page.evaluate(()=>Math.abs(document.querySelector('.cinema-hero').getBoundingClientRect().height-document.querySelector('#financial-report').getBoundingClientRect().height)<1),'Desktop overview cards must have equal heights');
   }
+  await page.locator('#venue-details-title').click();
+  const expandedImage=await imageBounds();assert(Math.abs(expandedImage.height-weeklyImage.height)<1);
+  if(width>760)assert(await page.evaluate(()=>Math.abs(document.querySelector('.cinema-hero').getBoundingClientRect().height-document.querySelector('#financial-report').getBoundingClientRect().height)<1),'Expanded venue and report must stay equal in height');
+  await page.locator('#venue-details-title').click();
   await page.locator('#cinema-exterior').evaluate(e=>{e.style.aspectRatio='';e.width=2048;e.height=1536;});
   const altered=await imageBounds();assert(Math.abs(altered.height-weeklyImage.height)<1,'Intrinsic image dimensions must not change the reserved image ratio');
   for(const tab of['pricing','films','budget']){await page.locator(`#tab-${tab}`).click();assert(await page.locator(`.operations-section #panel-${tab}`).isVisible());}
