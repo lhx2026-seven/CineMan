@@ -773,11 +773,13 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     mall:{name:'商場櫃位租金',unit:'單位/月',min:20000,max:100000,step:5000},
     largeMall:{name:'商場櫃位租金',unit:'單位/月',min:20000,max:1000000,step:5000},
     claw:{name:'娃娃機台租金',unit:'單位/月',min:10000,max:100000,step:2000},
+    massage:{name:'按摩椅體驗區租金',unit:'單位/月',min:10000,max:100000,step:5000},
+    miniKtv:{name:'迷你KTV租金',unit:'單位/月',min:10000,max:100000,step:5000},
     parking:{name:'停車場收費',unit:'單位/小時',min:10,max:100,step:5},
     billboard:{name:'電子看板廣告費',unit:'單位/秒',min:0.5,max:3,step:0.5},
     hotel:{name:'電影院主題旅社收費',unit:'單位/夜',min:500,max:10000,step:500}
   });
-  const COMMON=['mall','claw','parking','billboard'];
+  const COMMON=['mall','claw','parking','billboard','massage','miniKtv'];
   const hotelEligible=id=>['C01','C02'].includes(id);
   const commonFor=id=>['C01','C02','C05'].includes(id)?COMMON.filter(type=>type!=='billboard'):COMMON;
   function locations(database,cinemaID){return database.locations.filter(location=>location[`cinemaID_${cinemaID}_applicable`]===true);}
@@ -805,7 +807,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
 // Source: activation-rules.js
 'use strict';
 (function(root){
-  const MONTHLY=['mall','largeMall','claw','billboard'];
+  const MONTHLY=['mall','largeMall','claw','billboard','massage','miniKtv'];
   const round=n=>Math.round(n+Number.EPSILON*Math.max(1,Math.abs(n))*4);
   const activity=kind=>{const a=root.CinemaProperty.ACTIVITIES[kind];if(!a)throw Error('空間活化類型錯誤');return a;};
   function validRate(kind,rate){const a=activity(kind);return Number.isFinite(rate)&&rate>=a.min&&rate<=a.max&&Math.abs((rate-a.min)/a.step-Math.round((rate-a.min)/a.step))<1e-8;}

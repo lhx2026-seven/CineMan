@@ -19,3 +19,9 @@ assert.throws(()=>A.create('mall',1000000,1));assert.throws(()=>A.create('largeM
 let large=A.create('largeMall',510000,1);for(let w=1;w<=4;w++)large=A.advance(large,w,0,'large-midpoint');assert.equal(large.receipts[0].gross,510000);assert.equal(large.receipts[0].zeroDemand,false);
 assert.deepEqual(A.resolve(JSON.parse(JSON.stringify(large)),'largeMall',510000,5),large);
 console.log('PASS large mall monthly quote, million cap, own midpoint penalty and saved settlement');
+
+for(const kind of ['massage','miniKtv']){
+ assert.deepEqual([P.ACTIVITIES[kind].min,P.ACTIVITIES[kind].max,P.ACTIVITIES[kind].step],[10000,100000,5000]);
+ assert(A.MONTHLY.includes(kind));assert.throws(()=>A.create(kind,12000,1));
+}
+console.log('PASS massage chairs and mini KTV monthly bounds and step validation');
