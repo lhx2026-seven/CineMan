@@ -2087,8 +2087,9 @@ function initGame() {
     const year=gameDate.year;
     const heroScene=[2023,2025].includes(year)?'interior':'exterior';
     const footerScene=[2024,2025].includes(year)?'ticket':'counter';
-    const ticketFile=`${cinema.slug}-ticket-scene-v${id==='C01'?2:1}.webp`;
-    const ticketDescription='單張電影票情境照，'+(id==='C01'?'復古全票，票號A199308，手寫8排5號、1月1日第1場':id==='C02'?'全票，世紀戲院紅章，藍色蓋印日期2025.01.01':id==='C05'?'全票，片名CineMan，日期2025.01.01，時間11：00，1廳8排5號':'電影票，片名CineMan');
+    const ticketYear=year===2024&&id!=='C01'?'-2024':'';
+    const ticketFile=`${cinema.slug}-ticket-scene-v${id==='C01'?2:1}${ticketYear}.webp`;
+    const ticketDescription='單張電影票情境照，'+(id==='C01'?'復古全票，票號A199308，手寫8排5號、1月1日第1場':id==='C02'?`全票，世紀戲院紅章，藍色蓋印日期${year===2024?'2024':'2025'}.01.01`:id==='C05'?`全票，片名CineMan，日期${year===2024?'2024':'2025'}.01.01，時間11：00，1廳8排5號`:'電影票，片名CineMan');
     const counterVersion=id==='C02'?'':id==='C01'?'-v4':'-v2';
     for(const [image,scene] of [[exterior,heroScene],[counter,footerScene]]){
       const file=scene==='ticket'?ticketFile:scene==='interior'?`${cinema.slug}-interior.webp`:scene==='exterior'?cinema.exterior:scene==='projection'?`${cinema.slug}-projection.webp`:`${cinema.slug}-counter${counterVersion}.webp`;

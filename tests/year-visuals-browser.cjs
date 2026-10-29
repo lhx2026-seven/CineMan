@@ -17,8 +17,8 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
       const config=expected(year);assert.equal(visuals[0].scene,config.hero);assert.equal(visuals[1].scene,config.footer);
       assert(visuals[0].src.includes(`${slug}-${config.hero}`),JSON.stringify(visuals));
       if(config.footer==='ticket'){
-        assert(visuals[1].src.includes(`${slug}-ticket-scene-v${id==='C01'?2:1}`));assert(visuals[1].alt.includes('單張電影票情境照'));assert.equal(visuals[1].fit,'contain');
-        assert(visuals[1].alt.includes(id==='C01'?'復古全票':['C02','C05'].includes(id)?'日期2025.01.01':'片名CineMan'));
+        assert(visuals[1].src.includes(`${slug}-ticket-scene-v${id==='C01'?2:1}`));assert(visuals[1].src.includes('-2024')===(year===2024&&id!=='C01'));assert(visuals[1].alt.includes('單張電影票情境照'));assert.equal(visuals[1].fit,'contain');
+        assert(visuals[1].alt.includes(id==='C01'?'復古全票':['C02','C05'].includes(id)?`日期${year===2024?'2024':'2025'}.01.01`:'片名CineMan'));
         assert(await page.locator('.next-week-area #next-week').isVisible());
       }else assert(visuals[1].src.includes(`${slug}-counter`),JSON.stringify(visuals));
       assert(!await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth));

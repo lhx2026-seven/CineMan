@@ -8,6 +8,7 @@ for(const slug of slugs){
  const counter=slug+'-counter'+(slug==='century'?'':slug==='baogong'?'-v4':'-v2');
  sources.push({folder:'counters',stem:counter,widths:[1280]});
  sources.push({folder:'tickets',stem:slug+`-ticket-scene-v${slug==='baogong'?2:1}`,widths:[1280]});
+ if(slug!=='baogong')sources.push({folder:'tickets',stem:slug+'-ticket-scene-v1-2024',widths:[640,960,1280]});
 }
 let total=0;
 for(const {folder,stem,widths}of sources)for(const width of widths){
