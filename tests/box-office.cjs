@@ -44,3 +44,5 @@ const maintenanceContext={database:db,movies:maintenanceMovies,cinemaID:'C01',lo
 const lowMaintenance=B.settle(maintenanceContext),highMaintenance=B.settle({...maintenanceContext,values:{...maintenanceContext.values,maintenance:15001}});
 assert(highMaintenance.films[0].dailyViewers>lowMaintenance.films[0].dailyViewers);assert.equal(highMaintenance.films[0].specialGross,lowMaintenance.films[0].specialGross);
 console.log('PASS maintenance budget flows through real pricing and weekly gross; regular viewers improve, special sessions unchanged');
+
+assert.throws(()=>B.settle({...context,values:{...values,featuredSlots:0}}),/場次占比錯誤/);

@@ -1500,7 +1500,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     const now=movies.lastWeek,live=showing(movies),by=new Map(database.movies.map(m=>[m.id,m]));
     const carry=carryCandidate(movies,ledger),selected=values.featuredFilm;
     if((movies.current.length||carry)&&!selected||selected&&(!live.some(h=>h.id===selected)||!movies.current.includes(selected)&&selected!==carry))throw Error('請先選擇本週新片或可沿用的上週主打片');
-    const slots=amount(values.featuredSlots),capacity=R().screeningCapacity(allocation.screenCount,cinemaID);if(!Number.isInteger(slots)||slots>R().maximumFeaturedSlots(allocation.screenCount,cinemaID))throw Error('場次占比錯誤');
+    const slots=amount(values.featuredSlots),capacity=R().screeningCapacity(allocation.screenCount,cinemaID);if(!Number.isInteger(slots)||slots<1||slots>R().maximumFeaturedSlots(allocation.screenCount,cinemaID))throw Error('場次占比錯誤');
     const p=pricing(cinemaID,allocation,values),venue={cinemaID,locationID,screenCount:allocation.screenCount},featuredShare=slots/capacity;
     const plan=screeningPlan(movies,cinemaID,selected,featuredShare,ledger,allocation.screenCount);
     const result=live.map(h=>{
@@ -2052,7 +2052,7 @@ function initGame() {
         slots = Math.round(capacity * Number(restoredDraft.featuredShare) / 100);
       }
       share.max = String(capacity);
-      share.value = String(Math.max(0,Math.min(CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id),slots)));
+      share.value = String(Math.max(1,Math.min(CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id),slots)));
       currentAllocation = allocation;
       venueReady = true;
       updateControls();
@@ -2406,7 +2406,7 @@ function initGame() {
   function updateFeaturedShare(featured=form.querySelector('input[name="featuredFilm"]:checked')) {
     const share = document.querySelector('#featured-share');
     share.disabled = !featured || !venueReady;
-    if(venueReady)share.value=String(Math.min(Number(share.value),CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id)));
+    if(venueReady)share.value=String(Math.max(1,Math.min(Number(share.value),CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id))));
     const percentage = venueReady ? CinemaFilms.sharePercentage(Number(share.value),venueScreenCount,id) : 0;
     const formattedShare = percentage.toLocaleString('zh-TW',{maximumFractionDigits:2}) + '%';
     document.querySelector('#share-output').textContent = featured && venueReady ? formattedShare : '—';

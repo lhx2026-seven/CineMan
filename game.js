@@ -88,7 +88,7 @@ function initGame() {
         slots = Math.round(capacity * Number(restoredDraft.featuredShare) / 100);
       }
       share.max = String(capacity);
-      share.value = String(Math.max(0,Math.min(CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id),slots)));
+      share.value = String(Math.max(1,Math.min(CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id),slots)));
       currentAllocation = allocation;
       venueReady = true;
       updateControls();
@@ -442,7 +442,7 @@ function initGame() {
   function updateFeaturedShare(featured=form.querySelector('input[name="featuredFilm"]:checked')) {
     const share = document.querySelector('#featured-share');
     share.disabled = !featured || !venueReady;
-    if(venueReady)share.value=String(Math.min(Number(share.value),CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id)));
+    if(venueReady)share.value=String(Math.max(1,Math.min(Number(share.value),CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id))));
     const percentage = venueReady ? CinemaFilms.sharePercentage(Number(share.value),venueScreenCount,id) : 0;
     const formattedShare = percentage.toLocaleString('zh-TW',{maximumFractionDigits:2}) + '%';
     document.querySelector('#share-output').textContent = featured && venueReady ? formattedShare : '—';
