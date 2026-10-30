@@ -683,24 +683,23 @@
       "weight": 0.005,
       "repeatable": true,
       "triggerText": "玩家設定設備維護<(廳數*2500)",
-      "resultText": "其它支出強制鎖定為100,000；雜支強制鎖定為20,000",
+      "resultText": "硬體強制鎖定為100,000；雜支強制鎖定為20,000",
       "condition": {
         "maintenanceBelow": 2500
       },
       "effects": [
         {
           "kind": "lock",
-          "field": "consumables",
-          "value": 20000
+          "field": "maintenance",
+          "value": 100000
         },
         {
-          "kind": "expense",
-          "field": "other",
-          "value": 100000
+          "kind": "lock",
+          "field": "consumables",
+          "value": 20000
         }
       ],
-      "enabled": false,
-      "reviewNote": "待作者確認其它支出100000與雜支20000是否相加；確認前不參與抽選。"
+      "enabled": true
     },
     {
       "id": "ec003",

@@ -21,6 +21,16 @@ async function next(p,w){await notices(p);await p.locator('#tab-films').click();
 {
  const{p,errors}=await open('eb006', 'C03',()=>true,1440);await notices(p);const value=Number(await p.locator('[name=maintenance]').inputValue());await next(p,2);const s=await save(p);assert.equal(s.operatingExpenses.receipts[0].amounts.maintenance,value+200000);assert.equal(Number(await p.locator('[name=maintenance]').inputValue()),value);await p.reload();await p.locator('#venue-data').waitFor();assert.deepEqual((await save(p)).operatingExpenses,s.operatingExpenses);assert.deepEqual(errors,[]);console.log('PASS extra maintenance expense and no repeated deduction');await p.close();
 }
+// Confirmed ec002 locks two budgets for one week; no extra 100,000 compensation.
+{
+ const{p,errors}=await open('ec002');await notices(p);
+ assert.equal(await p.locator('[name=maintenance]').inputValue(),'100000');assert(await p.locator('[name=maintenance]').isDisabled());
+ assert.equal(await p.locator('[name=consumables]').inputValue(),'20000');assert(await p.locator('[name=consumables]').isDisabled());
+ await save(p);await p.reload();await p.locator('#venue-data').waitFor();assert.equal(await p.locator('[name=maintenance]').inputValue(),'100000');
+ await next(p,2);const s=await save(p);assert.equal(s.operatingExpenses.receipts[0].amounts.maintenance,100000);assert.equal(s.operatingExpenses.receipts[0].amounts.other,20000);
+ assert(await p.locator('[name=maintenance]').isEnabled());assert(await p.locator('[name=consumables]').isEnabled());assert.equal(await p.locator('[name=maintenance]').inputValue(),'10000');assert.equal(await p.locator('[name=consumables]').inputValue(),'0');
+ assert.deepEqual(errors,[]);console.log('PASS ec002 confirmed locks, exact expense rows, reload and next-week restoration');await p.close();
+}
 // A four-week buff cannot redraw; all receipts retain a validated event version.
 {
  const{p,errors}=await open('ea011');await notices(p);for(let w=2;w<=5;w++)await next(p,w);const s=await save(p);assert.equal(s.eventState.draws.length,1);assert.equal(s.eventState.effects[0].end,4);assert.equal(await p.locator('#weekly-concessions').textContent(),'0');assert(s.foodRevenue.receipts.every(r=>r.ruleVersion===5));assert.deepEqual(errors,[]);console.log('PASS four-week effect lifetime, annual zero-food-cost gate and versioned receipts');await p.close();

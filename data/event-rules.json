@@ -449,17 +449,15 @@
       "effects": [
         {
           "kind": "lock",
-          "field": "consumables",
-          "value": 20000
+          "field": "maintenance",
+          "value": 100000
         },
         {
-          "kind": "expense",
-          "field": "other",
-          "value": 100000
+          "kind": "lock",
+          "field": "consumables",
+          "value": 20000
         }
-      ],
-      "enabled": false,
-      "reviewNote": "待作者確認其它支出100000與雜支20000是否相加；確認前不參與抽選。"
+      ]
     },
     "ec003": {
       "condition": {},

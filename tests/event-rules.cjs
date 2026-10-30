@@ -35,3 +35,7 @@ const re=event('ec016');c=context(re);s=E.begin(E.create(c.week),c,{events:[re]}
 console.log('PASS land-sale cash formula, no retroactive rent/tax changes, billing idempotence and fresh two-film reissue cycle');
 
 for(const event of db.events.filter(e=>e.enabled===false))assert(!E.eligible(event,E.create(context(event).week),context(event)));
+
+assert(db.events.every(e=>e.enabled));
+{const event=db.events.find(e=>e.id==='ec002'),ctx=context(event),s=E.begin(stateFor(event,ctx),ctx,{events:[event]}),settings=E.settings(s,ctx.week);assert.deepEqual(settings.locks,{maintenance:100000,consumables:20000});assert.equal(settings.expenses.other,0);}
+console.log('PASS all 80 enabled; ec002 locks maintenance 100000 and consumables 20000 without extra compensation');
