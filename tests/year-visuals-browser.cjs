@@ -1,3 +1,4 @@
+const isolateRandomEvents=require('./helpers/isolate-random-events.cjs');
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
 (async()=>{
@@ -5,7 +6,7 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
   for(const width of[390,1440])for(const[id,slug]of Object.entries({C01:'baogong',C02:'century',C03:'broadway',C04:'ylc',C05:'arthouse'}).filter(([id])=>!process.env.CINEMAN_TEST_CINEMA||id===process.env.CINEMAN_TEST_CINEMA)){
     const page=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'}),errors=[],requests=[];
     page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));
-    await page.goto(`${base}/game.html?cinema=${id}&fresh=1&run=year-visuals-${id}-${width}`);
+    await isolateRandomEvents(page);await page.goto(`${base}/game.html?cinema=${id}&fresh=1&run=year-visuals-${id}-${width}`);
     await page.locator('#venue-data').waitFor();await page.evaluate(()=>CinemaSave.setEnabled(true));
     await page.locator('#tab-films').click();await page.locator('.film-select').first().click();
     await page.waitForFunction(()=>document.querySelector('#draft-status').textContent==='已自動存檔');

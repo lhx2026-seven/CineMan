@@ -77,12 +77,16 @@
     const penalized=!!featured&&featuredShare>(cinemaID==='C01'?.8:cinemaID==='C02'?.6:1);
     return{shares,removed,secondaryID:secondary?.id||null,penalized};
   }
-  function settle({database,movies,cinemaID,locationID,allocation,values,ledger}){
+  function settle({database,movies,cinemaID,locationID,allocation,values,ledger,events}){
     const now=movies.lastWeek,live=showing(movies),by=new Map(database.movies.map(m=>[m.id,m]));
     const carry=carryCandidate(movies,ledger),selected=values.featuredFilm;
     if((movies.current.length||carry)&&!selected||selected&&(!live.some(h=>h.id===selected)||!movies.current.includes(selected)&&selected!==carry))throw Error('請先選擇本週新片或可沿用的上週主打片');
     const slots=amount(values.featuredSlots),capacity=R().screeningCapacity(allocation.screenCount,cinemaID);if(!Number.isInteger(slots)||slots<1||slots>R().maximumFeaturedSlots(allocation.screenCount,cinemaID))throw Error('場次占比錯誤');
-    const p=pricing(cinemaID,allocation,values),venue={cinemaID,locationID,screenCount:allocation.screenCount},featuredShare=slots/capacity;
+    const eventRules=events&&root.CinemaEventRules,eventSettings=eventRules?eventRules.settings(events,now):{},operating=allocation.screens.filter(s=>!s.underConstructionUntil||s.underConstructionUntil<=now);
+    const p=pricing(cinemaID,allocation,values);
+    const availableSeats=operating.reduce((sum,s)=>sum+s.size,0);
+    if(availableSeats)p.averagePrice=operating.reduce((sum,s)=>sum+s.size*(s.type==='EXTRA'?amount(values[extraKey(s)]):standardPrice(cinemaID,values,allocation.screenCount)),0)/availableSeats;
+    const venue={cinemaID,locationID,screenCount:allocation.screenCount},featuredShare=slots/capacity;
     const plan=screeningPlan(movies,cinemaID,selected,featuredShare,ledger,allocation.screenCount);
     const result=live.map(h=>{
       const movie=by.get(h.id),share=plan.shares[h.id],forcedOff=plan.removed.includes(h.id);
@@ -91,17 +95,19 @@
       if(plan.penalized&&h.id!==selected&&movie.tier!=='special')rate*=.5;
       if(['C03','C04'].includes(cinemaID)&&featuredShare>.8&&h.id===selected&&movie.tier!=='special')rate*=.75;
       if(allocation.screenCount>7&&featuredShare>.5&&h.id===selected&&movie.tier!=='special')rate*=.25;
-      if(!forcedOff&&share>0)rate=Math.max(.001,rate);
+      const eventRate=eventRules?eventRules.attendance(events,now,movie,h.id===selected,rate):{rate,zero:false};rate=eventRate.rate;
+      if(!forcedOff&&share>0&&!eventRate.zero)rate=Math.max(.001,rate);
+      if(eventSettings.shutdown||eventRules&&eventRules.ticketZero(events,now))rate=0;
       const audienceFactor=marketingFactor(cinemaID,movie.tier,values.marketing);
-      const dailyViewers=round(rate*allocation.totalSeats*6*share*audienceFactor);
-      return {id:h.id,rawRate,rate,share,forcedOff,marketingFactor:audienceFactor,dailyViewers,regularGross:dailyViewers*p.averagePrice*3,specialViewers:0,specialGross:0};
+      const dailyViewers=round(rate*availableSeats*6*share*audienceFactor);
+      return {id:h.id,rawRate,rate,share,forcedOff,marketingFactor:audienceFactor,dailyViewers,regularGross:dailyViewers*p.averagePrice*3*(eventRules?eventRules.regularFactor(events,now):1),specialViewers:0,specialGross:0};
     });
     let specialSessionCount=0;
-    if(!['C02','C05'].includes(cinemaID))for(let i=1;i<=5;i++){
+    if(availableSeats>0&&!eventSettings.shutdown&&!(eventRules&&eventRules.ticketZero(events,now))&&!['C02','C05'].includes(cinemaID))for(let i=1;i<=5;i++){
       const suffix=i===1?'':String(i),id=values['specialMovie'+suffix];if(!id)continue;
       const film=result.find(f=>f.id===id);if(!film)throw Error('特別場電影已下檔');
       if(film.forcedOff)continue;
-      const extra=specialGross(values['specialPrice'+suffix],film.rawRate,film.marketingFactor,specialBaseline(locationID));film.specialViewers+=extra.viewers;film.specialGross+=extra.gross;specialSessionCount++;
+      const extra=specialGross(values['specialPrice'+suffix],film.rawRate,film.marketingFactor,(eventSettings.specialBase??specialBaseline(locationID)));film.specialViewers+=extra.viewers;film.specialGross+=extra.gross;specialSessionCount++;
     }
     const films=result.map(f=>({...f,gross:round(f.regularGross+f.specialGross)}));return{earnedAt:now,bookedAt:now+1,specialSessionCount,featuredID:selected||null,extendedFeatured:selected===carry&&carry!==null,strategyRetirements:plan.removed,total:films.reduce((s,f)=>s+f.gross,0),films};
   }
@@ -167,13 +173,13 @@
     }
     return next;
   }
-  function advance(context,ledger,{deferRelease=false}={}){
+  function advance(context,ledger,{deferRelease=false,earlyClose=false}={}){
     const now=context.movies.lastWeek;ledger=resolveLedger(ledger,now);if(ledger.lastSettledWeek!==null&&ledger.lastSettledWeek>=now)throw Error('本週已結算');
     const receipt=settle({...context,ledger}),nextNow=now+1,year=2022+Math.floor((nextNow-1)/50);
-    if(deferRelease){if(now%50!==0)throw Error('只有年末可開年度會議');receipt.accountingYear=2022+Math.floor((now-1)/50);}
+    if(deferRelease){if(now%50!==0&&!earlyClose)throw Error('只有年末可開年度會議');if(now%50===0)receipt.accountingYear=2022+Math.floor((now-1)/50);}
     const reportYear=receipt.accountingYear??year;
     const next={...ledger,lastSettledWeek:now,receipts:[...ledger.receipts,receipt],byYear:{...ledger.byYear},totalsByMovie:{...ledger.totalsByMovie}};next.byYear[reportYear]=(next.byYear[reportYear]||0)+receipt.total;for(const f of receipt.films)next.totalsByMovie[f.id]=(next.totalsByMovie[f.id]||0)+f.gross;
-    if(deferRelease)return{movies:context.movies,ledger:next,year:reportYear,week:50,receipt};
+    if(deferRelease)return{movies:context.movies,ledger:next,year:reportYear,week:(now-1)%50+1,receipt};
     return releaseAfterSettlement(context,next,receipt);
   }
   function releaseAfterSettlement(context,next,receipt){

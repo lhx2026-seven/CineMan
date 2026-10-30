@@ -24,7 +24,7 @@
     const append=(type,filmID,at,accountingYear,gross,deduction)=>state.receipts.push({type,filmID,at,accountingYear,gross,deduction,net:gross+deduction});
     for(const h of movies.history){
       if(!state.contracts[h.id])state.contracts[h.id]={...contract(byID.get(h.id),cinemaID,movies.seed),releasedAt:h.releasedAt,rentalPaid:false,closedAt:null,paidShare:0};
-      const c={...state.contracts[h.id]};state.contracts[h.id]=c;
+      const c={...state.contracts[h.id]};if(h.reissued&&c.tier==='special'&&c.releasedAt!==h.releasedAt){c.releasedAt=h.releasedAt;c.closedAt=null;}state.contracts[h.id]=c;
       if(!c.rentalPaid){
         if(c.rental)append('rental',h.id,h.releasedAt,yearOf(h.releasedAt),0,c.rental);
         c.rentalPaid=true;

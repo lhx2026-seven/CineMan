@@ -33,9 +33,10 @@
       }
     }
     add(states.distributor,'ticket','at','net',r=>r.accountingYear);
-    for(const [key,amount] of [['activation','gross'],['foodRevenue','gross'],['merchandise','total']])add(states[key],'income','bookedAt',amount,(r,at)=>r.accountingYear??yearOf(at));
+    for(const [key,amount] of [['activation','gross'],['foodRevenue','gross'],['merchandise','total'],['eventState','gross']])add(states[key],'income','bookedAt',amount,(r,at)=>r.accountingYear??yearOf(at));
     add(states.operatingExpenses,'expenses','bookedAt','total',(r,at)=>r.accountingYear??yearOf(at));
     for(const key of ['rent','propertyTax','managementFee','utilityBills'])add(states[key],'expenses','week','amount',r=>r.year);
+    for(const r of states.eventState?.feeReceipts||[])if(r.year===year){const index=r.week-base-1;if(index<0||index>50)throw Error('事件費用週次錯誤');buckets[index].expenses+=r.rentDelta+r.taxDelta;}
     let ticket=0,income=0,expenses=0;
     const points=buckets.map((bucket,index)=>{
       ticket+=bucket.ticket;income+=bucket.income;expenses+=bucket.expenses;

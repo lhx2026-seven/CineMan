@@ -19,7 +19,7 @@
     if(!editable(state,now))throw Error('空間活化定價尚未滿四週');
     return{...state,rate,lastChangedAt:now,nextMonthlyAt:now+4};
   }
-  function advance(state,earnedAt,dailyViewers,seed,accountingYear){
+  function advance(state,earnedAt,dailyViewers,seed,accountingYear,eventZero=false){
     if(!Number.isInteger(earnedAt)||earnedAt!==state.lastSettledAt+1||!Number.isInteger(dailyViewers)||dailyViewers<0)throw Error('空間收入結算週次錯誤');
     const next=structuredClone(state),bookedAt=earnedAt+1;next.lastSettledAt=earnedAt;
     const monthly=MONTHLY.includes(state.kind);
@@ -28,7 +28,7 @@
     const a=activity(state.kind),high=state.rate>(a.min+a.max)/2;
     const zeroDemand=high&&root.CinemaRules.seededRandom(`activation/v1/${seed}/${state.kind}/${bookedAt}`)()<.5;
     const base=state.kind==='billboard'?state.rate*1296000:state.kind==='parking'?state.rate*2*dailyViewers*3*.5:state.kind==='hotel'?state.rate*4*2:state.rate;
-    next.receipts.push({earnedAt,bookedAt,rate:state.rate,dailyViewers,zeroDemand,gross:zeroDemand?0:round(base),...(accountingYear!==undefined?{accountingYear}:{})});
+    next.receipts.push({earnedAt,bookedAt,rate:state.rate,dailyViewers,zeroDemand,gross:eventZero||zeroDemand?0:round(base),...(eventZero?{eventZero:true}:{}),...(accountingYear!==undefined?{accountingYear}:{})});
     if(monthly)next.nextMonthlyAt+=4;
     return next;
   }

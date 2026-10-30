@@ -2,7 +2,7 @@
 (function(root){
   const round=n=>Math.round(n+Number.EPSILON*Math.max(1,Math.abs(n))*4);
   function create(){return{version:1,lastSettledWeek:null,receipts:[]};}
-  function calculate(prices,viewers,rate,marketing=0,foodCost,ruleVersion=1,annualFoodCost){
+  function calculate(prices,viewers,rate,marketing=0,foodCost,ruleVersion=1,annualFoodCost,eventAdjustment){
     if(!Array.isArray(prices)||prices.length<2||prices.length>3||prices.some(p=>!Number.isFinite(p)||p<0)||!Number.isSafeInteger(viewers)||viewers<0||!Number.isFinite(rate)||rate<.01||rate>.9||Math.abs(rate*100-Math.round(rate*100))>1e-8)throw Error('餐飲收入參數錯誤');
     if(!Number.isSafeInteger(marketing)||marketing<0)throw Error('餐飲行銷費參數錯誤');
     const tenths=10+Math.floor(marketing/10000);
@@ -14,7 +14,11 @@
       if(foodCost*prices.length*3<sum*viewers)gross/=2;
       if(foodCost*prices.length*10<sum*viewers)gross=Math.min(gross,sum*viewers/(prices.length*10));
     }
-    if(ruleVersion===4){if(!Number.isSafeInteger(annualFoodCost)||annualFoodCost<0)throw Error('年度餐飲成本錯誤');if(annualFoodCost===0)gross=0;}
+    if(ruleVersion===5){
+      const e=eventAdjustment;if(!e||!Number.isFinite(e.factor)||e.factor<0||!Number.isSafeInteger(e.add)||e.add<0||typeof e.zero!=='boolean')throw Error('事件餐飲收入錯誤');
+      gross=e.zero?0:gross*e.factor+e.add;
+    }
+    if(ruleVersion>=4){if(!Number.isSafeInteger(annualFoodCost)||annualFoodCost<0)throw Error('年度餐飲成本錯誤');if(annualFoodCost===0)gross=0;}
     return round(gross);
   }
   function purchaseRange(prices,viewers,foodCost,staffing,screenCount){
@@ -38,9 +42,9 @@
       const year=2022+Math.floor((r.earnedAt-1)/50),annualFoodCost=(annualCosts.get(year)??0)+(r.foodCost??0);annualCosts.set(year,annualFoodCost);
       if(r.ruleVersion===4&&r.annualFoodCost!==annualFoodCost)throw Error('年度餐飲成本存檔錯誤');
       if(r.accountingYear!==undefined&&(r.earnedAt%50!==0||r.accountingYear!==2022+Math.floor((r.earnedAt-1)/50)))throw Error('收入年度歸屬錯誤');
-      if(!Number.isInteger(r.earnedAt)||r.earnedAt<=previous||r.bookedAt!==r.earnedAt+1||r.bookedAt>now||!Array.isArray(r.items)||r.items.some(i=>typeof i.name!=='string')||!Number.isSafeInteger(r.gross)||r.gross!==calculate(r.items.map(i=>i.price),r.viewers,r.purchaseRate,r.marketing??0,r.foodCost,r.ruleVersion??1,r.annualFoodCost))throw Error('餐飲收入收據錯誤');
+      if(!Number.isInteger(r.earnedAt)||r.earnedAt<=previous||r.bookedAt!==r.earnedAt+1||r.bookedAt>now||!Array.isArray(r.items)||r.items.some(i=>typeof i.name!=='string')||!Number.isSafeInteger(r.gross)||r.gross!==calculate(r.items.map(i=>i.price),r.viewers,r.purchaseRate,r.marketing??0,r.foodCost,r.ruleVersion??1,r.annualFoodCost,r.eventAdjustment))throw Error('餐飲收入收據錯誤');
       if(r.ruleVersion!==undefined){
-        if(![2,3,4].includes(r.ruleVersion))throw Error('餐飲規則版本錯誤');
+        if(![2,3,4,5].includes(r.ruleVersion))throw Error('餐飲規則版本錯誤');
         const [min,max]=purchaseRange(r.items.map(i=>i.price),r.viewers,r.foodCost,r.staffing,r.screenCount);
         let baseRate=r.purchaseRate;
         if(r.ruleVersion>=3){
@@ -54,7 +58,7 @@
     }
     if(saved.lastSettledWeek!==(previous||null))throw Error('餐飲結算週次錯誤');return structuredClone(saved);
   }
-  function advance(state,ticketReceipt,values,exclusiveFood,seed,screenCount,totalSeats){
+  function advance(state,ticketReceipt,values,exclusiveFood,seed,screenCount,totalSeats,eventAdjustment){
     const now=ticketReceipt.earnedAt;if(!Number.isInteger(now)||now<1||ticketReceipt.bookedAt!==now+1||state.lastSettledWeek!==null&&now!==state.lastSettledWeek+1)throw Error('餐飲收入重複或錯週結算');
     const items=[{name:'爆米花',price:Number(values.popcornPrice)},{name:'飲料',price:Number(values.drinkPrice)}];
     if(exclusiveFood!==null){if(typeof exclusiveFood!=='string'||!exclusiveFood)throw Error('獨家餐飲錯誤');items.push({name:exclusiveFood,price:Number(values.exclusiveFoodPrice)});}
@@ -66,7 +70,7 @@
     const purchaseRate=(basePurchasePercent+bonus)/100;
     const yearStart=Math.floor((now-1)/50)*50+1;
     const annualFoodCost=state.receipts.reduce((sum,r)=>r.earnedAt>=yearStart&&r.earnedAt<now?sum+(r.foodCost??0):sum,foodCost);
-    const gross=calculate(items.map(i=>i.price),viewers,purchaseRate,marketing,foodCost,4,annualFoodCost),receipt={ruleVersion:4,annualFoodCost,basePurchasePercent,regularDailyViewers,totalSeats,attendanceBonus:bonus,earnedAt:now,bookedAt:now+1,items,averagePrice:items.reduce((s,i)=>s+i.price,0)/items.length,viewers,purchaseRate,marketing,foodCost,staffing,screenCount,gross};
+    const gross=calculate(items.map(i=>i.price),viewers,purchaseRate,marketing,foodCost,eventAdjustment?5:4,annualFoodCost,eventAdjustment),receipt={ruleVersion:eventAdjustment?5:4,annualFoodCost,...(eventAdjustment?{eventAdjustment:structuredClone(eventAdjustment)}:{}),basePurchasePercent,regularDailyViewers,totalSeats,attendanceBonus:bonus,earnedAt:now,bookedAt:now+1,items,averagePrice:items.reduce((s,i)=>s+i.price,0)/items.length,viewers,purchaseRate,marketing,foodCost,staffing,screenCount,gross};
     if(ticketReceipt.accountingYear!==undefined)receipt.accountingYear=ticketReceipt.accountingYear;
     return{version:1,lastSettledWeek:now,receipts:[...state.receipts,receipt]};
   }

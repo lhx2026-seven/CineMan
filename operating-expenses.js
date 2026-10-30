@@ -11,6 +11,7 @@
     for(const key of['staffing','foodCost','maintenance','marketing','specialSessions','posterQuantity','posterPrice','figureQuantity','figurePrice'])number(inputs[key]);
     if(inputs.specialSessions>5)throw Error('特別場場數錯誤');
     const amounts={personnel:whole(inputs.staffing*1.2+inputs.specialSessions*500),goods:whole(inputs.foodCost+inputs.posterQuantity*inputs.posterPrice*.1+inputs.figureQuantity*inputs.figurePrice*.2),maintenance:inputs.maintenance,marketing:inputs.marketing,other:inputs.consumables===undefined?0:whole(number(inputs.consumables)+inputs.specialSessions*5000+eventTotal(inputs.eventExpenses??[]))};
+    if(inputs.eventAdjustments!==undefined){if(!inputs.eventAdjustments||Object.keys(inputs.eventAdjustments).some(k=>!KEYS.includes(k)))throw Error('事件支出項目錯誤');for(const key of KEYS)amounts[key]+=number(inputs.eventAdjustments[key]??0);}
     if(KEYS.some(key=>!Number.isSafeInteger(amounts[key])||amounts[key]<0))throw Error('營運支出超出範圍');
     return amounts;
   }
@@ -27,7 +28,7 @@
     if(saved.lastSettledWeek!==(previous||null))throw Error('營運支出結算紀錄錯誤');
     return saved;
   }
-  function advance(state,ticketReceipt,values,merchandiseReceipt,eventExpenses=[]){
+  function advance(state,ticketReceipt,values,merchandiseReceipt,eventExpenses=[],eventAdjustments){
     const {earnedAt,bookedAt}=ticketReceipt;
     if(!Number.isInteger(earnedAt)||earnedAt<1||bookedAt!==earnedAt+1||earnedAt<=(state.lastSettledWeek||0)||merchandiseReceipt?.earnedAt!==earnedAt||merchandiseReceipt.bookedAt!==bookedAt)throw Error('營運支出重複或錯週結算');
     eventTotal(eventExpenses);
@@ -35,6 +36,7 @@
     if(eventExpenses.some(e=>pastIDs.has(e.id)))throw Error('事件重複扣款');
     const inputs={consumables:number(values.consumables??0),eventExpenses:eventExpenses.map(e=>({...e})),staffing:number(values.staffing),foodCost:number(values.foodCost),maintenance:number(values.maintenance),marketing:number(values.marketing),specialSessions:number(ticketReceipt.specialSessionCount??0)};
     for(const kind of['poster','figure']){const item=merchandiseReceipt.items[kind];inputs[kind+'Quantity']=number(item.produced);inputs[kind+'Price']=number(item.price);}
+    if(eventAdjustments)inputs.eventAdjustments=structuredClone(eventAdjustments);
     const amounts=calculate(inputs),receipt={earnedAt,bookedAt,inputs,amounts,total:KEYS.reduce((sum,k)=>sum+amounts[k],0),...(ticketReceipt.accountingYear!==undefined?{accountingYear:ticketReceipt.accountingYear}:{})};
     return{version:2,lastSettledWeek:earnedAt,receipts:[...state.receipts,receipt]};
   }

@@ -1,0 +1,1447 @@
+{
+  "version": 1,
+  "rules": {
+    "ea001": {
+      "condition": {
+        "weeks": [
+          19,
+          38
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.67,
+          "scope": "all"
+        }
+      ]
+    },
+    "ea002": {
+      "condition": {
+        "weeks": [
+          19,
+          38
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.33,
+          "scope": "all"
+        },
+        {
+          "kind": "lock",
+          "field": "consumables",
+          "value": 100000
+        }
+      ]
+    },
+    "ea003": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.67,
+          "scope": "all"
+        },
+        {
+          "kind": "lock",
+          "field": "maintenance",
+          "value": 200000
+        }
+      ]
+    },
+    "ea004": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.5,
+          "scope": "all"
+        },
+        {
+          "kind": "lock",
+          "field": "maintenance",
+          "value": 200000
+        }
+      ]
+    },
+    "ea005": {
+      "condition": {
+        "fact": "blockedExit"
+      },
+      "effects": [
+        {
+          "kind": "lock",
+          "field": "consumables",
+          "value": 1000000
+        },
+        {
+          "kind": "attendance",
+          "factor": 0.33,
+          "scope": "all"
+        }
+      ]
+    },
+    "ea006": {
+      "condition": {
+        "activity": "claw"
+      },
+      "effects": [
+        {
+          "kind": "lock",
+          "field": "consumables",
+          "value": 100000
+        }
+      ]
+    },
+    "ea007": {
+      "condition": {
+        "years": [
+          2026,
+          2026
+        ],
+        "lastSpecial": true
+      },
+      "effects": [
+        {
+          "kind": "lock",
+          "field": "consumables",
+          "value": 100000
+        }
+      ]
+    },
+    "ea008": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.1,
+          "scope": "all"
+        },
+        {
+          "kind": "lock",
+          "field": "maintenance",
+          "value": 50000
+        }
+      ]
+    },
+    "ea009": {
+      "condition": {},
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "attendance",
+            "factor": 0.33,
+            "scope": "all"
+          }
+        ],
+        "2": [
+          {
+            "kind": "attendance",
+            "factor": 0.01,
+            "scope": "all"
+          }
+        ]
+      }
+    },
+    "ea010": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.33,
+          "scope": "all"
+        }
+      ]
+    },
+    "ea011": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 1.2,
+          "scope": "all",
+          "duration": 4
+        }
+      ]
+    },
+    "ea012": {
+      "condition": {
+        "cinemas": [
+          "C02"
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 2,
+          "scope": "all",
+          "duration": 4
+        }
+      ]
+    },
+    "eb001": {
+      "condition": {
+        "staffBelow": 8000
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.5,
+          "scope": "all"
+        }
+      ]
+    },
+    "eb002": {
+      "condition": {
+        "staffBelow": 6000
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "lock",
+            "field": "staffing",
+            "value": "hallsPlus1*8000"
+          },
+          {
+            "kind": "regularGross",
+            "factor": 0.67
+          }
+        ],
+        "2": [
+          {
+            "kind": "shutdown"
+          },
+          {
+            "kind": "lock",
+            "field": "staffing",
+            "value": "min"
+          },
+          {
+            "kind": "lock",
+            "field": "maintenance",
+            "value": "min"
+          }
+        ]
+      }
+    },
+    "eb003": {
+      "condition": {
+        "staffBelow": 9000,
+        "consecutive": 4
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "lock",
+            "field": "staffing",
+            "value": "hallsPlus1*10000"
+          }
+        ],
+        "2": [
+          {
+            "kind": "lock",
+            "field": "staffing",
+            "value": "hallsPlus1*12000"
+          }
+        ]
+      }
+    },
+    "eb004": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "lock",
+          "field": "staffing",
+          "value": "hallsPlus1*12000"
+        }
+      ]
+    },
+    "eb005": {
+      "condition": {
+        "years": [
+          2025,
+          2026
+        ]
+      },
+      "effects": [
+        {
+          "kind": "lock",
+          "field": "maintenance",
+          "value": 50000
+        },
+        {
+          "kind": "attendance",
+          "factor": 0.5,
+          "scope": "featured"
+        }
+      ]
+    },
+    "eb006": {
+      "condition": {
+        "staffBelow": 9000
+      },
+      "effects": [
+        {
+          "kind": "expense",
+          "field": "maintenance",
+          "value": 200000
+        }
+      ]
+    },
+    "eb007": {
+      "condition": {
+        "staffBelow": 8000
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "lock",
+            "field": "staffing",
+            "value": "hallsPlus1*10000"
+          },
+          {
+            "kind": "fact",
+            "name": "labor",
+            "value": false
+          }
+        ],
+        "2": [
+          {
+            "kind": "fact",
+            "name": "labor",
+            "value": true
+          }
+        ]
+      }
+    },
+    "eb008": {
+      "condition": {
+        "fact": "labor"
+      },
+      "effects": [
+        {
+          "kind": "expense",
+          "field": "personnel",
+          "value": 20000
+        },
+        {
+          "kind": "fact",
+          "name": "labor",
+          "value": false
+        }
+      ]
+    },
+    "eb009": {
+      "condition": {
+        "staffBelow": 8000
+      },
+      "effects": [
+        {
+          "kind": "lock",
+          "field": "consumables",
+          "value": 100000
+        }
+      ]
+    },
+    "eb010": {
+      "condition": {
+        "years": [
+          2026,
+          2026
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 4,
+          "scope": "all"
+        },
+        {
+          "kind": "lock",
+          "field": "staffing",
+          "value": "hallsPlus1*12000"
+        }
+      ]
+    },
+    "eb011": {
+      "condition": {
+        "years": [
+          2026,
+          2026
+        ]
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "lock",
+            "field": "consumables",
+            "value": 100000
+          }
+        ],
+        "2": [
+          {
+            "kind": "expense",
+            "field": "personnel",
+            "value": 20000
+          },
+          {
+            "kind": "attendance",
+            "factor": 1.1,
+            "scope": "all"
+          }
+        ]
+      }
+    },
+    "eb012": {
+      "condition": {
+        "years": [
+          2024,
+          2026
+        ],
+        "lastPoster": true
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "lock",
+            "field": "consumables",
+            "value": 100000
+          }
+        ],
+        "2": [
+          {
+            "kind": "expense",
+            "field": "personnel",
+            "value": 20000
+          },
+          {
+            "kind": "attendance",
+            "factor": 1.1,
+            "scope": "all"
+          }
+        ]
+      }
+    },
+    "ec001": {
+      "condition": {
+        "maintenanceBelow": 5000
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "scope": "featured",
+          "set": 0
+        }
+      ]
+    },
+    "ec002": {
+      "condition": {
+        "maintenanceBelow": 2500
+      },
+      "effects": [
+        {
+          "kind": "lock",
+          "field": "consumables",
+          "value": 20000
+        },
+        {
+          "kind": "expense",
+          "field": "other",
+          "value": 100000
+        }
+      ],
+      "enabled": false,
+      "reviewNote": "待作者確認其它支出100000與雜支20000是否相加；確認前不參與抽選。"
+    },
+    "ec003": {
+      "condition": {},
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "lock",
+            "field": "staffing",
+            "value": "hallsPlus1*10000"
+          },
+          {
+            "kind": "fact",
+            "name": "blockedExit",
+            "value": false
+          }
+        ],
+        "2": [
+          {
+            "kind": "fact",
+            "name": "blockedExit",
+            "value": true
+          }
+        ]
+      }
+    },
+    "ec004": {
+      "condition": {},
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "lock",
+            "field": "consumables",
+            "value": 10000
+          },
+          {
+            "kind": "fact",
+            "name": "extinguisher",
+            "value": false
+          }
+        ],
+        "2": [
+          {
+            "kind": "fact",
+            "name": "extinguisher",
+            "value": true
+          }
+        ]
+      },
+      "cooldown": 100
+    },
+    "ec005": {
+      "condition": {
+        "fact": "extinguisher"
+      },
+      "effects": [
+        {
+          "kind": "lock",
+          "field": "consumables",
+          "value": 20000
+        },
+        {
+          "kind": "fact",
+          "name": "extinguisher",
+          "value": false
+        },
+        {
+          "kind": "fact",
+          "name": "recheck",
+          "value": true
+        }
+      ]
+    },
+    "ec006": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "lock",
+          "field": "consumables",
+          "value": 20000
+        },
+        {
+          "kind": "fact",
+          "name": "recheck",
+          "value": true
+        }
+      ],
+      "cooldown": 100
+    },
+    "ec007": {
+      "condition": {
+        "fact": "recheck"
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "expense",
+            "field": "maintenance",
+            "value": 200000
+          },
+          {
+            "kind": "fact",
+            "name": "recheck",
+            "value": false
+          }
+        ],
+        "2": [
+          {
+            "kind": "fact",
+            "name": "recheck",
+            "value": false
+          },
+          {
+            "kind": "fact",
+            "name": "shutdownOrder",
+            "value": true
+          }
+        ]
+      }
+    },
+    "ec008": {
+      "condition": {
+        "cinemas": [
+          "C01",
+          "C03",
+          "C04"
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.67,
+          "scope": "all"
+        }
+      ],
+      "maxPerYear": 2
+    },
+    "ec009": {
+      "condition": {
+        "activity": "parking"
+      },
+      "effects": [
+        {
+          "kind": "spaceZero"
+        }
+      ]
+    },
+    "ec010": {
+      "condition": {
+        "cinemas": [
+          "C01",
+          "C03",
+          "C04"
+        ],
+        "normalSeats": 300,
+        "notTown": true
+      },
+      "effects": [
+        {
+          "kind": "expense",
+          "field": "maintenance",
+          "value": 60000000
+        },
+        {
+          "kind": "upgrade",
+          "format": "IMAX",
+          "minSeats": 300,
+          "delay": 12
+        }
+      ]
+    },
+    "ec011": {
+      "condition": {
+        "cinemas": [
+          "C01",
+          "C03",
+          "C04"
+        ],
+        "normalSeats": 150,
+        "notTown": true
+      },
+      "effects": [
+        {
+          "kind": "expense",
+          "field": "maintenance",
+          "value": 40000000
+        },
+        {
+          "kind": "upgrade",
+          "format": "4DX",
+          "minSeats": 150,
+          "delay": 12
+        }
+      ]
+    },
+    "ec012": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "expense",
+          "field": "maintenance",
+          "value": "halls*100000"
+        },
+        {
+          "kind": "shutdown",
+          "delay": 1
+        },
+        {
+          "kind": "attendance",
+          "factor": 1.2,
+          "scope": "all",
+          "delay": 2,
+          "duration": 24
+        }
+      ]
+    },
+    "ec013": {
+      "condition": {
+        "format": "VIP",
+        "annualLosses": 1
+      },
+      "effects": [
+        {
+          "kind": "expense",
+          "field": "maintenance",
+          "value": 1000000
+        },
+        {
+          "kind": "closeHall",
+          "format": "VIP",
+          "delay": 1
+        }
+      ]
+    },
+    "ec014": {
+      "condition": {
+        "format": "IMAX",
+        "annualLosses": 1
+      },
+      "effects": [
+        {
+          "kind": "expense",
+          "field": "maintenance",
+          "value": 10000000
+        },
+        {
+          "kind": "closeHall",
+          "format": "IMAX",
+          "delay": 1
+        }
+      ]
+    },
+    "ec015": {
+      "condition": {
+        "format": "4DX",
+        "annualLosses": 1
+      },
+      "effects": [
+        {
+          "kind": "expense",
+          "field": "maintenance",
+          "value": 5000000
+        },
+        {
+          "kind": "closeHall",
+          "format": "4DX",
+          "delay": 1
+        }
+      ]
+    },
+    "ec016": {
+      "condition": {},
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "reissue",
+            "delay": 1
+          }
+        ],
+        "2": []
+      }
+    },
+    "ed001": {
+      "condition": {
+        "format": "VIP"
+      },
+      "effects": [
+        {
+          "kind": "expense",
+          "field": "goods",
+          "value": 150000,
+          "duration": 4
+        },
+        {
+          "kind": "expense",
+          "field": "personnel",
+          "value": 50000,
+          "duration": 4
+        },
+        {
+          "kind": "foodAdd",
+          "value": 300000,
+          "duration": 4
+        }
+      ]
+    },
+    "ed002": {
+      "condition": {
+        "foodRatioAbove": 0.45
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 1.5,
+          "scope": "all"
+        },
+        {
+          "kind": "foodFactor",
+          "factor": 3
+        }
+      ]
+    },
+    "ed003": {
+      "condition": {
+        "weeklyLosses": 8,
+        "foodAbove": 10000
+      },
+      "effects": [
+        {
+          "kind": "foodZero"
+        }
+      ]
+    },
+    "ed004": {
+      "condition": {
+        "weeklyLosses": 4,
+        "productionCost": "poster"
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.1,
+          "scope": "all"
+        },
+        {
+          "kind": "lock",
+          "field": "posterQuantity",
+          "value": 0
+        }
+      ]
+    },
+    "ed005": {
+      "condition": {
+        "weeklyLosses": 4,
+        "productionCost": "figure"
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.1,
+          "scope": "all"
+        },
+        {
+          "kind": "lock",
+          "field": "figureQuantity",
+          "value": 0
+        }
+      ]
+    },
+    "ed006": {
+      "condition": {
+        "years": [
+          2024,
+          2026
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.1,
+          "scope": "featured"
+        }
+      ]
+    },
+    "ed007": {
+      "condition": {
+        "years": [
+          2025,
+          2026
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "scope": "featured",
+          "set": 1
+        }
+      ]
+    },
+    "ed008": {
+      "condition": {
+        "years": [
+          2026,
+          2026
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.33,
+          "scope": "featured"
+        }
+      ]
+    },
+    "ed009": {
+      "condition": {
+        "foodRatioBelow": 0.1
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.5,
+          "scope": "all"
+        },
+        {
+          "kind": "foodFactor",
+          "factor": 0.1
+        }
+      ]
+    },
+    "ed010": {
+      "condition": {
+        "foodRatioBelow": 0.1
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "lock",
+            "field": "foodCost",
+            "value": 100000
+          },
+          {
+            "kind": "foodZero"
+          },
+          {
+            "kind": "fact",
+            "name": "foodDanger",
+            "value": false
+          }
+        ],
+        "2": [
+          {
+            "kind": "fact",
+            "name": "foodDanger",
+            "value": true
+          }
+        ]
+      }
+    },
+    "ee001": {
+      "condition": {
+        "cinemas": [
+          "C01",
+          "C03",
+          "C04"
+        ]
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "income",
+            "value": 2000000
+          },
+          {
+            "kind": "attendance",
+            "factor": 0.33,
+            "scope": "all",
+            "delay": 1,
+            "duration": 2
+          }
+        ],
+        "2": []
+      },
+      "maxPerYear": 1
+    },
+    "ee002": {
+      "condition": {
+        "cinemas": [
+          "C05"
+        ]
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "income",
+            "value": 2000000
+          },
+          {
+            "kind": "ticketZero",
+            "delay": 1,
+            "duration": 2
+          }
+        ],
+        "2": []
+      },
+      "maxPerYear": 1
+    },
+    "ee003": {
+      "condition": {
+        "cinemas": [
+          "C01",
+          "C03",
+          "C04"
+        ]
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "income",
+            "value": 1200000
+          },
+          {
+            "kind": "attendance",
+            "factor": 0.33,
+            "scope": "all",
+            "delay": 1,
+            "duration": 1
+          }
+        ],
+        "2": []
+      },
+      "maxPerYear": 1
+    },
+    "ee004": {
+      "condition": {
+        "cinemas": [
+          "C05"
+        ]
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "income",
+            "value": 1500000
+          },
+          {
+            "kind": "ticketZero",
+            "delay": 1,
+            "duration": 1
+          }
+        ],
+        "2": []
+      },
+      "maxPerYear": 1
+    },
+    "ee005": {
+      "condition": {
+        "calendar": [
+          [
+            2022,
+            43,
+            46
+          ],
+          [
+            2024,
+            1,
+            4
+          ],
+          [
+            2026,
+            43,
+            46
+          ]
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.2,
+          "scope": "featured"
+        }
+      ]
+    },
+    "ee006": {
+      "condition": {
+        "years": [
+          2024,
+          2024
+        ],
+        "weeks": [
+          44,
+          45
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 0.2,
+          "scope": "featured"
+        }
+      ]
+    },
+    "ee007": {
+      "condition": {
+        "weeks": [
+          25,
+          28
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 2,
+          "scope": "all"
+        }
+      ]
+    },
+    "ee008": {
+      "condition": {
+        "weeks": [
+          31,
+          34
+        ],
+        "titleContains": "鬼"
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 3,
+          "scope": "ghost"
+        }
+      ]
+    },
+    "ee009": {
+      "condition": {
+        "weeks": [
+          4,
+          7
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "scope": "featured",
+          "set": 1
+        }
+      ]
+    },
+    "ee010": {
+      "condition": {
+        "weeks": [
+          20,
+          23
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 2,
+          "scope": "featured"
+        }
+      ]
+    },
+    "ee011": {
+      "condition": {
+        "weeks": [
+          35,
+          38
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 2,
+          "scope": "featured"
+        }
+      ]
+    },
+    "ee012": {
+      "condition": {
+        "movies": [
+          "MV0004",
+          "MV0005",
+          "MV0006"
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 3,
+          "movies": [
+            "MV0004",
+            "MV0005",
+            "MV0006"
+          ]
+        }
+      ]
+    },
+    "ee013": {
+      "condition": {
+        "movies": [
+          "MV0023",
+          "MV0024"
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 3,
+          "movies": [
+            "MV0023",
+            "MV0024"
+          ]
+        }
+      ]
+    },
+    "ee014": {
+      "condition": {
+        "movies": [
+          "MV0391"
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 3,
+          "movies": [
+            "MV0391"
+          ]
+        }
+      ]
+    },
+    "ee015": {
+      "condition": {
+        "movies": [
+          "MV0387"
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 3,
+          "movies": [
+            "MV0387"
+          ]
+        }
+      ]
+    },
+    "ee016": {
+      "condition": {
+        "movies": [
+          "MV0469"
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 3,
+          "movies": [
+            "MV0469"
+          ]
+        }
+      ]
+    },
+    "ee017": {
+      "condition": {
+        "allMovies": [
+          "MV0041",
+          "MV0042",
+          "MV0043"
+        ]
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 2,
+          "series": "SR017"
+        }
+      ]
+    },
+    "ee018": {
+      "condition": {
+        "series": "SR013"
+      },
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 5,
+          "series": "SR013"
+        }
+      ]
+    },
+    "ee019": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 1.5,
+          "scope": "average"
+        }
+      ]
+    },
+    "ee020": {
+      "condition": {},
+      "effects": []
+    },
+    "ee021": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "attendance",
+          "scope": "featured",
+          "set": 1
+        }
+      ]
+    },
+    "ee022": {
+      "condition": {
+        "years": [
+          2025,
+          2026
+        ],
+        "cinemas": [
+          "C01",
+          "C03",
+          "C04"
+        ]
+      },
+      "effects": [
+        {
+          "kind": "specialBase",
+          "value": 200
+        }
+      ]
+    },
+    "ee023": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 1.1,
+          "scope": "featured"
+        }
+      ]
+    },
+    "ee024": {
+      "condition": {},
+      "effects": [
+        {
+          "kind": "attendance",
+          "factor": 1.1,
+          "scope": "all"
+        }
+      ]
+    },
+    "ef001": {
+      "condition": {
+        "anyFact": [
+          "shutdownOrder",
+          "foodDanger"
+        ]
+      },
+      "effects": [],
+      "choices": {
+        "1": [
+          {
+            "kind": "shutdown"
+          },
+          {
+            "kind": "lock",
+            "field": "staffing",
+            "value": "min"
+          },
+          {
+            "kind": "lock",
+            "field": "maintenance",
+            "value": "min"
+          },
+          {
+            "kind": "lock",
+            "field": "consumables",
+            "value": 100000
+          },
+          {
+            "kind": "fact",
+            "name": "shutdownOrder",
+            "value": false
+          },
+          {
+            "kind": "fact",
+            "name": "foodDanger",
+            "value": false
+          }
+        ],
+        "2": [
+          {
+            "kind": "shutdown"
+          },
+          {
+            "kind": "lock",
+            "field": "staffing",
+            "value": "min"
+          },
+          {
+            "kind": "lock",
+            "field": "maintenance",
+            "value": "min"
+          }
+        ]
+      }
+    },
+    "ef002": {
+      "condition": {
+        "closedWeeks": 2
+      },
+      "effects": [
+        {
+          "kind": "end",
+          "delay": 0
+        }
+      ]
+    },
+    "ef003": {
+      "condition": {
+        "owned": true,
+        "annualLosses": 2
+      },
+      "effects": [
+        {
+          "kind": "sellLand"
+        }
+      ]
+    },
+    "ef004": {
+      "condition": {
+        "originalRented": true,
+        "years": [
+          2023,
+          9999
+        ]
+      },
+      "effects": [
+        {
+          "kind": "raiseRent"
+        }
+      ],
+      "cooldown": 100
+    },
+    "ef005": {
+      "condition": {
+        "owned": false,
+        "annualLosses": 3,
+        "weeks": [
+          26,
+          50
+        ]
+      },
+      "effects": [
+        {
+          "kind": "end",
+          "delay": 24
+        }
+      ]
+    },
+    "ef006": {
+      "condition": {
+        "annualLosses": 3
+      },
+      "effects": [
+        {
+          "kind": "end",
+          "delay": 4
+        }
+      ]
+    }
+  }
+}

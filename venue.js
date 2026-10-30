@@ -31,7 +31,7 @@
     document.querySelector('#venue-details-title').textContent = '影廳明細';
     const rows = allocation.screens.map((screen,index) => {
       const tr = document.createElement('tr');
-      const label = screen.type === 'EXTRA' ? `${index+1}廳（${screen.name.replace(/\s*\([^)]*\)$/, '')}廳）` : `${index+1}廳`;
+      const label = screen.underConstructionUntil ? `${index+1}廳（改裝中）` : screen.type === 'EXTRA' ? `${index+1}廳（${screen.name.replace(/\s*\([^)]*\)$/, '')}廳）` : `${index+1}廳`;
       for (const value of [label, screen.size.toLocaleString('zh-TW')]) {
         const cell = document.createElement('td'); cell.textContent = value; tr.append(cell);
       }
