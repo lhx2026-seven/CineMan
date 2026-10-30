@@ -39,3 +39,6 @@ for(const event of db.events.filter(e=>e.enabled===false))assert(!E.eligible(eve
 assert(db.events.every(e=>e.enabled));
 {const event=db.events.find(e=>e.id==='ec002'),ctx=context(event),s=E.begin(stateFor(event,ctx),ctx,{events:[event]}),settings=E.settings(s,ctx.week);assert.deepEqual(settings.locks,{maintenance:100000,consumables:20000});assert.equal(settings.expenses.other,0);}
 console.log('PASS all 80 enabled; ec002 locks maintenance 100000 and consumables 20000 without extra compensation');
+
+{const ctx={...context(),week:1};const s=E.begin(E.create(1),ctx,db);assert.equal(s.draws.length,0);assert.equal(s.effects.length,0);assert(!E.pending(s,1));assert(db.events.every(e=>!E.eligible(e,s,ctx)));assert(E.begin(s,{...ctx,week:2},db).draws.length===1);assert(E.begin(E.create(51),{...ctx,week:51},db).draws.length===1);}
+console.log('PASS 2022 W1 is event-free, W2 and later-year W1 still draw events');

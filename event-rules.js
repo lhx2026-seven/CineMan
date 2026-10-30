@@ -29,7 +29,7 @@
   function live(ctx){return(ctx.movies?.history||[]).filter(h=>h.retiredAt==null);}
   const format=s=>s.name.replace(/\s*\([^)]*\)$/, '');
   function eligible(event,state,ctx){
-    if(event.enabled===false)return false;
+    if(ctx.week===1||event.enabled===false)return false;
     const now=ctx.week,year=yearOf(now),w=weekOf(now),c=event.condition,previous=state.frames.at(-1),prior=previous?.week===now-1?previous:null;
     const earlier=state.draws.filter(d=>d.id===event.id),last=earlier.at(-1);
     if(last?.week===now||!event.repeatable&&last||last&&now-last.week<(event.cooldown||0)||event.maxPerYear&&earlier.filter(d=>yearOf(d.week)===year).length>=event.maxPerYear)return false;
@@ -79,6 +79,10 @@
     for(const e of effects)if(e.kind==='fact')state.facts[e.name]=e.value;
   }
   function begin(state,ctx,database){
+    if(ctx.week===1){
+      const removed=new Set(state.draws.filter(d=>d.week===1).map(d=>d.key));
+      return{...state,throughWeek:1,draws:state.draws.filter(d=>d.week!==1),effects:state.effects.filter(e=>!removed.has(e.source)),facts:{},acknowledged:state.acknowledged.filter(key=>!removed.has(key))};
+    }
     if(state.draws.some(d=>d.week===ctx.week)||state.throughWeek>=ctx.week)return state;
     const next=structuredClone(state),candidates=database.events.filter(e=>eligible(e,state,ctx));next.throughWeek=ctx.week;
     if(!candidates.length)return next;

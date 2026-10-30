@@ -214,6 +214,7 @@ function initGame() {
   function prepareEvents(){
     eventState=CinemaEventRules.billing(eventState,annualMeeting?.settled?CinemaMovieRules.absoluteWeek(gameDate.year,gameDate.week):currentWeek(),rent,propertyTax);
     if(!annualMeeting){
+      if(currentWeek()===1&&eventBudgetState)restoreEventBudgets();
       const story=CinemaMovieRules.eventsFor(movies,currentWeek());
       if(story.length&&!eventState.draws.some(d=>d.week===currentWeek()))eventState={...eventState,throughWeek:currentWeek()};
       else eventState=CinemaEventRules.begin(eventState,eventContext(),CinemaEventDatabase);
