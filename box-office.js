@@ -79,10 +79,11 @@
   }
   function settle({database,movies,cinemaID,locationID,allocation,values,ledger,events}){
     const now=movies.lastWeek,live=showing(movies),by=new Map(database.movies.map(m=>[m.id,m]));
-    const carry=carryCandidate(movies,ledger),selected=values.featuredFilm;
-    if((movies.current.length||carry)&&!selected||selected&&(!live.some(h=>h.id===selected)||!movies.current.includes(selected)&&selected!==carry))throw Error('請先選擇本週新片或可沿用的上週主打片');
-    const slots=amount(values.featuredSlots),capacity=R().screeningCapacity(allocation.screenCount,cinemaID);if(!Number.isInteger(slots)||slots<1||slots>R().maximumFeaturedSlots(allocation.screenCount,cinemaID))throw Error('場次占比錯誤');
-    const eventRules=events&&root.CinemaEventRules,eventSettings=eventRules?eventRules.settings(events,now):{},operating=allocation.screens.filter(s=>!s.underConstructionUntil||s.underConstructionUntil<=now);
+    const eventRules=events&&root.CinemaEventRules,eventSettings=eventRules?eventRules.settings(events,now):{};
+    const carry=carryCandidate(movies,ledger),selected=eventSettings.shutdown?null:values.featuredFilm;
+    if(!eventSettings.shutdown&&((movies.current.length||carry)&&!selected||selected&&(!live.some(h=>h.id===selected)||!movies.current.includes(selected)&&selected!==carry)))throw Error('請先選擇本週新片或可沿用的上週主打片');
+    const capacity=R().screeningCapacity(allocation.screenCount,cinemaID),slots=eventSettings.shutdown?1:amount(values.featuredSlots);if(!Number.isInteger(slots)||slots<1||slots>R().maximumFeaturedSlots(allocation.screenCount,cinemaID))throw Error('場次占比錯誤');
+    const operating=allocation.screens.filter(s=>!s.underConstructionUntil||s.underConstructionUntil<=now);
     const p=pricing(cinemaID,allocation,values);
     const availableSeats=operating.reduce((sum,s)=>sum+s.size,0);
     if(availableSeats)p.averagePrice=operating.reduce((sum,s)=>sum+s.size*(s.type==='EXTRA'?amount(values[extraKey(s)]):standardPrice(cinemaID,values,allocation.screenCount)),0)/availableSeats;

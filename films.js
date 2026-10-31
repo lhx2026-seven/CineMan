@@ -85,7 +85,7 @@
     cards.forEach((card,index)=>{
       card.addEventListener('click',()=>{if(!swiped)browse(index);});
       card.querySelector('.film-select').addEventListener('click',event=>{
-        event.stopPropagation();if(swiped)return;
+        event.stopPropagation();if(swiped||event.currentTarget.disabled)return;
         browse(index);
         const input = card.querySelector('input');input.checked=true;input.dispatchEvent(new Event('change',{bubbles:true}));
       });

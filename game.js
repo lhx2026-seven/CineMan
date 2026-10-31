@@ -503,6 +503,15 @@ function initGame() {
     const input=form.elements.activationRate,now=currentWeek();
     try{activation=CinemaActivation.change(activation,Number(input.value),now);}catch(error){input.value=String(activation.rate);throw error;}
   }
+  function isShutdownWeek(){return !!eventState&&CinemaEventRules.settings(eventState,currentWeek()).shutdown;}
+  function updateFilmSelectionLock(shutdown){
+    for(const card of form.querySelectorAll('.film-option')){
+      const input=card.querySelector('input[name="featuredFilm"]');input.disabled=shutdown||card.hidden;
+      if(shutdown)input.checked=false;card.querySelector('.film-select').disabled=input.disabled;
+    }
+    const carry=form.querySelector('#carry-film');carry.disabled=shutdown||document.querySelector('#carry-feature').hidden;
+    if(shutdown)carry.checked=false;document.querySelector('#carry-feature-button').disabled=carry.disabled;
+  }
   function updateControls() {
     applyEventBudgets();
     updateTicketLocks();updateActivationLock();
@@ -525,21 +534,22 @@ function initGame() {
       settings.disabled = !enabled;
       form.elements[`${item}Enabled`].setAttribute('aria-expanded', String(enabled));
     }
+    const shutdown=isShutdownWeek();updateFilmSelectionLock(shutdown);
     const featured = form.querySelector('input[name="featuredFilm"]:checked');
-    document.querySelector('#next-week').disabled = advancing || !venueReady || (!annualMeeting&&pendingWeeklyEvent()) || (!annualMeeting&&(movies?.current.length>0||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!featured);
+    document.querySelector('#next-week').disabled = advancing || !venueReady || (!annualMeeting&&pendingWeeklyEvent()) || (!annualMeeting&&!shutdown&&(movies?.current.length>0||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!featured);
     applyEventBudgets();
     updateFeaturedShare(featured);
     films.update();
   }
   function updateFeaturedShare(featured=form.querySelector('input[name="featuredFilm"]:checked')) {
     const share = document.querySelector('#featured-share');
-    share.disabled = !featured || !venueReady;
+    share.disabled = isShutdownWeek() || !featured || !venueReady;
     if(venueReady)share.value=String(Math.max(1,Math.min(Number(share.value),CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id))));
     const percentage = venueReady ? CinemaFilms.sharePercentage(Number(share.value),venueScreenCount,id) : 0;
     const formattedShare = percentage.toLocaleString('zh-TW',{maximumFractionDigits:2}) + '%';
     document.querySelector('#share-output').textContent = featured && venueReady ? formattedShare : '—';
     if (venueReady) share.setAttribute('aria-valuetext',`${formattedShare}（${share.value}／${share.max}${id==='C02'?'刻度':'場'}）`);
-    document.querySelector('#featured-settings').hidden = !featured;
+    document.querySelector('#featured-settings').hidden = isShutdownWeek() || !featured;
     if (featured) document.querySelector('#featured-heading').textContent = `選擇${films.titleFor(featured.value)}為本週主打，場次占比`;
   }
   function formValues() {
@@ -628,7 +638,7 @@ function initGame() {
     const instantEnd=eventState.effects.some(e=>e.kind==='end'&&e.start===currentWeek()&&e.source.endsWith('/'+currentWeek()));
     if(!annualMeeting&&instantEnd){openImmediateMeeting();return;}
     if(annualMeeting&&!fromMeeting)return;
-    if(!annualMeeting?.settled&&((movies.current.length||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!form.querySelector('[name="featuredFilm"]:checked')))return;
+    if(!annualMeeting?.settled&&!isShutdownWeek()&&((movies.current.length||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!form.querySelector('[name="featuredFilm"]:checked')))return;
     if((gameDate.week===1||newFormatPrices().size>0)&&!annualMeeting&&!ticketConfirmed){
       if(!ticketConfirmDialog.open){document.querySelector('#ticket-confirm-title').textContent=gameDate.week===1?'請確認今年度電影票價':'請確認新特殊廳票價';ticketConfirmDialog.showModal();document.querySelector('#ticket-return').focus();}
       return;

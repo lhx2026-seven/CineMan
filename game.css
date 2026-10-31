@@ -625,3 +625,4 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 }
 
 .meeting-profit-chart text { font-family:var(--ui-font); }
+.film-select:disabled, #carry-feature-button:disabled { opacity:.45; cursor:default; }

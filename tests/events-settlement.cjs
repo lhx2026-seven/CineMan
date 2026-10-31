@@ -20,3 +20,6 @@ const eventState={receipts:[{earnedAt:1,bookedAt:2,accountingYear:2022,gross:123
 console.log('PASS event cash and future rent adjustments feed annual profit graph without gross double-counting');
 const finished=E.finish(E.create(1),{week:1,halls:2,values:{...context.values,posterQuantity:1000,posterPrice:100,posterEnabled:false},foodReceipt:f.receipts[0],merchandiseReceipt:{items:{poster:{produced:0},figure:{produced:0}}},ticketReceipt:baseline,profit:-1});assert.equal(finished.frames[0].values.posterQuantity,'0');assert.deepEqual(E.resolve(finished,2,db),finished);
 console.log('PASS production-cost triggers use actual orders, not an unchecked quantity field');
+
+{const values={...context.values};delete values.featuredFilm;delete values.featuredSlots;const receipt=B.settle({...context,values,events:shut});assert.equal(receipt.total,0);assert.equal(receipt.featuredID,null);assert.equal(receipt.extendedFeatured,false);assert.equal(receipt.specialSessionCount,0);assert.throws(()=>B.settle({...context,values}),/請先選擇/);}
+console.log('PASS shutdown settles without featured film/share, records no feature/extension, normal weeks still require selection');

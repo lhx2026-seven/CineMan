@@ -701,7 +701,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     cards.forEach((card,index)=>{
       card.addEventListener('click',()=>{if(!swiped)browse(index);});
       card.querySelector('.film-select').addEventListener('click',event=>{
-        event.stopPropagation();if(swiped)return;
+        event.stopPropagation();if(swiped||event.currentTarget.disabled)return;
         browse(index);
         const input = card.querySelector('input');input.checked=true;input.dispatchEvent(new Event('change',{bubbles:true}));
       });
@@ -1502,10 +1502,11 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
   }
   function settle({database,movies,cinemaID,locationID,allocation,values,ledger,events}){
     const now=movies.lastWeek,live=showing(movies),by=new Map(database.movies.map(m=>[m.id,m]));
-    const carry=carryCandidate(movies,ledger),selected=values.featuredFilm;
-    if((movies.current.length||carry)&&!selected||selected&&(!live.some(h=>h.id===selected)||!movies.current.includes(selected)&&selected!==carry))throw Error('請先選擇本週新片或可沿用的上週主打片');
-    const slots=amount(values.featuredSlots),capacity=R().screeningCapacity(allocation.screenCount,cinemaID);if(!Number.isInteger(slots)||slots<1||slots>R().maximumFeaturedSlots(allocation.screenCount,cinemaID))throw Error('場次占比錯誤');
-    const eventRules=events&&root.CinemaEventRules,eventSettings=eventRules?eventRules.settings(events,now):{},operating=allocation.screens.filter(s=>!s.underConstructionUntil||s.underConstructionUntil<=now);
+    const eventRules=events&&root.CinemaEventRules,eventSettings=eventRules?eventRules.settings(events,now):{};
+    const carry=carryCandidate(movies,ledger),selected=eventSettings.shutdown?null:values.featuredFilm;
+    if(!eventSettings.shutdown&&((movies.current.length||carry)&&!selected||selected&&(!live.some(h=>h.id===selected)||!movies.current.includes(selected)&&selected!==carry)))throw Error('請先選擇本週新片或可沿用的上週主打片');
+    const capacity=R().screeningCapacity(allocation.screenCount,cinemaID),slots=eventSettings.shutdown?1:amount(values.featuredSlots);if(!Number.isInteger(slots)||slots<1||slots>R().maximumFeaturedSlots(allocation.screenCount,cinemaID))throw Error('場次占比錯誤');
+    const operating=allocation.screens.filter(s=>!s.underConstructionUntil||s.underConstructionUntil<=now);
     const p=pricing(cinemaID,allocation,values);
     const availableSeats=operating.reduce((sum,s)=>sum+s.size,0);
     if(availableSeats)p.averagePrice=operating.reduce((sum,s)=>sum+s.size*(s.type==='EXTRA'?amount(values[extraKey(s)]):standardPrice(cinemaID,values,allocation.screenCount)),0)/availableSeats;
@@ -2664,6 +2665,15 @@ function initGame() {
     const input=form.elements.activationRate,now=currentWeek();
     try{activation=CinemaActivation.change(activation,Number(input.value),now);}catch(error){input.value=String(activation.rate);throw error;}
   }
+  function isShutdownWeek(){return !!eventState&&CinemaEventRules.settings(eventState,currentWeek()).shutdown;}
+  function updateFilmSelectionLock(shutdown){
+    for(const card of form.querySelectorAll('.film-option')){
+      const input=card.querySelector('input[name="featuredFilm"]');input.disabled=shutdown||card.hidden;
+      if(shutdown)input.checked=false;card.querySelector('.film-select').disabled=input.disabled;
+    }
+    const carry=form.querySelector('#carry-film');carry.disabled=shutdown||document.querySelector('#carry-feature').hidden;
+    if(shutdown)carry.checked=false;document.querySelector('#carry-feature-button').disabled=carry.disabled;
+  }
   function updateControls() {
     applyEventBudgets();
     updateTicketLocks();updateActivationLock();
@@ -2686,21 +2696,22 @@ function initGame() {
       settings.disabled = !enabled;
       form.elements[`${item}Enabled`].setAttribute('aria-expanded', String(enabled));
     }
+    const shutdown=isShutdownWeek();updateFilmSelectionLock(shutdown);
     const featured = form.querySelector('input[name="featuredFilm"]:checked');
-    document.querySelector('#next-week').disabled = advancing || !venueReady || (!annualMeeting&&pendingWeeklyEvent()) || (!annualMeeting&&(movies?.current.length>0||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!featured);
+    document.querySelector('#next-week').disabled = advancing || !venueReady || (!annualMeeting&&pendingWeeklyEvent()) || (!annualMeeting&&!shutdown&&(movies?.current.length>0||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!featured);
     applyEventBudgets();
     updateFeaturedShare(featured);
     films.update();
   }
   function updateFeaturedShare(featured=form.querySelector('input[name="featuredFilm"]:checked')) {
     const share = document.querySelector('#featured-share');
-    share.disabled = !featured || !venueReady;
+    share.disabled = isShutdownWeek() || !featured || !venueReady;
     if(venueReady)share.value=String(Math.max(1,Math.min(Number(share.value),CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id))));
     const percentage = venueReady ? CinemaFilms.sharePercentage(Number(share.value),venueScreenCount,id) : 0;
     const formattedShare = percentage.toLocaleString('zh-TW',{maximumFractionDigits:2}) + '%';
     document.querySelector('#share-output').textContent = featured && venueReady ? formattedShare : '—';
     if (venueReady) share.setAttribute('aria-valuetext',`${formattedShare}（${share.value}／${share.max}${id==='C02'?'刻度':'場'}）`);
-    document.querySelector('#featured-settings').hidden = !featured;
+    document.querySelector('#featured-settings').hidden = isShutdownWeek() || !featured;
     if (featured) document.querySelector('#featured-heading').textContent = `選擇${films.titleFor(featured.value)}為本週主打，場次占比`;
   }
   function formValues() {
@@ -2789,7 +2800,7 @@ function initGame() {
     const instantEnd=eventState.effects.some(e=>e.kind==='end'&&e.start===currentWeek()&&e.source.endsWith('/'+currentWeek()));
     if(!annualMeeting&&instantEnd){openImmediateMeeting();return;}
     if(annualMeeting&&!fromMeeting)return;
-    if(!annualMeeting?.settled&&((movies.current.length||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!form.querySelector('[name="featuredFilm"]:checked')))return;
+    if(!annualMeeting?.settled&&!isShutdownWeek()&&((movies.current.length||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!form.querySelector('[name="featuredFilm"]:checked')))return;
     if((gameDate.week===1||newFormatPrices().size>0)&&!annualMeeting&&!ticketConfirmed){
       if(!ticketConfirmDialog.open){document.querySelector('#ticket-confirm-title').textContent=gameDate.week===1?'請確認今年度電影票價':'請確認新特殊廳票價';ticketConfirmDialog.showModal();document.querySelector('#ticket-return').focus();}
       return;
