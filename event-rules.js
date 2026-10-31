@@ -27,7 +27,6 @@
     return structuredClone(saved);
   }
   function owner(state,property,week){return property.tenure==='owned'&&!state.effects.some(e=>e.kind==='sellLand'&&e.start<=week);}
-  function live(ctx){return(ctx.movies?.history||[]).filter(h=>h.retiredAt==null);}
   const format=s=>s.name.replace(/\s*\([^)]*\)$/, '');
   function postShutdown(state,week){
     const previous=state.frames.findLast(f=>f.week===week-1);
@@ -43,7 +42,7 @@
     if(c.years&&(year<c.years[0]||year>c.years[1])||c.weeks&&(w<c.weeks[0]||w>c.weeks[1])||c.calendar&&!c.calendar.some(([y,a,b])=>y===year&&w>=a&&w<=b)||c.cinemas&&!c.cinemas.includes(ctx.cinemaID))return false;
     if(c.activity&&ctx.property.activationType!==c.activity||c.fact&&!state.facts[c.fact]||c.anyFact&&!c.anyFact.some(k=>state.facts[k]))return false;
     if(c.owned!==undefined&&owner(state,ctx.property,now)!==c.owned||c.originalRented&&ctx.property.tenure!=='rented'||c.notTown&&ctx.property.locationID==='LOC08')return false;
-    const halls=ctx.allocation.screenCount,screens=ctx.allocation.screens;
+    const screens=ctx.allocation.screens;
     if(c.normalSeats&&!screens.some(s=>s.type!=='EXTRA'&&!s.underConstructionUntil&&s.size>=c.normalSeats)||c.format&&!screens.some(s=>s.type==='EXTRA'&&format(s)===c.format))return false;
     if(c.annualLosses){for(let y=year-1;y>=year-c.annualLosses;y--)if(!(state.annualProfits[y]<0))return false;}
     if(c.closedWeeks){let count=0;for(let n=state.frames.length-1;n>=0&&state.frames[n].week===now-1-count&&state.frames[n].shutdown;n--)count++;if(count<c.closedWeeks)return false;}

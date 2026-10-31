@@ -222,7 +222,7 @@ function initGame() {
         eventState=CinemaEventRules.begin(eventState,eventContext(),CinemaEventDatabase);
         if(previous&&eventState.draws.find(d=>d.week===currentWeek())?.key!==previous.key&&eventBudgetState?.week===currentWeek())restoreEventBudgets();
       }
-      projectEventVenue();applyEventBudgets();
+      projectEventVenue();
     }
     document.querySelector('#financial-report').dataset.rentalActive=String(!CinemaEventRules.owner(eventState,property,currentWeek()));
     document.querySelector('#financial-report').dataset.realEstateTaxActive=String(CinemaEventRules.owner(eventState,property,currentWeek()));
@@ -241,10 +241,9 @@ function initGame() {
       CinemaEvents.render({events:eventState.draws.some(d=>d.week===week)?CinemaEventRules.notice(eventState,week):CinemaEventRules.postShutdown(eventState,week)?[]:CinemaMovieRules.eventsFor(movies,week),defer:showPaymentNotice(),
         onDecision:({eventId,choiceId})=>{
           eventState=CinemaEventRules.decide(eventState,eventContext(),eventId,choiceId);
-          projectEventVenue();applyEventBudgets();renderFinance();updateControls();
-          // The local decision is complete. Persist immediately without making
-          // the modal wait for an IndexedDB transaction to finish.
-          saveDraft();
+          projectEventVenue();renderFinance();updateControls();
+          // onAcknowledge immediately persists the decision and read flag
+          // together, without an intermediate snapshot or a storage wait.
         },
         acknowledged:eventNoticeAcknowledged.week===week?eventNoticeAcknowledged.ids:[],
         onAcknowledge:eventID=>{
@@ -537,19 +536,18 @@ function initGame() {
     const shutdown=isShutdownWeek();updateFilmSelectionLock(shutdown);
     const featured = form.querySelector('input[name="featuredFilm"]:checked');
     document.querySelector('#next-week').disabled = advancing || !venueReady || (!annualMeeting&&pendingWeeklyEvent()) || (!annualMeeting&&!shutdown&&(movies?.current.length>0||CinemaBoxOffice.carryCandidate(movies,boxOffice))&&!featured);
-    applyEventBudgets();
-    updateFeaturedShare(featured);
+    updateFeaturedShare(featured,shutdown);
     films.update();
   }
-  function updateFeaturedShare(featured=form.querySelector('input[name="featuredFilm"]:checked')) {
+  function updateFeaturedShare(featured=form.querySelector('input[name="featuredFilm"]:checked'),shutdown=isShutdownWeek()) {
     const share = document.querySelector('#featured-share');
-    share.disabled = isShutdownWeek() || !featured || !venueReady;
+    share.disabled = shutdown || !featured || !venueReady;
     if(venueReady)share.value=String(Math.max(1,Math.min(Number(share.value),CinemaMovieRules.maximumFeaturedSlots(venueScreenCount,id))));
     const percentage = venueReady ? CinemaFilms.sharePercentage(Number(share.value),venueScreenCount,id) : 0;
     const formattedShare = percentage.toLocaleString('zh-TW',{maximumFractionDigits:2}) + '%';
     document.querySelector('#share-output').textContent = featured && venueReady ? formattedShare : '—';
     if (venueReady) share.setAttribute('aria-valuetext',`${formattedShare}（${share.value}／${share.max}${id==='C02'?'刻度':'場'}）`);
-    document.querySelector('#featured-settings').hidden = isShutdownWeek() || !featured;
+    document.querySelector('#featured-settings').hidden = shutdown || !featured;
     if (featured) document.querySelector('#featured-heading').textContent = `選擇${films.titleFor(featured.value)}為本週主打，場次占比`;
   }
   function formValues() {
@@ -583,17 +581,26 @@ function initGame() {
     return saveQueue;
   }
   form.addEventListener('submit', event => event.preventDefault());
+  function queueDraftSave(){clearTimeout(draftTimer);draftTimer=setTimeout(()=>saveDraft(),150);}
+  function updateRangeControl(input){
+    if(input.name==='activationRate'){captureActivation();updateActivationLock();}
+    if(input.name==='ticketFull')CinemaParameters.updateDerived(form);
+    if(input.classList.contains('amount-range'))CinemaParameters.syncSliders(form,input);
+    if(input.name==='featuredSlots')updateFeaturedShare();
+  }
   form.addEventListener('input', event => {
     const input=event.target;
-    if(input.name==='activationRate'){captureActivation();updateActivationLock();}
-    if(input.type==='range'){
-      if(input.name==='ticketFull')CinemaParameters.updateDerived(form);
-      if(input.classList.contains('amount-range'))CinemaParameters.syncSliders(form,input);
-      if(input.name==='featuredSlots')updateFeaturedShare();
-    }else updateControls();
-    clearTimeout(draftTimer);draftTimer=setTimeout(()=>saveDraft(),150);
+    if(input.type==='range')updateRangeControl(input);
+    else if(!['checkbox','radio','select-one'].includes(input.type))updateControls();
+    queueDraftSave();
   });
-  form.addEventListener('change', event => { if(event.target.name==='activationRate')captureActivation();updateControls(); saveDraft(); });
+  form.addEventListener('change', event => {
+    const input=event.target;
+    // Keyboard range steps emit both input and change. Coalesce the whole
+    // burst instead of cloning the full save and repainting on every step.
+    if(input.type==='range'){updateRangeControl(input);queueDraftSave();return;}
+    if(input.name==='activationRate')captureActivation();updateControls();saveDraft();
+  });
   startGame();
   const homePrefetch=document.createElement('link');homePrefetch.rel='prefetch';homePrefetch.as='document';homePrefetch.href=document.querySelector('.logo a').href;document.head.append(homePrefetch);
   for (const list of [tabList,reportTabList]) {
