@@ -19,6 +19,21 @@ async function next(p,w){w=Number((await p.locator('.week-badge').textContent())
  const before=await save(p);await p.reload();await p.locator('#venue-data').waitFor();assert(await p.locator('#event-notice-dialog').isHidden());assert.equal((await save(p)).eventState.draws.length,1);
  await next(p,2);assert.equal(await p.locator('[name=staffing]').inputValue(),initial);assert(await p.locator('[name=staffing]').isEnabled());const after=await save(p);assert.equal(after.operatingExpenses.receipts.at(-1).inputs.staffing,(halls+1)*10000);assert.equal(before.eventState.draws[0].choice,'1');assert.deepEqual(errors,[]);console.log('PASS decision, budget lock, one-week expiry, reload and actual payroll');await p.close();
 }
+// Whole-week shutdown must require an explicit staffing decision next week.
+for(const width of[390,1440]){
+ const{p,errors}=await open('eb002','C03',()=>true,width);assert(await p.locator('#event-notice-title').evaluate(e=>e.classList.contains('sr-only')));assert.equal(await p.locator('#event-notice-message').evaluate(e=>getComputedStyle(e).fontSize),'17px');
+ await notices(p,1);await next(p,3);assert(await p.locator('#event-notice-dialog').isVisible());assert(await p.locator('#next-week').isDisabled());let s=await save(p);assert.equal(s.boxOffice.receipts.at(-1).total,0);assert.equal(s.eventState.draws.at(-1).id,'eb002');assert.equal(s.eventState.draws.at(-1).choice,null);
+ if(width===390)await p.evaluate(async()=>{
+  const s=await CinemaSave.getByRun(new URL(location.href).searchParams.get('run')),draw=s.eventState.draws.at(-1),input=document.querySelector('[name=staffing]');
+  s.eventBudgetState={week:3,restore:{staffing:{value:input.value,min:input.min,max:input.max,step:input.step,disabled:false}}};s.values.staffing='500000';
+  draw.id='eb004';draw.key='eb004/3';draw.message='舊版誤抽的一般事件';draw.applied=true;draw.choices=[];draw.effects=[];
+  s.eventState.effects.push({kind:'lock',field:'staffing',value:500000,source:'eb004/3',start:3,end:3});await CinemaSave.save(s);
+ });
+ await p.reload();await p.locator('#venue-data').waitFor();assert(await p.locator('#event-notice-dialog').isVisible());assert.equal((await save(p)).eventState.draws.at(-1).id,'eb002');assert.notEqual(await p.locator('[name=staffing]').inputValue(),'500000');
+ await notices(p,0);const halls=Number(await p.locator('#venue-screen-count').textContent());assert.equal(await p.locator('[name=staffing]').inputValue(),String((halls+1)*8000));
+ await next(p,4);s=await save(p);assert(s.boxOffice.receipts.at(-1).total>0);assert.equal(s.eventState.draws.at(-1).choice,'1');assert(await p.locator('#event-notice-dialog').isHidden());assert(!await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth));assert.deepEqual(errors,[]);
+ console.log('PASS',width,'hidden generic title, larger event text, shutdown follow-up/reload and explicit staffed reopening');await p.close();
+}
 // Automatic extra expense leaves slider unchanged and charges once.
 {
  const{p,errors}=await open('eb006', 'C03',()=>true,1440);await notices(p);const value=Number(await p.locator('[name=maintenance]').inputValue());await next(p,2);const s=await save(p);assert.equal(s.operatingExpenses.receipts.at(-1).amounts.maintenance,value+200000);assert.equal(Number(await p.locator('[name=maintenance]').inputValue()),value);await p.reload();await p.locator('#venue-data').waitFor();assert.deepEqual((await save(p)).operatingExpenses,s.operatingExpenses);assert.deepEqual(errors,[]);console.log('PASS extra maintenance expense and no repeated deduction');await p.close();

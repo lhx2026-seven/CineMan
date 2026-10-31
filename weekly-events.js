@@ -16,7 +16,7 @@
     if(!pending.length||dialog.open||document.querySelector('#payment-notice-dialog')?.open)return;
     if(!initialized){dialog.addEventListener('cancel',event=>event.preventDefault());initialized=true;}
     const event=pending[0];activeID=event.id;
-    document.querySelector('#event-notice-title').textContent=event.title;
+    const title=document.querySelector('#event-notice-title');title.textContent=event.title;title.classList.toggle('sr-only',event.title==='本週大事');
     document.querySelector('#event-notice-message').textContent=event.message;
     const status=document.querySelector('#event-notice-status');status.hidden=true;status.textContent='';
     const choices=event.choices||[],actions=document.querySelector('#event-notice-actions');

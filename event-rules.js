@@ -78,13 +78,28 @@
     const effects=materialize(definitions,draw,ctx);state.effects.push(...effects);draw.applied=true;
     for(const e of effects)if(e.kind==='fact')state.facts[e.name]=e.value;
   }
+  function staffingFollowUp(state,week){
+    const last=state.draws.findLast(d=>d.id==='eb002'&&d.applied);
+    return !!last&&last.choice==='2'&&last.week<week;
+  }
   function begin(state,ctx,database){
     if(ctx.week===1){
       const removed=new Set(state.draws.filter(d=>d.week===1).map(d=>d.key));
       return{...state,throughWeek:1,draws:state.draws.filter(d=>d.week!==1),effects:state.effects.filter(e=>!removed.has(e.source)),facts:{},acknowledged:state.acknowledged.filter(key=>!removed.has(key))};
     }
+    const stale=state.draws.find(d=>d.week===ctx.week);
+    if(staffingFollowUp(state,ctx.week)&&stale&&!['eb002','ef002'].includes(stale.id)&&stale.choice===null&&!state.acknowledged.includes(stale.key)){
+      const remaining=state.effects.filter(e=>e.source!==stale.key),facts={};for(const e of remaining)if(e.kind==='fact')facts[e.name]=e.value;
+      state={...state,draws:state.draws.filter(d=>d.key!==stale.key),effects:remaining,facts,throughWeek:ctx.week-1};
+    }
     if(state.draws.some(d=>d.week===ctx.week)||state.throughWeek>=ctx.week)return state;
-    const next=structuredClone(state),candidates=database.events.filter(e=>eligible(e,state,ctx));next.throughWeek=ctx.week;
+    const next=structuredClone(state);let candidates=database.events.filter(e=>eligible(e,state,ctx));next.throughWeek=ctx.week;
+    if(staffingFollowUp(state,ctx.week)){
+      const staffing=database.events.find(e=>e.id==='eb002'&&e.enabled!==false);
+      // Keep mandatory staffing decisions from being replaced by unrelated
+      // weekly news. An eligible board dissolution still shares this slot.
+      if(staffing)candidates=[staffing,...candidates.filter(e=>e.id==='ef002')];
+    }
     if(!candidates.length)return next;
     const total=candidates.reduce((sum,e)=>sum+e.weight,0),needle=random(ctx.seed,`draw/${ctx.week}`)*total;let sum=0;
     const event=candidates.find(e=>(sum+=e.weight)>needle)||candidates.at(-1);
@@ -150,5 +165,5 @@
     return{...state,feeReceipts:[...state.feeReceipts,{week,year:yearOf(week),rentDelta,taxDelta}]};
   }
   function totals(state,now,year){const result={weekly:0,annual:0,premisesWeekly:0,premisesAnnual:0};for(const r of state?.receipts||[])if(r.accountingYear===year){result.annual+=r.gross;if(r.bookedAt===now)result.weekly+=r.gross;}for(const r of state?.feeReceipts||[])if(r.year===year){result.premisesAnnual+=r.rentDelta+r.taxDelta;if(r.week===now)result.premisesWeekly+=r.rentDelta+r.taxDelta;}return result;}
-  const api={create,resolve,eligible,owner,begin,decide,notice,acknowledge,pending,effects,settings,attendance,regularFactor,ticketZero,project,reissue,finish,closeYear,ending,billing,totals};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaEventRules=api;
+  const api={create,resolve,eligible,owner,staffingFollowUp,begin,decide,notice,acknowledge,pending,effects,settings,attendance,regularFactor,ticketZero,project,reissue,finish,closeYear,ending,billing,totals};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaEventRules=api;
 })(globalThis);

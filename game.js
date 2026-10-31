@@ -216,8 +216,12 @@ function initGame() {
     if(!annualMeeting){
       if(currentWeek()===1&&eventBudgetState)restoreEventBudgets();
       const story=CinemaMovieRules.eventsFor(movies,currentWeek());
-      if(story.length&&!eventState.draws.some(d=>d.week===currentWeek()))eventState={...eventState,throughWeek:currentWeek()};
-      else eventState=CinemaEventRules.begin(eventState,eventContext(),CinemaEventDatabase);
+      if(story.length&&!CinemaEventRules.staffingFollowUp(eventState,currentWeek())&&!eventState.draws.some(d=>d.week===currentWeek()))eventState={...eventState,throughWeek:currentWeek()};
+      else{
+        const previous=eventState.draws.find(d=>d.week===currentWeek());
+        eventState=CinemaEventRules.begin(eventState,eventContext(),CinemaEventDatabase);
+        if(previous&&eventState.draws.find(d=>d.week===currentWeek())?.key!==previous.key&&eventBudgetState?.week===currentWeek())restoreEventBudgets();
+      }
       projectEventVenue();applyEventBudgets();
     }
     document.querySelector('#financial-report').dataset.rentalActive=String(!CinemaEventRules.owner(eventState,property,currentWeek()));

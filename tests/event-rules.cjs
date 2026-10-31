@@ -42,3 +42,15 @@ console.log('PASS all 80 enabled; ec002 locks maintenance 100000 and consumables
 
 {const ctx={...context(),week:1};const s=E.begin(E.create(1),ctx,db);assert.equal(s.draws.length,0);assert.equal(s.effects.length,0);assert(!E.pending(s,1));assert(db.events.every(e=>!E.eligible(e,s,ctx)));assert(E.begin(s,{...ctx,week:2},db).draws.length===1);assert(E.begin(E.create(51),{...ctx,week:51},db).draws.length===1);}
 console.log('PASS 2022 W1 is event-free, W2 and later-year W1 still draw events');
+
+{
+ const staffing={...db.events.find(e=>e.id==='eb002'),condition:{}},normal={...db.events.find(e=>e.id==='eb004'),condition:{},weight:1},c={...context(staffing),week:2};
+ let s=E.begin(E.create(2),c,{events:[staffing]});s=E.decide(s,c,s.draws[0].key,'2');assert(E.staffingFollowUp(s,3));
+ const frame=week=>({week,halls:5,values:{staffing:'2000'},viewers:0,averagePrice:100,profit:-1,specialSessions:0,liveIDs:[],shutdown:true});s.frames=[frame(2)];
+ const next=E.begin(s,{...c,week:3},{events:[normal,staffing]});assert.equal(next.draws.at(-1).id,'eb002');assert(E.pending(next,3));
+ const resumed=E.decide(next,{...c,week:3},next.draws.at(-1).key,'1');assert(!E.staffingFollowUp(resumed,4));assert(!E.settings(resumed,3).shutdown);
+ const again=E.decide(next,{...c,week:3},next.draws.at(-1).key,'2');assert(E.settings(again,3).shutdown);
+ again.frames=[frame(2),frame(3)];const board=db.events.find(e=>e.id==='ef002');const ids=new Set();for(let i=0;i<100;i++)ids.add(E.begin(again,{...c,week:4,seed:'board-'+i},{events:[staffing,normal,board]}).draws.at(-1).id);assert.deepEqual([...ids].sort(),['eb002','ef002']);
+ const stale=E.begin(s,{...c,week:3},{events:[normal]});assert.equal(stale.draws.at(-1).id,'eb004');const recovered=E.begin(stale,{...c,week:3},{events:[normal,staffing]});assert.equal(recovered.draws.at(-1).id,'eb002');assert(!recovered.effects.some(e=>e.source==='eb004/3'));
+ console.log('PASS staffing closure requires a new decision, resume clears follow-up, board can still trigger and unread stale saves recover');
+}
