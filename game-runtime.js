@@ -2393,7 +2393,13 @@ function initGame() {
       document.querySelector('#annual-meeting-section').hidden=true;
       const week=currentWeek();
       CinemaEvents.render({events:eventState.draws.some(d=>d.week===week)?CinemaEventRules.notice(eventState,week):CinemaMovieRules.eventsFor(movies,week),defer:showPaymentNotice(),
-        onDecision:({eventId,choiceId})=>{eventState=CinemaEventRules.decide(eventState,eventContext(),eventId,choiceId);projectEventVenue();applyEventBudgets();renderFinance();updateControls();return saveDraft();},
+        onDecision:({eventId,choiceId})=>{
+          eventState=CinemaEventRules.decide(eventState,eventContext(),eventId,choiceId);
+          projectEventVenue();applyEventBudgets();renderFinance();updateControls();
+          // The local decision is complete. Persist immediately without making
+          // the modal wait for an IndexedDB transaction to finish.
+          saveDraft();
+        },
         acknowledged:eventNoticeAcknowledged.week===week?eventNoticeAcknowledged.ids:[],
         onAcknowledge:eventID=>{
           if(eventState.draws.some(d=>d.key===eventID))eventState=CinemaEventRules.acknowledge(eventState,eventID);
