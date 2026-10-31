@@ -9,7 +9,7 @@ function context(event){const c=event?.condition||{},year=c.calendar?.[0][0]??c.
 }
 function stateFor(event,ctx){const s=E.create(ctx.week),c=event.condition;s.facts={blockedExit:true,labor:true,extinguisher:true,recheck:true,shutdownOrder:true,foodDanger:true};
  for(let y=2022;y<2027;y++)s.annualProfits[y]=-1;
- for(let w=ctx.week-8;w<ctx.week;w++)s.frames.push({week:w,halls:ctx.allocation.screenCount,values:{staffing:'0',maintenance:'0',foodCost:String(c.foodRatioAbove?100000: c.foodAbove?10001:0),posterEnabled:true,posterQuantity:'1000',posterPrice:'100',figureQuantity:'1000',figurePrice:'100'},viewers:100,averagePrice:100,profit:-1,specialSessions:1,liveIDs:movies.movies.map(m=>m.id),shutdown:true});return s;
+ for(let w=ctx.week-8;w<ctx.week;w++)s.frames.push({week:w,halls:ctx.allocation.screenCount,values:{staffing:'0',maintenance:'0',foodCost:String(c.foodRatioAbove?100000: c.foodAbove?10001:0),posterEnabled:true,posterQuantity:'1000',posterPrice:'100',figureQuantity:'1000',figurePrice:'100'},viewers:100,averagePrice:100,profit:-1,specialSessions:1,liveIDs:movies.movies.map(m=>m.id),shutdown:!!c.closedWeeks});return s;
 }
 for(const entry of db.events){const event={...entry,enabled:true};const ctx=context(event),state=stateFor(event,ctx),before=JSON.stringify(state);assert(E.eligible(event,state,ctx),event.id+' eligibility');const selected=E.begin(state,ctx,{events:[event]});assert.equal(JSON.stringify(state),before);assert.equal(selected.draws.at(-1).id,event.id);assert.deepEqual(E.begin(selected,ctx,db),selected);
  for(const choice of event.choices||[{id:null}]){const applied=choice.id?E.decide(selected,ctx,selected.draws.at(-1).key,choice.id):selected;assert(applied.draws.at(-1).applied);const ack=E.acknowledge(applied,applied.draws.at(-1).key);assert(!E.pending(ack,ctx.week));assert.deepEqual(E.resolve(ack,ctx.week,db),ack);assert(!E.eligible(event,ack,ctx));if(choice.id)assert.deepEqual(E.decide(applied,ctx,applied.draws.at(-1).key,choice.id),applied);}
@@ -51,6 +51,17 @@ console.log('PASS 2022 W1 is event-free, W2 and later-year W1 still draw events'
  const resumed=E.decide(next,{...c,week:3},next.draws.at(-1).key,'1');assert(!E.staffingFollowUp(resumed,4));assert(!E.settings(resumed,3).shutdown);
  const again=E.decide(next,{...c,week:3},next.draws.at(-1).key,'2');assert(E.settings(again,3).shutdown);
  again.frames=[frame(2),frame(3)];const board=db.events.find(e=>e.id==='ef002');const ids=new Set();for(let i=0;i<100;i++)ids.add(E.begin(again,{...c,week:4,seed:'board-'+i},{events:[staffing,normal,board]}).draws.at(-1).id);assert.deepEqual([...ids].sort(),['eb002','ef002']);
- const stale=E.begin(s,{...c,week:3},{events:[normal]});assert.equal(stale.draws.at(-1).id,'eb004');const recovered=E.begin(stale,{...c,week:3},{events:[normal,staffing]});assert.equal(recovered.draws.at(-1).id,'eb002');assert(!recovered.effects.some(e=>e.source==='eb004/3'));
+ const stale=E.begin({...s,frames:s.frames.map(f=>({...f,shutdown:false}))},{...c,week:3},{events:[normal]});stale.frames=s.frames;assert.equal(stale.draws.at(-1).id,'eb004');const recovered=E.begin(stale,{...c,week:3},{events:[normal,staffing]});assert.equal(recovered.draws.at(-1).id,'eb002');assert(!recovered.effects.some(e=>e.source==='eb004/3'));
  console.log('PASS staffing closure requires a new decision, resume clears follow-up, board can still trigger and unread stale saves recover');
+}
+
+{
+ assert.deepEqual([...E.RECOVERY_EVENTS].sort(),['eb002','eb008','ec005','ec007','ef001','ef002']);
+ const board=db.events.find(e=>e.id==='ef002'),c=context(board),s=stateFor(board,c);assert(E.postShutdown(s,c.week));
+ const possible=db.events.filter(e=>E.eligible(e,s,c)).map(e=>e.id).sort();assert.deepEqual(possible,[...E.RECOVERY_EVENTS].sort());
+ const seen=new Set();for(let i=0;i<1200;i++){const result=E.begin(s,{...c,seed:'recovery/'+i},db).draws.at(-1);assert(E.RECOVERY_EVENTS.includes(result.id));seen.add(result.id);}assert.equal(seen.size,6);
+ const none={...s,facts:{},frames:[{...s.frames.at(-1),values:{staffing:1000000},shutdown:true}]};const empty=E.begin(none,c,db);assert.equal(empty.draws.length,0);assert(!E.pending(empty,c.week));
+ const normal={...none,frames:[{...none.frames[0],shutdown:false}]};assert(E.eligible(db.events.find(e=>e.id==='ea011'),normal,c));
+ const cross={...none,frames:[{...none.frames[0],week:50}]};assert(E.postShutdown(cross,51));assert(!E.eligible(db.events.find(e=>e.id==='ea011'),cross,{...c,week:51}));
+ console.log('PASS exactly six post-shutdown events, all original conditions/weights, no-event fallback, normal-pool recovery and year boundary');
 }

@@ -1986,6 +1986,7 @@ globalThis.CinemaEventDatabase={"version":1,"events":[{"id":"ea001","message":"�
   const money=n=>Math.round(n+Number.EPSILON*Math.max(1,Math.abs(n))*4);
   const random=(seed,key)=>root.CinemaRules.seededRandom(`events/v1/${seed}/${key}`)();
   const kinds=new Set(['attendance','lock','expense','regularGross','shutdown','fact','spaceZero','upgrade','closeHall','reissue','foodAdd','foodFactor','foodZero','income','ticketZero','specialBase','end','sellLand','raiseRent']);
+  const RECOVERY_EVENTS=Object.freeze(['eb002','ef001','ef002','ec005','ec007','eb008']);
   const active=(e,w)=>e.start<=w&&w<=e.end;
   const numeric=n=>Number.isSafeInteger(n)&&n>=0;
   function create(week){return{version:1,introducedAt:week,throughWeek:0,draws:[],effects:[],facts:{},frames:[],annualProfits:{},receipts:[],feeReceipts:[],acknowledged:[]};}
@@ -2010,7 +2011,12 @@ globalThis.CinemaEventDatabase={"version":1,"events":[{"id":"ea001","message":"�
   function owner(state,property,week){return property.tenure==='owned'&&!state.effects.some(e=>e.kind==='sellLand'&&e.start<=week);}
   function live(ctx){return(ctx.movies?.history||[]).filter(h=>h.retiredAt==null);}
   const format=s=>s.name.replace(/\s*\([^)]*\)$/, '');
+  function postShutdown(state,week){
+    const previous=state.frames.findLast(f=>f.week===week-1);
+    return previous?previous.shutdown:state.effects.some(e=>e.kind==='shutdown'&&active(e,week-1));
+  }
   function eligible(event,state,ctx){
+    if(postShutdown(state,ctx.week)&&!RECOVERY_EVENTS.includes(event.id))return false;
     if(ctx.week===1||event.enabled===false)return false;
     const now=ctx.week,year=yearOf(now),w=weekOf(now),c=event.condition,previous=state.frames.at(-1),prior=previous?.week===now-1?previous:null;
     const earlier=state.draws.filter(d=>d.id===event.id),last=earlier.at(-1);
@@ -2070,13 +2076,14 @@ globalThis.CinemaEventDatabase={"version":1,"events":[{"id":"ea001","message":"�
       return{...state,throughWeek:1,draws:state.draws.filter(d=>d.week!==1),effects:state.effects.filter(e=>!removed.has(e.source)),facts:{},acknowledged:state.acknowledged.filter(key=>!removed.has(key))};
     }
     const stale=state.draws.find(d=>d.week===ctx.week);
-    if(staffingFollowUp(state,ctx.week)&&stale&&!['eb002','ef002'].includes(stale.id)&&stale.choice===null&&!state.acknowledged.includes(stale.key)){
+    const recovery=postShutdown(state,ctx.week);
+    if((recovery||staffingFollowUp(state,ctx.week))&&stale&&!(recovery?RECOVERY_EVENTS:['eb002','ef002']).includes(stale.id)&&stale.choice===null&&!state.acknowledged.includes(stale.key)){
       const remaining=state.effects.filter(e=>e.source!==stale.key),facts={};for(const e of remaining)if(e.kind==='fact')facts[e.name]=e.value;
       state={...state,draws:state.draws.filter(d=>d.key!==stale.key),effects:remaining,facts,throughWeek:ctx.week-1};
     }
     if(state.draws.some(d=>d.week===ctx.week)||state.throughWeek>=ctx.week)return state;
     const next=structuredClone(state);let candidates=database.events.filter(e=>eligible(e,state,ctx));next.throughWeek=ctx.week;
-    if(staffingFollowUp(state,ctx.week)){
+    if(!recovery&&staffingFollowUp(state,ctx.week)){
       const staffing=database.events.find(e=>e.id==='eb002'&&e.enabled!==false);
       // Keep mandatory staffing decisions from being replaced by unrelated
       // weekly news. An eligible board dissolution still shares this slot.
@@ -2093,7 +2100,7 @@ globalThis.CinemaEventDatabase={"version":1,"events":[{"id":"ea001","message":"�
     if(d.applied){if(d.choice===choiceID)return state;throw Error('事件已完成決策');}
     const choice=d.choices.find(c=>c.id===choiceID);if(!choice)throw Error('事件選項不存在');d.choice=choiceID;apply(d,next,ctx,choice.effects);return next;
   }
-  function notice(state,week){const d=state.draws.find(d=>d.week===week);if(!d||state.acknowledged.includes(d.key))return[];return[{id:d.key,title:'本週大事',message:d.message,choices:d.applied?[]:d.choices.map(c=>({id:c.id,label:c.label}))}];}
+  function notice(state,week){const d=state.draws.find(d=>d.week===week);if(!d||state.acknowledged.includes(d.key)||postShutdown(state,week)&&!RECOVERY_EVENTS.includes(d.id))return[];return[{id:d.key,title:'本週大事',message:d.message,choices:d.applied?[]:d.choices.map(c=>({id:c.id,label:c.label}))}];}
   function acknowledge(state,key){if(state.acknowledged.includes(key))return state;const d=state.draws.find(d=>d.key===key);if(!d?.applied)throw Error('請先完成事件決策');return{...state,acknowledged:[...state.acknowledged,key]};}
   function pending(state,week){return notice(state,week).length>0;}
   function effects(state,week){return state.effects.filter(e=>active(e,week));}
@@ -2147,7 +2154,7 @@ globalThis.CinemaEventDatabase={"version":1,"events":[{"id":"ea001","message":"�
     return{...state,feeReceipts:[...state.feeReceipts,{week,year:yearOf(week),rentDelta,taxDelta}]};
   }
   function totals(state,now,year){const result={weekly:0,annual:0,premisesWeekly:0,premisesAnnual:0};for(const r of state?.receipts||[])if(r.accountingYear===year){result.annual+=r.gross;if(r.bookedAt===now)result.weekly+=r.gross;}for(const r of state?.feeReceipts||[])if(r.year===year){result.premisesAnnual+=r.rentDelta+r.taxDelta;if(r.week===now)result.premisesWeekly+=r.rentDelta+r.taxDelta;}return result;}
-  const api={create,resolve,eligible,owner,staffingFollowUp,begin,decide,notice,acknowledge,pending,effects,settings,attendance,regularFactor,ticketZero,project,reissue,finish,closeYear,ending,billing,totals};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaEventRules=api;
+  const api={RECOVERY_EVENTS,create,resolve,postShutdown,eligible,owner,staffingFollowUp,begin,decide,notice,acknowledge,pending,effects,settings,attendance,regularFactor,ticketZero,project,reissue,finish,closeYear,ending,billing,totals};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaEventRules=api;
 })(globalThis);
 
 ;
@@ -2370,7 +2377,7 @@ function initGame() {
     if(!annualMeeting){
       if(currentWeek()===1&&eventBudgetState)restoreEventBudgets();
       const story=CinemaMovieRules.eventsFor(movies,currentWeek());
-      if(story.length&&!CinemaEventRules.staffingFollowUp(eventState,currentWeek())&&!eventState.draws.some(d=>d.week===currentWeek()))eventState={...eventState,throughWeek:currentWeek()};
+      if(story.length&&!CinemaEventRules.postShutdown(eventState,currentWeek())&&!CinemaEventRules.staffingFollowUp(eventState,currentWeek())&&!eventState.draws.some(d=>d.week===currentWeek()))eventState={...eventState,throughWeek:currentWeek()};
       else{
         const previous=eventState.draws.find(d=>d.week===currentWeek());
         eventState=CinemaEventRules.begin(eventState,eventContext(),CinemaEventDatabase);
@@ -2392,7 +2399,7 @@ function initGame() {
     }else{
       document.querySelector('#annual-meeting-section').hidden=true;
       const week=currentWeek();
-      CinemaEvents.render({events:eventState.draws.some(d=>d.week===week)?CinemaEventRules.notice(eventState,week):CinemaMovieRules.eventsFor(movies,week),defer:showPaymentNotice(),
+      CinemaEvents.render({events:eventState.draws.some(d=>d.week===week)?CinemaEventRules.notice(eventState,week):CinemaEventRules.postShutdown(eventState,week)?[]:CinemaMovieRules.eventsFor(movies,week),defer:showPaymentNotice(),
         onDecision:({eventId,choiceId})=>{
           eventState=CinemaEventRules.decide(eventState,eventContext(),eventId,choiceId);
           projectEventVenue();applyEventBudgets();renderFinance();updateControls();
@@ -2413,6 +2420,7 @@ function initGame() {
   function pendingWeeklyEvent(){
     if(!eventState)return false;
     if(eventState.draws.some(d=>d.week===currentWeek()))return CinemaEventRules.pending(eventState,currentWeek());
+    if(CinemaEventRules.postShutdown(eventState,currentWeek()))return false;
     return CinemaMovieRules.eventsFor(movies,currentWeek()).some(e=>eventNoticeAcknowledged.week!==currentWeek()||!eventNoticeAcknowledged.ids.includes(e.id));
   }
   function showPaymentNotice(){

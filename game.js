@@ -216,7 +216,7 @@ function initGame() {
     if(!annualMeeting){
       if(currentWeek()===1&&eventBudgetState)restoreEventBudgets();
       const story=CinemaMovieRules.eventsFor(movies,currentWeek());
-      if(story.length&&!CinemaEventRules.staffingFollowUp(eventState,currentWeek())&&!eventState.draws.some(d=>d.week===currentWeek()))eventState={...eventState,throughWeek:currentWeek()};
+      if(story.length&&!CinemaEventRules.postShutdown(eventState,currentWeek())&&!CinemaEventRules.staffingFollowUp(eventState,currentWeek())&&!eventState.draws.some(d=>d.week===currentWeek()))eventState={...eventState,throughWeek:currentWeek()};
       else{
         const previous=eventState.draws.find(d=>d.week===currentWeek());
         eventState=CinemaEventRules.begin(eventState,eventContext(),CinemaEventDatabase);
@@ -238,7 +238,7 @@ function initGame() {
     }else{
       document.querySelector('#annual-meeting-section').hidden=true;
       const week=currentWeek();
-      CinemaEvents.render({events:eventState.draws.some(d=>d.week===week)?CinemaEventRules.notice(eventState,week):CinemaMovieRules.eventsFor(movies,week),defer:showPaymentNotice(),
+      CinemaEvents.render({events:eventState.draws.some(d=>d.week===week)?CinemaEventRules.notice(eventState,week):CinemaEventRules.postShutdown(eventState,week)?[]:CinemaMovieRules.eventsFor(movies,week),defer:showPaymentNotice(),
         onDecision:({eventId,choiceId})=>{
           eventState=CinemaEventRules.decide(eventState,eventContext(),eventId,choiceId);
           projectEventVenue();applyEventBudgets();renderFinance();updateControls();
@@ -259,6 +259,7 @@ function initGame() {
   function pendingWeeklyEvent(){
     if(!eventState)return false;
     if(eventState.draws.some(d=>d.week===currentWeek()))return CinemaEventRules.pending(eventState,currentWeek());
+    if(CinemaEventRules.postShutdown(eventState,currentWeek()))return false;
     return CinemaMovieRules.eventsFor(movies,currentWeek()).some(e=>eventNoticeAcknowledged.week!==currentWeek()||!eventNoticeAcknowledged.ids.includes(e.id));
   }
   function showPaymentNotice(){
