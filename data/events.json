@@ -29,7 +29,7 @@
       "weight": 0.01,
       "repeatable": true,
       "triggerText": "每年的Ｗ19~W38間",
-      "resultText": "每片上座率*0.33；其它支出強制鎖定為100,000",
+      "resultText": "每片上座率*0.33；其它支出額外支出100,000",
       "condition": {
         "weeks": [
           19,
@@ -43,8 +43,8 @@
           "scope": "all"
         },
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 100000
         }
       ],
@@ -56,7 +56,7 @@
       "weight": 0.01,
       "repeatable": true,
       "triggerText": "anytime",
-      "resultText": "每片上座率*0.67；硬體維護強制鎖定為200,000",
+      "resultText": "每片上座率*0.67；硬體維護額外支出200,000",
       "condition": {},
       "effects": [
         {
@@ -65,7 +65,7 @@
           "scope": "all"
         },
         {
-          "kind": "lock",
+          "kind": "expense",
           "field": "maintenance",
           "value": 200000
         }
@@ -78,7 +78,7 @@
       "weight": 0.005,
       "repeatable": true,
       "triggerText": "anytime",
-      "resultText": "每片上座率*0.50；硬體維護強制鎖定為200,000",
+      "resultText": "每片上座率*0.50；硬體維護額外支出200,000",
       "condition": {},
       "effects": [
         {
@@ -87,7 +87,7 @@
           "scope": "all"
         },
         {
-          "kind": "lock",
+          "kind": "expense",
           "field": "maintenance",
           "value": 200000
         }
@@ -100,14 +100,14 @@
       "weight": 0.01,
       "repeatable": true,
       "triggerText": "ec003選擇無暇處理",
-      "resultText": "雜支強制鎖定為1,000,000；每片上座率*0.33",
+      "resultText": "雜支額外支出1,000,000；每片上座率*0.33",
       "condition": {
         "fact": "blockedExit"
       },
       "effects": [
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 1000000
         },
         {
@@ -124,14 +124,14 @@
       "weight": 0.02,
       "repeatable": false,
       "triggerText": "有娃娃機台",
-      "resultText": "雜支強制鎖定為100,000",
+      "resultText": "雜支額外支出100,000",
       "condition": {
         "activity": "claw"
       },
       "effects": [
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 100000
         }
       ],
@@ -143,7 +143,7 @@
       "weight": 0.005,
       "repeatable": false,
       "triggerText": "2026年開特別場",
-      "resultText": "雜支強制鎖定為100,000",
+      "resultText": "雜支額外支出100,000",
       "condition": {
         "years": [
           2026,
@@ -153,8 +153,8 @@
       },
       "effects": [
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 100000
         }
       ],
@@ -166,7 +166,7 @@
       "weight": 0.001,
       "repeatable": false,
       "triggerText": "anytime",
-      "resultText": "每片上座率*0.1；硬體維護強制鎖定為50,000",
+      "resultText": "每片上座率*0.1；硬體維護額外支出50,000",
       "condition": {},
       "effects": [
         {
@@ -175,7 +175,7 @@
           "scope": "all"
         },
         {
-          "kind": "lock",
+          "kind": "expense",
           "field": "maintenance",
           "value": 50000
         }
@@ -409,7 +409,7 @@
       "weight": 0.2,
       "repeatable": true,
       "triggerText": "2025~2026年",
-      "resultText": "硬體維護強制鎖定為50,000；當週主打片上座率*0.5",
+      "resultText": "硬體維護額外支出50,000；當週主打片上座率*0.5",
       "condition": {
         "years": [
           2025,
@@ -418,7 +418,7 @@
       },
       "effects": [
         {
-          "kind": "lock",
+          "kind": "expense",
           "field": "maintenance",
           "value": 50000
         },
@@ -683,19 +683,19 @@
       "weight": 0.005,
       "repeatable": true,
       "triggerText": "玩家設定設備維護<(廳數*2500)",
-      "resultText": "硬體強制鎖定為100,000；雜支強制鎖定為20,000",
+      "resultText": "硬體額外支出100,000；雜支額外支出20,000",
       "condition": {
         "maintenanceBelow": 2500
       },
       "effects": [
         {
-          "kind": "lock",
+          "kind": "expense",
           "field": "maintenance",
           "value": 100000
         },
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 20000
         }
       ],
@@ -714,12 +714,12 @@
         {
           "id": "1",
           "label": "安排人力清理",
-          "resultText": "人力預算強制鎖定為(廳數+1)*10000",
+          "resultText": "下週財報人事額外增加10,000；不更動或鎖定人力預算",
           "effects": [
             {
-              "kind": "lock",
-              "field": "staffing",
-              "value": "hallsPlus1*10000"
+              "kind": "expense",
+              "field": "personnel",
+              "value": 10000
             },
             {
               "kind": "fact",
@@ -756,11 +756,11 @@
         {
           "id": "1",
           "label": "更換",
-          "resultText": "雜支強制拉到10,000",
+          "resultText": "雜支額外支出10,000",
           "effects": [
             {
-              "kind": "lock",
-              "field": "consumables",
+              "kind": "expense",
+              "field": "other",
               "value": 10000
             },
             {
@@ -792,14 +792,14 @@
       "weight": 1,
       "repeatable": true,
       "triggerText": "ec004選擇不更換",
-      "resultText": "雜支強制鎖定為20,000",
+      "resultText": "雜支額外支出20,000",
       "condition": {
         "fact": "extinguisher"
       },
       "effects": [
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 20000
         },
         {
@@ -821,12 +821,12 @@
       "weight": 0.1,
       "repeatable": true,
       "triggerText": "每100週最多一次",
-      "resultText": "雜支強制鎖定為20,000",
+      "resultText": "雜支額外支出20,000",
       "condition": {},
       "effects": [
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 20000
         },
         {
@@ -1349,11 +1349,11 @@
         {
           "id": "1",
           "label": "餐飲停售並通報送驗",
-          "resultText": "餐飲預算強制鎖定為100,000；餐飲收入歸0",
+          "resultText": "餐飲預算額外支出100,000；餐飲收入歸0",
           "effects": [
             {
-              "kind": "lock",
-              "field": "foodCost",
+              "kind": "expense",
+              "field": "goods",
               "value": 100000
             },
             {
@@ -2007,7 +2007,7 @@
         {
           "id": "1",
           "label": "積極改善",
-          "resultText": "所有收入歸0；人力預算、硬體維護以最低值支出；雜支強制拉到100,000",
+          "resultText": "所有收入歸0；人力預算、硬體維護強制鎖定最低值；雜支額外支出100,000",
           "effects": [
             {
               "kind": "shutdown"
@@ -2023,8 +2023,8 @@
               "value": "min"
             },
             {
-              "kind": "lock",
-              "field": "consumables",
+              "kind": "expense",
+              "field": "other",
               "value": 100000
             },
             {

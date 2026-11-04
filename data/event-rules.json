@@ -30,8 +30,8 @@
           "scope": "all"
         },
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 100000
         }
       ]
@@ -45,7 +45,7 @@
           "scope": "all"
         },
         {
-          "kind": "lock",
+          "kind": "expense",
           "field": "maintenance",
           "value": 200000
         }
@@ -60,7 +60,7 @@
           "scope": "all"
         },
         {
-          "kind": "lock",
+          "kind": "expense",
           "field": "maintenance",
           "value": 200000
         }
@@ -72,8 +72,8 @@
       },
       "effects": [
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 1000000
         },
         {
@@ -89,8 +89,8 @@
       },
       "effects": [
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 100000
         }
       ]
@@ -105,8 +105,8 @@
       },
       "effects": [
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 100000
         }
       ]
@@ -120,7 +120,7 @@
           "scope": "all"
         },
         {
-          "kind": "lock",
+          "kind": "expense",
           "field": "maintenance",
           "value": 50000
         }
@@ -270,7 +270,7 @@
       },
       "effects": [
         {
-          "kind": "lock",
+          "kind": "expense",
           "field": "maintenance",
           "value": 50000
         },
@@ -448,13 +448,13 @@
       },
       "effects": [
         {
-          "kind": "lock",
+          "kind": "expense",
           "field": "maintenance",
           "value": 100000
         },
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 20000
         }
       ]
@@ -465,9 +465,9 @@
       "choices": {
         "1": [
           {
-            "kind": "lock",
-            "field": "staffing",
-            "value": "hallsPlus1*10000"
+            "kind": "expense",
+            "field": "personnel",
+            "value": 10000
           },
           {
             "kind": "fact",
@@ -490,8 +490,8 @@
       "choices": {
         "1": [
           {
-            "kind": "lock",
-            "field": "consumables",
+            "kind": "expense",
+            "field": "other",
             "value": 10000
           },
           {
@@ -516,8 +516,8 @@
       },
       "effects": [
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 20000
         },
         {
@@ -536,8 +536,8 @@
       "condition": {},
       "effects": [
         {
-          "kind": "lock",
-          "field": "consumables",
+          "kind": "expense",
+          "field": "other",
           "value": 20000
         },
         {
@@ -899,8 +899,8 @@
       "choices": {
         "1": [
           {
-            "kind": "lock",
-            "field": "foodCost",
+            "kind": "expense",
+            "field": "goods",
             "value": 100000
           },
           {
@@ -1345,8 +1345,8 @@
             "value": "min"
           },
           {
-            "kind": "lock",
-            "field": "consumables",
+            "kind": "expense",
+            "field": "other",
             "value": 100000
           },
           {

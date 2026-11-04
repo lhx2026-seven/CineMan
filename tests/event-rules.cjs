@@ -37,8 +37,8 @@ console.log('PASS land-sale cash formula, no retroactive rent/tax changes, billi
 for(const event of db.events.filter(e=>e.enabled===false))assert(!E.eligible(event,E.create(context(event).week),context(event)));
 
 assert(db.events.every(e=>e.enabled));
-{const event=db.events.find(e=>e.id==='ec002'),ctx=context(event),s=E.begin(stateFor(event,ctx),ctx,{events:[event]}),settings=E.settings(s,ctx.week);assert.deepEqual(settings.locks,{maintenance:100000,consumables:20000});assert.equal(settings.expenses.other,0);}
-console.log('PASS all 80 enabled; ec002 locks maintenance 100000 and consumables 20000 without extra compensation');
+{const event=db.events.find(e=>e.id==='ec002'),ctx=context(event),s=E.begin(stateFor(event,ctx),ctx,{events:[event]}),settings=E.settings(s,ctx.week);assert.deepEqual(settings.locks,{});assert.equal(settings.expenses.maintenance,100000);assert.equal(settings.expenses.other,20000);}
+console.log('PASS all 80 enabled; ec002 adds maintenance 100000 and other 20000 without slider locks');
 
 {const ctx={...context(),week:1};const s=E.begin(E.create(1),ctx,db);assert.equal(s.draws.length,0);assert.equal(s.effects.length,0);assert(!E.pending(s,1));assert(db.events.every(e=>!E.eligible(e,s,ctx)));assert(E.begin(s,{...ctx,week:2},db).draws.length===1);assert(E.begin(E.create(51),{...ctx,week:51},db).draws.length===1);}
 console.log('PASS 2022 W1 is event-free, W2 and later-year W1 still draw events');
@@ -65,3 +65,16 @@ console.log('PASS 2022 W1 is event-free, W2 and later-year W1 still draw events'
  const cross={...none,frames:[{...none.frames[0],week:50}]};assert(E.postShutdown(cross,51));assert(!E.eligible(db.events.find(e=>e.id==='ea011'),cross,{...c,week:51}));
  console.log('PASS exactly six post-shutdown events, all original conditions/weights, no-event fallback, normal-pool recovery and year boundary');
 }
+// Reviewed additive costs replace only the requested locks; no delayed or repeated charge.
+for(const[id,choice,expected]of[
+ ['ea002',null,{other:100000}],['ea003',null,{maintenance:200000}],['ea004',null,{maintenance:200000}],['ea005',null,{other:1000000}],['ea006',null,{other:100000}],['ea007',null,{other:100000}],['ea008',null,{maintenance:50000}],['eb005',null,{maintenance:50000}],['ec002',null,{maintenance:100000,other:20000}],['ec003','1',{personnel:10000}],['ec004','1',{other:10000}],['ec005',null,{other:20000}],['ec006',null,{other:20000}],['ed010','1',{goods:100000}],['ef001','1',{other:100000}]
+]){
+ const e=event(id),ctx=context(e);let s=E.begin(stateFor(e,ctx),ctx,{events:[e]});if(choice)s=E.decide(s,ctx,s.draws.at(-1).key,choice);
+ const settings=E.settings(s,ctx.week);assert.deepEqual(settings.expenses,{personnel:0,goods:0,maintenance:0,marketing:0,other:0,...expected},id);
+ assert.deepEqual(settings.locks,id==='ef001'?{staffing:ctx.minimums.staffing,maintenance:ctx.minimums.maintenance}:{},id);
+ assert(Object.values(E.settings(s,ctx.week+1).expenses).every(v=>v===0),id+' costs expire');assert.deepEqual(E.resolve(s,ctx.week,db),s);
+}
+for(const[id,choice]of[['eb002','1'],['eb002','2'],['eb003','1'],['eb003','2'],['eb004',null],['eb007','1'],['eb009',null],['eb010',null],['eb011','1'],['eb012','1'],['ed004',null],['ed005',null],['ef001','2']]){
+ const e=event(id),ctx=context(e);let s=E.begin(stateFor(e,ctx),ctx,{events:[e]});if(choice)s=E.decide(s,ctx,s.draws.at(-1).key,choice);assert(Object.keys(E.settings(s,ctx.week).locks).length,id+' still locks');
+}
+console.log('PASS requested event costs are additive for exactly one week; personnel/complaint/quantity/shutdown locks preserved');
