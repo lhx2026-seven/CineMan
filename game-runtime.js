@@ -678,8 +678,9 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
         const button = card.querySelector('.film-select');
         button.tabIndex = center === midpoint || index === center ? 0 : -1;
         const selected = card.querySelector('input').checked;
-        button.setAttribute('aria-pressed',String(selected));button.textContent = selected ? '已選擇' : '選為主打片';
-        button.setAttribute('aria-label',`${selected ? '已選擇' : '選擇'}${card.querySelector('h4').textContent}`);
+        const shutdown=form.dataset.shutdown==='true';
+        button.setAttribute('aria-pressed',String(selected));button.textContent = shutdown ? '暫停營業' : selected ? '已選擇' : '選為主打片';
+        button.setAttribute('aria-label',shutdown ? '暫停營業' : `${selected ? '已選擇' : '選擇'}${card.querySelector('h4').textContent}`);
       });
       previous.disabled = center === 0;next.disabled = !available || center === available-1;
       document.querySelector('#film-position').textContent = available<=1 || center === midpoint ? `${available} 部新片` : `${center+1} / ${available}`;
@@ -2673,6 +2674,7 @@ function initGame() {
   }
   function isShutdownWeek(){return !!eventState&&CinemaEventRules.settings(eventState,currentWeek()).shutdown;}
   function updateFilmSelectionLock(shutdown){
+    form.dataset.shutdown=String(shutdown);
     for(const card of form.querySelectorAll('.film-option')){
       const input=card.querySelector('input[name="featuredFilm"]');input.disabled=shutdown||card.hidden;
       if(shutdown)input.checked=false;card.querySelector('.film-select').disabled=input.disabled;

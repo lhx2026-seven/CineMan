@@ -504,6 +504,7 @@ function initGame() {
   }
   function isShutdownWeek(){return !!eventState&&CinemaEventRules.settings(eventState,currentWeek()).shutdown;}
   function updateFilmSelectionLock(shutdown){
+    form.dataset.shutdown=String(shutdown);
     for(const card of form.querySelectorAll('.film-option')){
       const input=card.querySelector('input[name="featuredFilm"]');input.disabled=shutdown||card.hidden;
       if(shutdown)input.checked=false;card.querySelector('.film-select').disabled=input.disabled;
