@@ -234,7 +234,7 @@ function initGame() {
   function renderBulletin(){
     if(annualMeeting){
       CinemaEvents.render({events:[]});
-      CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,trend:CinemaFinancialTotals.annualTrend(gameDate.year,{distributor,activation,foodRevenue,merchandise,operatingExpenses,rent,propertyTax,managementFee,utilityBills,eventState}),figures:{...CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),knownIncome:financialSummary?.annual.income??0,expenses:financialSummary?.annual.expenses??null,preTaxProfit:financialSummary?.annual.profit??null,profit:financialSummary?.annual.afterTaxProfit??null},topFive:secondRun?[]:CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),showRanking:!secondRun});
+      CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,trend:CinemaFinancialTotals.annualTrend(gameDate.year,{distributor,activation,foodRevenue,merchandise,operatingExpenses,rent,propertyTax,managementFee,utilityBills,eventState}),figures:{...CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),knownIncome:financialSummary?.annual.income??0,expenses:financialSummary?.annual.expenses??null,preTaxProfit:financialSummary?.annual.profit??null,profit:financialSummary?.annual.afterTaxProfit??null},topFive:secondRun?CinemaMeeting.topWeeks(gameDate.year,boxOffice):CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),rankingByWeek:secondRun});
     }else{
       document.querySelector('#annual-meeting-section').hidden=true;
       const week=currentWeek();
