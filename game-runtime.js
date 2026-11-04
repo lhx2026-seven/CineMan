@@ -1406,7 +1406,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"é­
   }
   function syncSliders(form,changed) {
     if(changed)syncSlider(changed);else form.querySelectorAll('.amount-range').forEach(syncSlider);
-    const total=['staffing','foodCost','maintenance','marketing','consumables'].reduce((sum,name)=>sum+Number(form.elements[name].value||0),0);
+    const total=['staffing','foodCost','maintenance','marketing','consumables'].reduce((sum,name)=>sum+Number(form.elements[name].value||0),Number(form.dataset.eventExpenses||0));
     form.querySelector('#budget-total').textContent=`NT$${total.toLocaleString('zh-TW')}`;
   }
   const DERIVED_TICKETS=Object.freeze(['ticketDiscount','ticketMorning','ticketAccessible']);
@@ -2368,8 +2368,11 @@ function initGame() {
     }eventBudgetState=null;
   }
   function applyEventBudgets(){
+    form.dataset.eventExpenses='0';
     if(!eventState||!venueReady||annualMeeting)return;
-    const now=currentWeek(),locks=CinemaEventRules.settings(eventState,now).locks;
+    const now=currentWeek(),settings=CinemaEventRules.settings(eventState,now),locks=settings.locks;
+    // Locked amounts already live in their sliders; only add separate charges.
+    form.dataset.eventExpenses=String(Object.values(settings.expenses).reduce((sum,value)=>sum+value,0));
     if(eventBudgetState&&eventBudgetState.week!==now)restoreEventBudgets();
     eventBudgetState??={week:now,restore:{}};
     for(const [name,value]of Object.entries(locks)){

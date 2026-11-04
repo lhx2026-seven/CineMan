@@ -307,7 +307,7 @@
   }
   function syncSliders(form,changed) {
     if(changed)syncSlider(changed);else form.querySelectorAll('.amount-range').forEach(syncSlider);
-    const total=['staffing','foodCost','maintenance','marketing','consumables'].reduce((sum,name)=>sum+Number(form.elements[name].value||0),0);
+    const total=['staffing','foodCost','maintenance','marketing','consumables'].reduce((sum,name)=>sum+Number(form.elements[name].value||0),Number(form.dataset.eventExpenses||0));
     form.querySelector('#budget-total').textContent=`NT$${total.toLocaleString('zh-TW')}`;
   }
   const DERIVED_TICKETS=Object.freeze(['ticketDiscount','ticketMorning','ticketAccessible']);

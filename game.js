@@ -191,8 +191,11 @@ function initGame() {
     }eventBudgetState=null;
   }
   function applyEventBudgets(){
+    form.dataset.eventExpenses='0';
     if(!eventState||!venueReady||annualMeeting)return;
-    const now=currentWeek(),locks=CinemaEventRules.settings(eventState,now).locks;
+    const now=currentWeek(),settings=CinemaEventRules.settings(eventState,now),locks=settings.locks;
+    // Locked amounts already live in their sliders; only add separate charges.
+    form.dataset.eventExpenses=String(Object.values(settings.expenses).reduce((sum,value)=>sum+value,0));
     if(eventBudgetState&&eventBudgetState.week!==now)restoreEventBudgets();
     eventBudgetState??={week:now,restore:{}};
     for(const [name,value]of Object.entries(locks)){
