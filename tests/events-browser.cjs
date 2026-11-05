@@ -12,12 +12,12 @@ async function open(event,id='C03',predicate=()=>true,width=390,allWeeks=false){
 async function save(p){await p.waitForFunction(()=>document.querySelector('#draft-status').textContent==='已自動存檔');return p.evaluate(async()=>CinemaSave.getByRun(new URL(location.href).searchParams.get('run')));}
 async function notices(p,choice=0){const sequence=[];for(let i=0;i<5;i++){if(await p.locator('#payment-notice-dialog').isVisible()){sequence.push('payment');await p.locator('#payment-notice-ok').click();continue;}if(await p.locator('#event-notice-dialog').isVisible()){sequence.push('event');await p.locator('#event-notice-actions button').nth(choice).click();await p.locator('#event-notice-dialog').waitFor({state:'hidden'});continue;}break;}return sequence;}
 async function next(p,w){w=Number((await p.locator('.week-badge').textContent()).match(/W(\d+)/)[1])+1;await notices(p);await p.locator('#tab-films').click();if(await p.locator('.film-select:enabled').count())await p.locator('.film-select:enabled').first().click();await p.locator('#next-week').click();if(await p.locator('#ticket-confirm-dialog').isVisible())await p.locator('#ticket-confirm').click();await p.waitForFunction(w=>document.querySelector('.week-badge').textContent===`2022 W${w}`,w);}
-// Decisions block progress; ec003 adds 10000 payroll without locking or changing the budget.
+// Decisions block progress; ec003 immediately shifts staffing and adds 10000 payroll once.
 {
  const{p,errors}=await open('ec003');assert(await p.locator('#event-notice-dialog').isVisible());assert(await p.locator('#next-week').isDisabled());
- const initial=await p.locator('[name=staffing]').inputValue();await notices(p);assert.equal(await p.locator('[name=staffing]').inputValue(),initial);assert(await p.locator('[name=staffing]').isEnabled());
+ const initial=await p.locator('[name=staffing]').inputValue();await notices(p);assert.equal(await p.locator('[name=staffing]').inputValue(),String(Number(initial)+10000));assert.equal(await p.locator('[name=staffing]').getAttribute('min'),'30000');assert(await p.locator('[name=staffing]').isEnabled());
  const before=await save(p);await p.reload();await p.locator('#venue-data').waitFor();assert(await p.locator('#event-notice-dialog').isHidden());assert.equal((await save(p)).eventState.draws.length,1);
- await next(p,2);assert.equal(await p.locator('[name=staffing]').inputValue(),initial);assert(await p.locator('[name=staffing]').isEnabled());const after=await save(p);assert.equal(after.operatingExpenses.receipts.at(-1).inputs.staffing,Number(initial));assert.equal(after.operatingExpenses.receipts.at(-1).amounts.personnel,Math.round(Number(initial)*1.2)+10000);assert.equal(before.eventState.draws[0].choice,'1');assert.deepEqual(errors,[]);console.log('PASS ec003 decision, unchanged staffing, added 10000 payroll, reload and next-week posting');await p.close();
+ await next(p,2);assert.equal(await p.locator('[name=staffing]').inputValue(),initial);assert(await p.locator('[name=staffing]').isEnabled());const after=await save(p);assert.equal(after.operatingExpenses.receipts.at(-1).inputs.staffing,Number(initial));assert.equal(after.operatingExpenses.receipts.at(-1).amounts.personnel,Math.round(Number(initial)*1.2)+10000);assert.equal(before.eventState.draws[0].choice,'1');assert.deepEqual(errors,[]);console.log('PASS ec003 decision, shifted staffing range, added 10000 payroll, reload and next-week posting');await p.close();
 }
 // Whole-week shutdown must require an explicit staffing decision next week.
 for(const width of[390,1440]){
@@ -36,17 +36,17 @@ for(const width of[390,1440]){
 }
 // Automatic extra expense leaves slider unchanged and charges once.
 {
- const{p,errors}=await open('eb006', 'C03',()=>true,1440);await notices(p);const value=Number(await p.locator('[name=maintenance]').inputValue());await next(p,2);const s=await save(p);assert.equal(s.operatingExpenses.receipts.at(-1).amounts.maintenance,value+200000);assert.equal(Number(await p.locator('[name=maintenance]').inputValue()),value);await p.reload();await p.locator('#venue-data').waitFor();assert.deepEqual((await save(p)).operatingExpenses,s.operatingExpenses);assert.deepEqual(errors,[]);console.log('PASS extra maintenance expense and no repeated deduction');await p.close();
+ const{p,errors}=await open('eb006', 'C03',()=>true,1440);await notices(p);const value=Number(await p.locator('[name=maintenance]').inputValue());assert.equal(await p.locator('[name=maintenance]').getAttribute('min'),'210000');await next(p,2);const s=await save(p);assert.equal(s.operatingExpenses.receipts.at(-1).amounts.maintenance,value);assert.equal(Number(await p.locator('[name=maintenance]').inputValue()),value-200000);await p.reload();await p.locator('#venue-data').waitFor();assert.deepEqual((await save(p)).operatingExpenses,s.operatingExpenses);assert.deepEqual(errors,[]);console.log('PASS extra maintenance expense and no repeated deduction');await p.close();
 }
-// ec002 adds two expense buckets, leaves both sliders editable, and posts next week.
+// ec002 shifts two editable budget ranges immediately and posts both costs once next week.
 {
  const{p,errors}=await open('ec002');await notices(p);
- assert.equal(await p.locator('[name=maintenance]').inputValue(),'10000');assert(await p.locator('[name=maintenance]').isEnabled());
- assert.equal(await p.locator('[name=consumables]').inputValue(),'0');assert(await p.locator('[name=consumables]').isEnabled());
- await save(p);await p.reload();await p.locator('#venue-data').waitFor();assert.equal(await p.locator('[name=maintenance]').inputValue(),'10000');
+ assert.equal(await p.locator('[name=maintenance]').inputValue(),'110000');assert.equal(await p.locator('[name=maintenance]').getAttribute('min'),'110000');assert(await p.locator('[name=maintenance]').isEnabled());
+ assert.equal(await p.locator('[name=consumables]').inputValue(),'20000');assert(await p.locator('[name=consumables]').isEnabled());
+ await save(p);await p.reload();await p.locator('#venue-data').waitFor();assert.equal(await p.locator('[name=maintenance]').inputValue(),'110000');
  await next(p,2);const s=await save(p);assert.equal(s.operatingExpenses.receipts.at(-1).amounts.maintenance,110000);assert.equal(s.operatingExpenses.receipts.at(-1).amounts.other,20000);
  assert(await p.locator('[name=maintenance]').isEnabled());assert(await p.locator('[name=consumables]').isEnabled());assert.equal(await p.locator('[name=maintenance]').inputValue(),'10000');assert.equal(await p.locator('[name=consumables]').inputValue(),'0');
- assert.deepEqual(errors,[]);console.log('PASS ec002 additive expenses, editable unchanged sliders, reload and next-week posting');await p.close();
+ assert.deepEqual(errors,[]);console.log('PASS ec002 immediate editable range shifts, reload and single next-week posting');await p.close();
 }
 // A four-week buff cannot redraw; all receipts retain a validated event version.
 {

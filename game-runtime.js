@@ -2357,29 +2357,35 @@ function initGame() {
     const retained=CinemaBoxOffice.showing(movies).filter(h=>!movies.current.includes(h.id)).map(h=>byID.get(h.id));
     films.setMovies(movies.current.map(id=>byID.get(id)),values,retained,boxOffice?.totalsByMovie||{},byID.get(CinemaBoxOffice.carryCandidate(movies,boxOffice))||null);
   }
-  function eventContext(){return{week:currentWeek(),seed:runId,cinemaID:id,property,rent,allocation:currentAllocation,database:CinemaMovieDatabase,movies,minimums:Object.fromEntries(['staffing','maintenance','foodCost','consumables'].map(k=>[k,Number(form.elements[k].min)]))};}
+  function eventContext(){return{week:currentWeek(),seed:runId,cinemaID:id,property,rent,allocation:currentAllocation,database:CinemaMovieDatabase,movies,minimums:Object.fromEntries(['staffing','maintenance','foodCost','consumables'].map(k=>[k,Number(eventBudgetState?.restore[k]?.min??form.elements[k].min)]))};}
   function restoreEventBudgets(values){
     if(!eventBudgetState)return;
     for(const [name,old]of Object.entries(eventBudgetState.restore)){
       const control=form.elements[name];if(!control)continue;
-      for(const k of ['min','max','step'])control[k]=old[k];control.value=old.value;control.disabled=old.disabled;delete control.dataset.eventLocked;
+      const value=old.surcharge?String(Number(control.value)-old.surcharge):old.value;
+      for(const k of ['min','max','step'])control[k]=old[k];control.value=value;control.disabled=old.disabled;delete control.dataset.eventLocked;
       control.closest('.budget-field')?.classList.toggle('is-locked',old.disabled);
-      if(values)values[name]=old.value;
+      if(values)values[name]=control.value;
     }eventBudgetState=null;
   }
   function applyEventBudgets(){
     form.dataset.eventExpenses='0';
     if(!eventState||!venueReady||annualMeeting)return;
     const now=currentWeek(),settings=CinemaEventRules.settings(eventState,now),locks=settings.locks;
-    // Locked amounts already live in their sliders; only add separate charges.
-    form.dataset.eventExpenses=String(Object.values(settings.expenses).reduce((sum,value)=>sum+value,0));
     if(eventBudgetState&&eventBudgetState.week!==now)restoreEventBudgets();
     eventBudgetState??={week:now,restore:{}};
-    for(const [name,value]of Object.entries(locks)){
+    const fields={personnel:'staffing',goods:'foodCost',maintenance:'maintenance',marketing:'marketing',other:'consumables'};
+    const extras=Object.fromEntries(Object.entries(settings.expenses).map(([key,value])=>[fields[key],value]));
+    for(const name of new Set([...Object.keys(locks),...Object.keys(extras).filter(k=>extras[k]>0)])){
       const control=form.elements[name];if(!control)continue;
-      if(!eventBudgetState.restore[name])eventBudgetState.restore[name]={value:control.value,min:control.min,max:control.max,step:control.step,disabled:control.disabled};
-      control.min=String(Math.min(Number(control.min)||0,value));control.max=String(Math.max(Number(control.max)||value,value));control.step='1';control.value=String(value);control.disabled=true;control.dataset.eventLocked='true';
-      control.closest('.budget-field')?.classList.add('is-locked');
+      const old=eventBudgetState.restore[name]??={value:control.value,min:control.min,max:control.max,step:control.step,disabled:control.disabled};
+      const extra=extras[name]||0,locked=Object.hasOwn(locks,name),baseValue=locked?locks[name]:Number(control.value)-(old.surcharge||0);
+      control.min=String((locked?Math.min(Number(old.min)||0,locks[name]):Number(old.min))+extra);
+      control.max=String((locked?Math.max(Number(old.max)||locks[name],locks[name]):Number(old.max))+extra);
+      control.step=locked?'1':old.step;control.value=String(baseValue+extra);control.disabled=locked||old.disabled;
+      old.surcharge=extra;
+      if(locked)control.dataset.eventLocked='true';else delete control.dataset.eventLocked;
+      control.closest('.budget-field')?.classList.toggle('is-locked',control.disabled);
     }
   }
   function projectEventVenue(){
@@ -2613,6 +2619,10 @@ function initGame() {
       paymentNoticeAcknowledgedWeek=Number.isSafeInteger(checkpoint?.paymentNoticeAcknowledgedWeek)?checkpoint.paymentNoticeAcknowledgedWeek:0;
       if(Number.isSafeInteger(checkpoint?.eventNoticeAcknowledged?.week)&&Array.isArray(checkpoint.eventNoticeAcknowledged.ids)&&checkpoint.eventNoticeAcknowledged.ids.every(id=>typeof id==='string'))eventNoticeAcknowledged=structuredClone(checkpoint.eventNoticeAcknowledged);
       renderYearVisuals();
+      if(checkpoint?.eventBudgetState?.week===currentWeek())for(const [name,old]of Object.entries(checkpoint.eventBudgetState.restore)){
+        const control=form.elements[name];if(!control||!old.surcharge)continue;
+        control.min=String(Number(old.min)+old.surcharge);control.max=String(Number(old.max)+old.surcharge);control.step=old.step;
+      }
       if (restoredDraft) {
         for (const control of form.elements) {
           if (!control.name || CinemaParameters.isDerived(control.name) || !Object.hasOwn(restoredDraft,control.name)) continue;
@@ -2839,6 +2849,7 @@ function initGame() {
         movies=next.movies;gameDate.year=next.year;gameDate.week=next.week;annualMeeting=null;
       }else{
         captureActivation();
+        for(const [name,old]of Object.entries(eventBudgetState?.restore||{}))if(old.surcharge)values[name]=String(Number(values[name])-old.surcharge);
         const sourceWeek=currentWeek(),eventSettings=CinemaEventRules.settings(eventState,sourceWeek),sourceProfit=financialSummary.weekly.profit;
         const settlementAllocation=currentAllocation.screenCount?currentAllocation:{...baseAllocation,screenCount:1,totalSeats:1,screens:[{type:'A',name:'停止營業',size:1,underConstructionUntil:999999}],counts:{A:1,B:0,C:0,EXTRA:0}};
         const next=CinemaBoxOffice.advance({database:CinemaMovieDatabase,movies,cinemaID:id,locationID:property.locationID,allocation:settlementAllocation,values,events:eventState},boxOffice,{deferRelease:closing,earlyClose:earlyClosing});
