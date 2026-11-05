@@ -617,7 +617,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
 'use strict';
 (function(root) {
   const OLD_FILMS = [{id:'MV0001',title:'魔猴'},{id:'MV0002',title:'恐怖速食店'},{id:'MV0003',title:'酆都'}];
-  const POSTER_VERSIONS = {"MV0001": "c6bb028955b9", "MV0002": "c55e552e31bf", "MV0003": "d35e30859d3d", "MV0041": "153b0ad58900", "MV0042": "7f74b83c55ef", "MV0043": "38f12b4487e6", "MV0044": "ba99b7aef238", "MV0045": "4b97ba25203f", "MV0046": "54ad6d13d8d9", "MV0047": "85d4eb9e6e56", "MV0048": "fe91cace7a87", "MV0049": "d441592e34f6", "MV0050": "d55689439c02", "MV0053": "614f38aecd47", "MV0033": "ef506827e128", "MV0034": "179c2e56167d", "MV0035": "b96100efa45e", "MV0036": "58e3ab48c75d"};
+  const POSTER_VERSIONS = {"MV0001": "c6bb028955b9", "MV0002": "c55e552e31bf", "MV0003": "d35e30859d3d", "MV0041": "153b0ad58900", "MV0042": "7f74b83c55ef", "MV0043": "38f12b4487e6", "MV0044": "ba99b7aef238", "MV0045": "4b97ba25203f", "MV0046": "54ad6d13d8d9", "MV0047": "85d4eb9e6e56", "MV0048": "fe91cace7a87", "MV0049": "d441592e34f6", "MV0050": "d55689439c02", "MV0053": "614f38aecd47", "MV0033": "ef506827e128", "MV0034": "179c2e56167d", "MV0035": "b96100efa45e", "MV0036": "58e3ab48c75d", "MV0051": "fb67b8111081", "MV0052": "8e4f2155f244"};
   function screeningCapacity(screenCount,cinemaID='C01') {
     return root.CinemaMovieRules.screeningCapacity(screenCount,cinemaID);
   }
