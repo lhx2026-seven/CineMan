@@ -630,3 +630,16 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 /* Keep complete poster artwork within the existing new-film card height. */
 .film-poster { overflow:hidden; }
 .film-poster img { display:block; width:100%; height:100%; min-height:0; object-fit:contain; }
+
+/* Align location and week with the center of the cinema name/subtitle group. */
+.hero-caption > div { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); column-gap:10px; row-gap:7px; align-items:center; }
+.hero-caption .hero-title-row { display:contents; }
+.hero-caption #cinema-name { grid-column:1; grid-row:1; }
+.hero-caption #cinema-type { grid-column:1; grid-row:2; }
+.hero-caption #property-summary { grid-column:2; grid-row:1 / 3; margin:0; }
+.hero-caption .week-badge { grid-column:3; grid-row:1 / 3; justify-self:end; }
+@media(max-width:760px) {
+  .hero-caption > div { column-gap:7px; row-gap:5px; }
+  .hero-caption #cinema-name { font-size:18px; }
+  .hero-caption .week-badge { padding:4px 6px; font-size:16px; }
+}
