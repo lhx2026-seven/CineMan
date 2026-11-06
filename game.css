@@ -641,5 +641,5 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 @media(max-width:760px) {
   .hero-caption > div { column-gap:7px; row-gap:5px; }
   .hero-caption #cinema-name { font-size:18px; }
-  .hero-caption .week-badge { padding:4px 6px; font-size:16px; }
+  .hero-caption .week-badge { padding:4px 6px; font-size:22px; }
 }
