@@ -150,15 +150,15 @@
     const next=hard===movies?{...movies,history:movies.history.map(h=>({...h}))}:hard,now=next.lastWeek;
     const by=new Map(database.movies.map(m=>[m.id,m])),target=lineupRange(cinemaID,screenCount);
     const retire=(h,reason)=>{h.retiredAt=now;h.retirementReason=reason;};
-    // Fixed initial-film expiry is never protected by a soft lineup target.
-    for(const h of showing(next))if(h.initial&&h.id==='MV0003'&&now>=2)retire(h,'fixed-expiry');
+    // Opening films keep their original expiry odds even below the soft lineup floor.
+    for(const h of showing(next))if(h.initial&&R().retirement(by.get(h.id),h,now,next.seed))retire(h,h.id==='MV0003'?'fixed-expiry':'random');
     if(!target){
-      for(const h of showing(next))if(R().retirement(by.get(h.id),h,now,next.seed))retire(h,'random');
+      for(const h of showing(next))if(!h.initial&&R().retirement(by.get(h.id),h,now,next.seed))retire(h,'random');
       return next;
     }
     const previous=ledger?.receipts.find(r=>r.earnedAt===now-1),gross=new Map((previous?.films||[]).map(f=>[f.id,f.gross]));
     const fresh=new Set(next.current),old=showing(next).filter(h=>!fresh.has(h.id)).sort((a,b)=>(gross.get(a.id)||0)-(gross.get(b.id)||0)||a.releasedAt-b.releasedAt||a.id.localeCompare(b.id));
-    const candidates=old.filter(h=>R().retirementEligible(by.get(h.id),h,now));
+    const candidates=old.filter(h=>!h.initial&&R().retirementEligible(by.get(h.id),h,now));
     let count=showing(next).length;
     // Existing random odds apply above the floor; weakest eligible titles leave
     // first so the best previous-week performers receive shortage protection.

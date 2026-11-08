@@ -49,3 +49,17 @@ for(const [cinemaID,screenCount,seats]of[['C01',3,1000],['C02',6,750],['C03',7,1
  }
  console.log('PASS',cinemaID,'65-week real release/settlement simulation, target warm-up, persisted retirement protection, virtual meeting and next-year continuity');
 }
+
+// Opening special films must roll their W3+ expiry even during lineup warmup.
+for(const [cinemaID,screenCount] of [['C01',3],['C02',6],['C03',8],['C04',20],['C05',2]]){
+ for(let i=0;i<100;i++){
+  const seed='opening-expiry/'+i;
+  for(const week of [2,3,17]){
+   const m={version:1,weeksPerYear:50,seed,lastWeek:week,current:[],history:['MV0001','MV0002'].map(id=>({id,initial:true,releasedAt:1,retiredAt:null}))};
+   const before=JSON.stringify(m),out=B.balanceLineup(db,m,{receipts:[]},cinemaID,screenCount);
+   for(const h of m.history)assert.equal(out.history.find(x=>x.id===h.id).retiredAt,R.retirement(db.movies.find(x=>x.id===h.id),h,week,seed)?week:null);
+   assert.equal(JSON.stringify(m),before);
+  }
+ }
+}
+console.log('PASS opening films retain W3+ 90% retirement odds below every lineup floor');
