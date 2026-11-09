@@ -96,3 +96,13 @@ for(const id of ['ee001','ee002','ee003','ee004']){
  assert.deepEqual(E.resolve(finished,c.week+1,db),finished);
 }
 console.log('PASS four festival choices book immediately exactly once and defer attendance/ticket effects until next week');
+// Supplier cash-flow failure stops this week's purchases and next week's food receipt.
+{
+ const e=event('ed003'),c=context(e),s=E.begin(stateFor(e,c),c,{events:[e]});
+ assert.equal(E.settings(s,c.week).locks.foodCost,0);
+ assert.equal(E.settings(s,c.week).foodZero,true);
+ assert.equal(E.settings(s,c.week+1).locks.foodCost,undefined);
+ assert.equal(E.settings(s,c.week+1).foodZero,false);
+ assert.deepEqual(E.resolve(s,c.week,db),s);
+}
+console.log('PASS ed003 locks current-week food budget at zero for one week while preserving food-zero settlement');

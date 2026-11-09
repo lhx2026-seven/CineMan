@@ -1183,7 +1183,7 @@
       "weight": 1,
       "repeatable": true,
       "triggerText": "連八週營業利益為負值，且餐飲成本>10000",
-      "resultText": "餐飲收入歸0",
+      "resultText": "當週餐飲成本預算鎖定為0；餐飲收入歸0（隔週入帳）",
       "condition": {
         "weeklyLosses": 8,
         "foodAbove": 10000
@@ -1191,6 +1191,11 @@
       "effects": [
         {
           "kind": "foodZero"
+        },
+        {
+          "kind": "lock",
+          "field": "foodCost",
+          "value": 0
         }
       ],
       "enabled": true

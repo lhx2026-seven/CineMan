@@ -791,6 +791,11 @@
       "effects": [
         {
           "kind": "foodZero"
+        },
+        {
+          "kind": "lock",
+          "field": "foodCost",
+          "value": 0
         }
       ]
     },
