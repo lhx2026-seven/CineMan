@@ -78,3 +78,21 @@ for(const[id,choice]of[['eb002','1'],['eb002','2'],['eb003','1'],['eb003','2'],[
  const e=event(id),ctx=context(e);let s=E.begin(stateFor(e,ctx),ctx,{events:[e]});if(choice)s=E.decide(s,ctx,s.draws.at(-1).key,choice);assert(Object.keys(E.settings(s,ctx.week).locks).length,id+' still locks');
 }
 console.log('PASS requested event costs are additive for exactly one week; personnel/complaint/quantity/shutdown locks preserved');
+// Festival cash is immediate; next-week operating effects and settlement stay separate.
+for(const id of ['ee001','ee002','ee003','ee004']){
+ const e=event(id),c=context(e),selected=E.begin(E.create(c.week),c,{events:[e]});
+ const applied=E.decide(selected,c,selected.draws[0].key,'1'),cash=e.choices[0].effects.find(x=>x.kind==='income').value;
+ assert.equal(E.totals(applied,c.week,2026).weekly,cash);
+ assert.equal(E.totals(applied,c.week,2026).annual,cash);
+ assert.deepEqual(E.resolve(applied,c.week,db),applied);
+ assert.equal(E.attendance(applied,c.week,{tier:'hit',id:'MV0100'},true,.6).rate,.6);
+ assert.equal(E.ticketZero(applied,c.week),false);
+ if(id==='ee001'||id==='ee003')assert.equal(E.attendance(applied,c.week+1,{tier:'hit',id:'MV0100'},true,.6).rate,.6*.33);
+ else assert.equal(E.ticketZero(applied,c.week+1),true);
+ const finished=E.finish(applied,{week:c.week,halls:3,values:{},foodReceipt:{viewers:0,averagePrice:0},profit:0,ticketReceipt:{specialSessionCount:0,films:[]}});
+ assert.equal(finished.receipts.length,1);
+ assert.equal(E.totals(finished,c.week+1,2026).weekly,0);
+ assert.equal(E.totals(finished,c.week+1,2026).annual,cash);
+ assert.deepEqual(E.resolve(finished,c.week+1,db),finished);
+}
+console.log('PASS four festival choices book immediately exactly once and defer attendance/ticket effects until next week');

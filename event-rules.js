@@ -15,7 +15,7 @@
     for(const d of saved.draws){if(!known.has(d.id)||!Number.isInteger(d.week)||d.week<saved.introducedAt||d.week>now||weeks.has(d.week)||d.key!==`${d.id}/${d.week}`||typeof d.message!=='string'||typeof d.applied!=='boolean'||!Array.isArray(d.choices)||d.choice!==null&&!d.choices.some(c=>c.id===d.choice))throw Error('事件抽選紀錄錯誤');weeks.add(d.week);keys.add(d.key);}
     for(const e of saved.effects)if(!keys.has(e.source)||!kinds.has(e.kind)||!Number.isInteger(e.start)||!Number.isInteger(e.end)||e.start<1||e.end<e.start)throw Error('事件效果紀錄錯誤');
     let last=0;for(const f of saved.frames){if(!Number.isInteger(f.week)||f.week<=last||f.week>=now||!f.values||!numeric(f.viewers)||!Number.isFinite(f.averagePrice)||!Number.isSafeInteger(f.profit)||typeof f.shutdown!=='boolean')throw Error('事件上週資料錯誤');last=f.week;}
-    last=0;for(const r of saved.receipts){if(!Number.isInteger(r.earnedAt)||r.earnedAt<=last||r.bookedAt!==r.earnedAt+1||r.bookedAt>now||r.accountingYear!==yearOf(r.earnedAt)||!numeric(r.gross))throw Error('事件收入紀錄錯誤');last=r.earnedAt;}
+    last=0;for(const r of saved.receipts){if(!Number.isInteger(r.earnedAt)||r.earnedAt<=last||(r.bookedAt!==r.earnedAt+1&&!(r.bookedAt===r.earnedAt&&saved.draws.some(d=>/^ee00[1-4]$/.test(d.id)&&d.week===r.earnedAt&&d.applied&&d.choice==='1')))||r.bookedAt>now||r.accountingYear!==yearOf(r.earnedAt)||!numeric(r.gross))throw Error('事件收入紀錄錯誤');last=r.earnedAt;}
     last=0;for(const r of saved.feeReceipts){if(!Number.isInteger(r.week)||r.week<=last||r.week>now||r.year!==yearOf(r.week)||!Number.isSafeInteger(r.rentDelta)||!Number.isSafeInteger(r.taxDelta))throw Error('事件場地費用紀錄錯誤');last=r.week;}
     for(const e of saved.effects){
       if(['lock','expense','income','foodAdd','specialBase','sellLand'].includes(e.kind)&&!numeric(e.value)||e.factor!==undefined&&(!Number.isFinite(e.factor)||e.factor<0)||e.set!==undefined&&(!Number.isFinite(e.set)||e.set<0||e.set>1))throw Error('事件效果數值錯誤');
@@ -82,6 +82,10 @@
   function apply(draw,state,ctx,definitions){
     const effects=materialize(definitions,draw,ctx);state.effects.push(...effects);draw.applied=true;
     for(const e of effects)if(e.kind==='fact')state.facts[e.name]=e.value;
+    if(/^ee00[1-4]$/.test(draw.id)&&!state.receipts.some(r=>r.earnedAt===draw.week)){
+      const gross=effects.filter(e=>e.kind==='income'&&e.start===draw.week).reduce((n,e)=>n+e.value,0);
+      if(gross)state.receipts.push({earnedAt:draw.week,bookedAt:draw.week,accountingYear:yearOf(draw.week),gross});
+    }
   }
   function staffingFollowUp(state,week){
     const last=state.draws.findLast(d=>d.id==='eb002'&&d.applied);
@@ -158,7 +162,7 @@
     if(ctx.merchandiseReceipt)for(const kind of ['poster','figure'])values[kind+'Quantity']=String(ctx.merchandiseReceipt.items[kind].produced);
     next.frames.push({week:ctx.week,halls:ctx.halls,values,viewers:food.viewers,averagePrice:food.averagePrice,profit:ctx.profit,specialSessions:ctx.ticketReceipt.specialSessionCount,liveIDs:ctx.ticketReceipt.films.filter(f=>!f.forcedOff).map(f=>f.id),shutdown:s.shutdown||ctx.halls===0});next.frames=next.frames.slice(-8);
     const gross=s.shutdown?0:effects(state,ctx.week).filter(e=>e.kind==='income'||e.kind==='sellLand').reduce((n,e)=>n+e.value,0);
-    next.receipts.push({earnedAt:ctx.week,bookedAt:ctx.week+1,accountingYear:yearOf(ctx.week),gross});return next;
+    if(!next.receipts.some(r=>r.earnedAt===ctx.week))next.receipts.push({earnedAt:ctx.week,bookedAt:ctx.week+1,accountingYear:yearOf(ctx.week),gross});return next;
   }
   function closeYear(state,year,profit){if(!Number.isSafeInteger(profit))throw Error('年度事件損益錯誤');return{...state,annualProfits:{...state.annualProfits,[year]:profit}};}
   function ending(state,week){return state.effects.some(e=>e.kind==='end'&&e.start<=week);}
