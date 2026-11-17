@@ -29,7 +29,7 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
       }else if(config.footer==='projection'){
         assert(visuals[1].src.includes(`${slug}-projection`));assert(visuals[1].alt.includes('放映窗'));
       }else if(config.footer==='schedule'){
-        assert(visuals[1].src.includes(id==='C01'?'baogong-schedule-2023-v1':`${slug}-schedule-2022-v2`));assert.equal(visuals[1].fit,'contain');assert(visuals[1].alt.includes('酆都10:00'));
+        assert(visuals[1].src.includes(`${slug}-schedule-2022-v2`));assert.equal(visuals[1].fit,'contain');assert(visuals[1].alt.includes('酆都10:00'));
         const imageBox=await page.locator('#cinema-counter').boundingBox(),buttonBox=await page.locator('#next-week').boundingBox();assert(buttonBox.y>=imageBox.y+imageBox.height,'Navigation must not cover the schedule');
         await page.locator('.counter-scene').screenshot({path:`/tmp/cineman-footer-schedule-${slug}-${width}.png`});
       }else assert(visuals[1].src.includes(`${slug}-counter`),JSON.stringify(visuals));

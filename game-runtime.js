@@ -2318,10 +2318,10 @@ function initGame() {
     const ticketDescription='單張電影票情境照，'+(id==='C01'?'復古全票，票號A199308，手寫8排5號、1月1日第1場':id==='C02'?`全票，世紀戲院紅章，藍色蓋印日期${year===2024?'2024':'2025'}.01.01`:id==='C05'?`全票，片名CineMan，日期${year===2024?'2024':'2025'}.01.01，時間11：00，1廳8排5號`:'電影票，片名CineMan');
     const counterVersion=id==='C02'?'':id==='C01'?'-v4':'-v2';
     for(const [image,scene] of [[exterior,heroScene],[counter,footerScene]]){
-      const file=scene==='schedule'?(id==='C01'?'baogong-schedule-2023-v1.webp':`${cinema.slug}-schedule-2022-v2.webp`):scene==='outward'?`${cinema.slug}-outward-2026-v1.webp`:scene==='ticket'?ticketFile:scene==='interior'?`${cinema.slug}-interior.webp`:scene==='exterior'?cinema.exterior:scene==='projection'?`${cinema.slug}-projection.webp`:`${cinema.slug}-counter${counterVersion}.webp`;
+      const file=scene==='schedule'?`${cinema.slug}-schedule-2022-v2.webp`:scene==='outward'?`${cinema.slug}-outward-2026-v1.webp`:scene==='ticket'?ticketFile:scene==='interior'?`${cinema.slug}-interior.webp`:scene==='exterior'?cinema.exterior:scene==='projection'?`${cinema.slug}-projection.webp`:`${cinema.slug}-counter${counterVersion}.webp`;
       if(image.dataset.asset===file)continue;
       const folder=scene==='schedule'?'schedules':scene==='ticket'?'tickets':scene==='counter'?'counters':scene==='projection'?'projection':'landscape';
-      const widths=scene==='projection'?[960]:image===counter?[960,1280]:[640,960,1280],fullWidth=scene==='counter'&&id==='C01'?2048:1774;
+      const widths=scene==='projection'||(scene==='schedule'&&id==='C01')?[960]:image===counter?[960,1280]:[640,960,1280],fullWidth=scene==='schedule'&&id==='C01'?1280:scene==='counter'&&id==='C01'?2048:1774;
       image.dataset.asset=file;image.dataset.scene=scene;
       image.srcset=[...widths.map(width=>`assets/cinemas/optimized/${file.replace('.webp',`-${width}.webp`)} ${width}w`),`assets/cinemas/${folder}/${file} ${fullWidth}w`].join(', ');
       image.src=`assets/cinemas/${folder}/${file}`;
