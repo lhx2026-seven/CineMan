@@ -29,8 +29,9 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
       }else if(config.footer==='projection'){
         assert(visuals[1].src.includes(`${slug}-projection`));assert(visuals[1].alt.includes('放映窗'));
       }else if(config.footer==='schedule'){
-        assert(visuals[1].src.includes(`${slug}-schedule-2022-v2`));assert.equal(visuals[1].fit,'contain');assert(visuals[1].alt.includes('酆都10:00'));
-        const imageBox=await page.locator('#cinema-counter').boundingBox(),buttonBox=await page.locator('#next-week').boundingBox();assert(buttonBox.y>=imageBox.y+imageBox.height,'Navigation must not cover the schedule');
+        assert(visuals[1].src.includes(`${slug}-schedule-2022-v2`));assert.equal(visuals[1].fit,'cover');assert(visuals[1].alt.includes('酆都10:00'));
+        const imageBox=await page.locator('#cinema-counter').boundingBox(),buttonBox=await page.locator('#next-week').boundingBox();assert(buttonBox.y>=imageBox.y&&buttonBox.y+buttonBox.height<=imageBox.y+imageBox.height,'Schedule navigation overlays image');
+        assert.equal(imageBox.height,id==='C01'?(width<=760?140:260):(width<=760?108:142));
         await page.locator('.counter-scene').screenshot({path:`/tmp/cineman-footer-schedule-${slug}-${width}.png`});
       }else assert(visuals[1].src.includes(`${slug}-counter`),JSON.stringify(visuals));
       assert.equal(await page.locator('body').getAttribute('data-visual-year'),String(year));

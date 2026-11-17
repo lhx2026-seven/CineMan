@@ -586,7 +586,6 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 
 /* Footer ticket photographs stay complete, including portrait receipts and handwritten fields. */
 .game-page .counter-scene > img[data-scene="ticket"],
-.game-page .counter-scene > img[data-scene="schedule"],
 .game-page .counter-scene > img[data-scene="outward"] { height:auto; min-height:0; max-height:320px; aspect-ratio:2/1; object-fit:contain; object-position:center; background:#100e0b; }
 
 /* Annual ticket confirmation: centered on desktop and mobile. */
@@ -646,9 +645,9 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
   .hero-caption .week-badge { padding:4px 6px; font-size:22px; }
 }
 
-/* Keep the printed schedule readable above the weekly navigation. */
-.game-page .counter-scene > img:is([data-scene="schedule"],[data-scene="outward"]) ~ .counter-shade { display:none; }
-.game-page .counter-scene > img:is([data-scene="schedule"],[data-scene="outward"]) ~ .next-week-area { position:static; padding:10px 16px; }
+/* Keep the outward view readable above the weekly navigation. */
+.game-page .counter-scene > img[data-scene="outward"] ~ .counter-shade { display:none; }
+.game-page .counter-scene > img[data-scene="outward"] ~ .next-week-area { position:static; padding:10px 16px; }
 
 /* Annual 2026 identity: derive each cinema background from its existing accent. */
 body[data-visual-year="2026"] { background:radial-gradient(ellipse at top,color-mix(in srgb,var(--accent) 38%,#090909) 0%,color-mix(in srgb,var(--accent) 13%,#090909) 48%,#050505 100%); }
