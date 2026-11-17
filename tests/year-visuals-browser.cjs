@@ -22,7 +22,7 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
         assert(visuals[1].alt.includes(id==='C01'?'復古全票':['C02','C05'].includes(id)?`日期${year===2024?'2024':'2025'}.01.01`:'片名CineMan'));
         assert(await page.locator('.next-week-area #next-week').isVisible());
       }else if(config.footer==='outward'){
-        assert(visuals[1].src.includes(`${slug}-outward-2026-v1`));assert.equal(visuals[1].fit,'contain');assert(visuals[1].alt.includes('向外'));
+        assert(visuals[1].src.includes(`${slug}-outward-2026-v${id==='C04'?2:1}`));assert.equal(visuals[1].fit,'contain');assert(visuals[1].alt.includes('向外'));
         assert.equal(await page.locator('body').getAttribute('data-visual-year'),'2026');
         const imageBox=await page.locator('#cinema-counter').boundingBox(),buttonBox=await page.locator('#next-week').boundingBox();assert(buttonBox.y>=imageBox.y+imageBox.height);
         await page.screenshot({path:`/tmp/cineman-2026-${slug}-${width}.png`,fullPage:true});

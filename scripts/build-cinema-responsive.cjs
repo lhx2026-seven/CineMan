@@ -5,7 +5,7 @@ const sources=[];
 for(const slug of slugs){
  const exterior=slug+'-exterior'+(['century','broadway','ylc'].includes(slug)?'-v2':'');
  for(const stem of[exterior,slug+'-interior'])sources.push({folder:'landscape',stem,widths:[960,1280]});
- sources.push({folder:'landscape',stem:slug+'-outward-2026-v1',widths:[640,960,1280]});
+ sources.push({folder:'landscape',stem:slug+`-outward-2026-v${slug==='ylc'?2:1}`,widths:[640,960,1280]});
  const counter=slug+'-counter-schedule-v1';
  sources.push({folder:'counters',stem:counter,widths:[960,1280]});
  sources.push({folder:'tickets',stem:slug+`-ticket-scene-v${slug==='baogong'?2:1}`,widths:[1280]});
