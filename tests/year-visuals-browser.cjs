@@ -10,7 +10,7 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
     await page.locator('#venue-data').waitFor();await page.evaluate(()=>CinemaSave.setEnabled(true));
     await page.locator('#tab-films').click();await page.locator('.film-select').first().click();
     await page.waitForFunction(()=>document.querySelector('#draft-status').textContent==='已自動存檔');
-    const expected=year=>({hero:year===2026?'projection':[2023,2025].includes(year)?'interior':'exterior',footer:year===2026?'outward':year===2022?'schedule':[2024,2025].includes(year)?'ticket':'counter'});
+    const expected=year=>({hero:year===2026?'projection':[2023,2025].includes(year)?'interior':'exterior',footer:year===2026?'outward':[2024,2025].includes(year)?'ticket':'counter'});
     async function check(year){
       await page.locator('#cinema-counter').scrollIntoViewIfNeeded();
       await page.waitForFunction(()=>['cinema-exterior','cinema-counter'].every(id=>{const img=document.getElementById(id);return img.complete&&img.naturalWidth>0;}));
@@ -28,12 +28,12 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
         await page.screenshot({path:`/tmp/cineman-2026-${slug}-${width}.png`,fullPage:true});
       }else if(config.footer==='projection'){
         assert(visuals[1].src.includes(`${slug}-projection`));assert(visuals[1].alt.includes('放映窗'));
-      }else if(config.footer==='schedule'){
-        assert(visuals[1].src.includes(`${slug}-schedule-2022-v2`));assert.equal(visuals[1].fit,'cover');assert(visuals[1].alt.includes('酆都10:00'));
-        const imageBox=await page.locator('#cinema-counter').boundingBox(),buttonBox=await page.locator('#next-week').boundingBox();assert(buttonBox.y>=imageBox.y&&buttonBox.y+buttonBox.height<=imageBox.y+imageBox.height,'Schedule navigation overlays image');
+      }else {
+        assert(visuals[1].src.includes(`${slug}-counter-schedule-v1`));assert.equal(visuals[1].fit,'cover');assert(visuals[1].alt.includes('酆都10:00'));
+        const imageBox=await page.locator('#cinema-counter').boundingBox(),buttonBox=await page.locator('#next-week').boundingBox();assert(buttonBox.y>=imageBox.y&&buttonBox.y+buttonBox.height<=imageBox.y+imageBox.height);
         assert.equal(imageBox.height,id==='C01'?(width<=760?140:260):(width<=760?108:142));
-        await page.locator('.counter-scene').screenshot({path:`/tmp/cineman-footer-schedule-${slug}-${width}.png`});
-      }else assert(visuals[1].src.includes(`${slug}-counter`),JSON.stringify(visuals));
+        await page.locator('.counter-scene').screenshot({path:`/tmp/cineman-footer-counter-${slug}-${year}-${width}.png`});
+      }
       assert.equal(await page.locator('body').getAttribute('data-visual-year'),String(year));
       assert(!await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth));
     }

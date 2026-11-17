@@ -131,20 +131,19 @@ function initGame() {
     const year=gameDate.year;
     document.body.dataset.visualYear=String(year);
     const heroScene=year===2026?'projection':[2023,2025].includes(year)?'interior':'exterior';
-    const footerScene=year===2026?'outward':year===2022?'schedule':[2024,2025].includes(year)?'ticket':'counter';
+    const footerScene=year===2026?'outward':[2024,2025].includes(year)?'ticket':'counter';
     const ticketYear=year===2024&&id!=='C01'?'-2024':'';
     const ticketFile=`${cinema.slug}-ticket-scene-v${id==='C01'?2:1}${ticketYear}.webp`;
     const ticketDescription='單張電影票情境照，'+(id==='C01'?'復古全票，票號A199308，手寫8排5號、1月1日第1場':id==='C02'?`全票，世紀戲院紅章，藍色蓋印日期${year===2024?'2024':'2025'}.01.01`:id==='C05'?`全票，片名CineMan，日期${year===2024?'2024':'2025'}.01.01，時間11：00，1廳8排5號`:'電影票，片名CineMan');
-    const counterVersion=id==='C02'?'':id==='C01'?'-v4':'-v2';
     for(const [image,scene] of [[exterior,heroScene],[counter,footerScene]]){
-      const file=scene==='schedule'?`${cinema.slug}-schedule-2022-v2.webp`:scene==='outward'?`${cinema.slug}-outward-2026-v1.webp`:scene==='ticket'?ticketFile:scene==='interior'?`${cinema.slug}-interior.webp`:scene==='exterior'?cinema.exterior:scene==='projection'?`${cinema.slug}-projection.webp`:`${cinema.slug}-counter${counterVersion}.webp`;
+      const file=scene==='outward'?`${cinema.slug}-outward-2026-v1.webp`:scene==='ticket'?ticketFile:scene==='interior'?`${cinema.slug}-interior.webp`:scene==='exterior'?cinema.exterior:scene==='projection'?`${cinema.slug}-projection.webp`:`${cinema.slug}-counter-schedule-v1.webp`;
       if(image.dataset.asset===file)continue;
-      const folder=scene==='schedule'?'schedules':scene==='ticket'?'tickets':scene==='counter'?'counters':scene==='projection'?'projection':'landscape';
-      const widths=scene==='projection'||(scene==='schedule'&&id==='C01')?[960]:image===counter?[960,1280]:[640,960,1280],fullWidth=scene==='schedule'&&id==='C01'?1280:scene==='counter'&&id==='C01'?2048:1774;
+      const folder=scene==='ticket'?'tickets':scene==='counter'?'counters':scene==='projection'?'projection':'landscape';
+      const widths=scene==='projection'?[960]:image===counter?[960,1280]:[640,960,1280],fullWidth=1774;
       image.dataset.asset=file;image.dataset.scene=scene;
       image.srcset=[...widths.map(width=>`assets/cinemas/optimized/${file.replace('.webp',`-${width}.webp`)} ${width}w`),`assets/cinemas/${folder}/${file} ${fullWidth}w`].join(', ');
       image.src=`assets/cinemas/${folder}/${file}`;
-      image.alt=cinema.name+(scene==='schedule'?'場次表示意圖：魔猴14:00、16:10、20:30；恐怖速食店11:50、18:20；酆都10:00':scene==='outward'?'晴天由戲院內部向外望的景觀':scene==='ticket'?ticketDescription:scene==='interior'?'影廳內部':scene==='exterior'?'外觀':scene==='projection'?'觀眾席後方與放映窗':'售票櫃台');
+      image.alt=cinema.name+(scene==='outward'?'晴天由戲院內部向外望的景觀':scene==='ticket'?ticketDescription:scene==='interior'?'影廳內部':scene==='exterior'?'外觀':scene==='projection'?'觀眾席後方與放映窗':'售票櫃台與場次表：魔猴14:00、16:10、20:30；恐怖速食店11:50、18:20；酆都10:00');
       if(image===counter)image.closest('.counter-scene').setAttribute('aria-label',image.alt);
     }
   }
