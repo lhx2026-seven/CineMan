@@ -10,7 +10,7 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
     await page.locator('#venue-data').waitFor();await page.evaluate(()=>CinemaSave.setEnabled(true));
     await page.locator('#tab-films').click();await page.locator('.film-select').first().click();
     await page.waitForFunction(()=>document.querySelector('#draft-status').textContent==='已自動存檔');
-    const expected=year=>({hero:[2023,2025].includes(year)?'interior':'exterior',footer:year===2026?'projection':year===2023?'schedule':[2024,2025].includes(year)?'ticket':'counter'});
+    const expected=year=>({hero:year===2026?'projection':[2023,2025].includes(year)?'interior':'exterior',footer:year===2026?'outward':year===2022?'schedule':[2024,2025].includes(year)?'ticket':'counter'});
     async function check(year){
       await page.locator('#cinema-counter').scrollIntoViewIfNeeded();
       await page.waitForFunction(()=>['cinema-exterior','cinema-counter'].every(id=>{const img=document.getElementById(id);return img.complete&&img.naturalWidth>0;}));
@@ -21,13 +21,19 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
         assert(visuals[1].src.includes(`${slug}-ticket-scene-v${id==='C01'?2:1}`));assert(visuals[1].src.includes('-2024')===(year===2024&&id!=='C01'));assert(visuals[1].alt.includes('單張電影票情境照'));assert.equal(visuals[1].fit,'contain');
         assert(visuals[1].alt.includes(id==='C01'?'復古全票':['C02','C05'].includes(id)?`日期${year===2024?'2024':'2025'}.01.01`:'片名CineMan'));
         assert(await page.locator('.next-week-area #next-week').isVisible());
+      }else if(config.footer==='outward'){
+        assert(visuals[1].src.includes(`${slug}-outward-2026-v1`));assert.equal(visuals[1].fit,'contain');assert(visuals[1].alt.includes('向外'));
+        assert.equal(await page.locator('body').getAttribute('data-visual-year'),'2026');
+        const imageBox=await page.locator('#cinema-counter').boundingBox(),buttonBox=await page.locator('#next-week').boundingBox();assert(buttonBox.y>=imageBox.y+imageBox.height);
+        await page.screenshot({path:`/tmp/cineman-2026-${slug}-${width}.png`,fullPage:true});
       }else if(config.footer==='projection'){
         assert(visuals[1].src.includes(`${slug}-projection`));assert(visuals[1].alt.includes('放映窗'));
       }else if(config.footer==='schedule'){
-        assert(visuals[1].src.includes(`${slug}-schedule-2023-v1`));assert.equal(visuals[1].fit,'contain');assert(visuals[1].alt.includes('酆都10:00'));
+        assert(visuals[1].src.includes(id==='C01'?'baogong-schedule-2023-v1':`${slug}-schedule-2022-v2`));assert.equal(visuals[1].fit,'contain');assert(visuals[1].alt.includes('酆都10:00'));
         const imageBox=await page.locator('#cinema-counter').boundingBox(),buttonBox=await page.locator('#next-week').boundingBox();assert(buttonBox.y>=imageBox.y+imageBox.height,'Navigation must not cover the schedule');
         await page.locator('.counter-scene').screenshot({path:`/tmp/cineman-footer-schedule-${slug}-${width}.png`});
       }else assert(visuals[1].src.includes(`${slug}-counter`),JSON.stringify(visuals));
+      assert.equal(await page.locator('body').getAttribute('data-visual-year'),String(year));
       assert(!await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth));
     }
     async function acknowledgeNotices(){
@@ -37,7 +43,7 @@ const base=process.env.CINEMAN_BASE_URL||'http://127.0.0.1:8162';
     async function reload(year){
       requests.length=0;await page.reload();await page.locator('#venue-data').waitFor();await acknowledgeNotices();await check(year);
       await page.waitForFunction(()=>document.querySelector('#draft-status').textContent==='已自動存檔');
-      const config=expected(year),unused=[config.hero==='interior'?'exterior':'interior',...['counter','ticket','schedule','projection'].filter(scene=>scene!==config.footer)];
+      const config=expected(year),unused=['exterior','interior','counter','ticket','schedule','projection','outward'].filter(scene=>scene!==config.hero&&scene!==config.footer);
       assert(!requests.some(url=>unused.some(kind=>url.includes(`${slug}-${kind}`))),`Loaded unused yearly image: ${requests.join(',')}`);
     }
     async function jump(year,week){

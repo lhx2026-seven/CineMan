@@ -586,7 +586,8 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 
 /* Footer ticket photographs stay complete, including portrait receipts and handwritten fields. */
 .game-page .counter-scene > img[data-scene="ticket"],
-.game-page .counter-scene > img[data-scene="schedule"] { height:auto; min-height:0; max-height:320px; aspect-ratio:2/1; object-fit:contain; object-position:center; background:#100e0b; }
+.game-page .counter-scene > img[data-scene="schedule"],
+.game-page .counter-scene > img[data-scene="outward"] { height:auto; min-height:0; max-height:320px; aspect-ratio:2/1; object-fit:contain; object-position:center; background:#100e0b; }
 
 /* Annual ticket confirmation: centered on desktop and mobile. */
 .notice-dialog { box-sizing:border-box; width:min(390px,calc(100% - 36px)); max-width:none; max-height:calc(100dvh - 36px); margin:auto; padding:27px 22px 22px; border:1px solid #c8a36499; border-radius:12px; background:#17130eef; box-shadow:0 18px 70px #0008; text-align:center; }
@@ -646,5 +647,9 @@ body[data-cinema="baogong"] .counter-shade { background:linear-gradient(0deg,#03
 }
 
 /* Keep the printed schedule readable above the weekly navigation. */
-.game-page .counter-scene > img[data-scene="schedule"] ~ .counter-shade { display:none; }
-.game-page .counter-scene > img[data-scene="schedule"] ~ .next-week-area { position:static; padding:10px 16px; }
+.game-page .counter-scene > img:is([data-scene="schedule"],[data-scene="outward"]) ~ .counter-shade { display:none; }
+.game-page .counter-scene > img:is([data-scene="schedule"],[data-scene="outward"]) ~ .next-week-area { position:static; padding:10px 16px; }
+
+/* Annual 2026 identity: derive each cinema background from its existing accent. */
+body[data-visual-year="2026"] { background:radial-gradient(ellipse at top,color-mix(in srgb,var(--accent) 38%,#090909) 0%,color-mix(in srgb,var(--accent) 13%,#090909) 48%,#050505 100%); }
+body[data-visual-year="2026"] .panel { background:linear-gradient(140deg,color-mix(in srgb,var(--accent) 12%,#161616),#0e0d0ce8 65%); }
