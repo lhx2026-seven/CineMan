@@ -1019,11 +1019,208 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
 })(globalThis);
 
 ;
+// Source: data/annual-responses.js
+'use strict';
+globalThis.CinemaAnnualResponses = {
+  "version": 1,
+  "responses": [
+    {
+      "id": "am001",
+      "role": "chairperson",
+      "condition": "loss10",
+      "trigger": "年度損益為負，支出為收入的10倍以上",
+      "text": "就這樣吧"
+    },
+    {
+      "id": "am002",
+      "role": "chairperson",
+      "condition": "loss5",
+      "trigger": "年度損益為負，支出為收入的5倍以上",
+      "text": "..."
+    },
+    {
+      "id": "am003",
+      "role": "chairperson",
+      "condition": "loss3",
+      "trigger": "年度損益為負，支出為收入的3倍以上",
+      "text": "公司不排除會有其它安排"
+    },
+    {
+      "id": "am004",
+      "role": "chairperson",
+      "condition": "loss2",
+      "trigger": "年度損益為負，支出為收入的2倍以上",
+      "text": "虧成這樣，都沒有自覺嗎？"
+    },
+    {
+      "id": "am005",
+      "role": "chairperson",
+      "condition": "loss2",
+      "trigger": "年度損益為負，支出為收入的2倍以上",
+      "text": "只能說，大家要共體時艱"
+    },
+    {
+      "id": "am006",
+      "role": "chairperson",
+      "condition": "loss200",
+      "trigger": "年度損益為負，支出為收入的200%以內",
+      "text": "緊急支出是刻不容緩的事"
+    },
+    {
+      "id": "am007",
+      "role": "chairperson",
+      "condition": "loss200",
+      "trigger": "年度損益為負，支出為收入的200%以內",
+      "text": "現在的人都不看電影了"
+    },
+    {
+      "id": "am008",
+      "role": "chairperson",
+      "condition": "loss150",
+      "trigger": "年度損益為負，支出為收入的150%以內",
+      "text": "Hard times are coming"
+    },
+    {
+      "id": "am009",
+      "role": "chairperson",
+      "condition": "loss105",
+      "trigger": "年度損益為負，支出為收入的105%以內",
+      "text": "可惜了，差一點就賺錢了"
+    },
+    {
+      "id": "am010",
+      "role": "chairperson",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "今年大片少，能做成這樣也不容易"
+    },
+    {
+      "id": "am011",
+      "role": "chairperson",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "希望大家明年繼續保持熱情、繼續努力"
+    },
+    {
+      "id": "am012",
+      "role": "chairperson",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "電影院產業的未來就靠你們了"
+    },
+    {
+      "id": "am013",
+      "role": "shareholders",
+      "condition": "loss10",
+      "trigger": "年度損益為負，支出為收入的10倍以上",
+      "text": "我們近期會討論一下，是否要繼續經營"
+    },
+    {
+      "id": "am014",
+      "role": "shareholders",
+      "condition": "loss5",
+      "trigger": "年度損益為負，支出為收入的5倍以上",
+      "text": "說句不好聽的，這樣下去沒有意義"
+    },
+    {
+      "id": "am015",
+      "role": "shareholders",
+      "condition": "loss3",
+      "trigger": "年度損益為負，支出為收入的3倍以上",
+      "text": "還要做下去嗎？我們打個問號"
+    },
+    {
+      "id": "am016",
+      "role": "shareholders",
+      "condition": "loss2",
+      "trigger": "年度損益為負，支出為收入的2倍以上",
+      "text": "是有同業來打聽啦！或許也是一條出路"
+    },
+    {
+      "id": "am017",
+      "role": "shareholders",
+      "condition": "loss2",
+      "trigger": "年度損益為負，支出為收入的2倍以上",
+      "text": "這樣真的不行"
+    },
+    {
+      "id": "am018",
+      "role": "shareholders",
+      "condition": "loss200",
+      "trigger": "年度損益為負，支出為收入的200%以內",
+      "text": "該花的花，不該花的不要花"
+    },
+    {
+      "id": "am019",
+      "role": "shareholders",
+      "condition": "loss200",
+      "trigger": "年度損益為負，支出為收入的200%以內",
+      "text": "票房不好，開銷又大，電影院就是這樣"
+    },
+    {
+      "id": "am020",
+      "role": "shareholders",
+      "condition": "loss150",
+      "trigger": "年度損益為負，支出為收入的150%以內",
+      "text": "是不是哪個環節出了問題"
+    },
+    {
+      "id": "am021",
+      "role": "shareholders",
+      "condition": "loss105",
+      "trigger": "年度損益為負，支出為收入的105%以內",
+      "text": "希望明年更進步"
+    },
+    {
+      "id": "am022",
+      "role": "shareholders",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "不簡單，大環境不好，但我們很爭氣"
+    },
+    {
+      "id": "am023",
+      "role": "shareholders",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "誰說電影院不景氣？"
+    },
+    {
+      "id": "am024",
+      "role": "shareholders",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "今年的努力，值得！"
+    }
+  ]
+};
+
+;
 // Source: annual-meeting.js
 'use strict';
 (function(root){
   function create(year,seed,settled=false){return{version:2,year,settled,role:root.CinemaRules.seededRandom(`annual-meeting/v1/${seed}/${year}`)()<.5?'shareholders':'chairperson'};}
   function resolve(saved,year,week,seed){if(saved==null)return null;if((week!==50&&!saved.early)||![1,2].includes(saved.version)||saved.year!==year||!['shareholders','chairperson'].includes(saved.role)||saved.role!==create(year,seed).role)throw Error('年度會議存檔錯誤');return{...saved,version:2,settled:saved.settled===true};}
+  function responseCondition({knownIncome,expenses,profit}){
+    if(![knownIncome,expenses,profit].every(Number.isFinite)||profit===0)return null;
+    if(profit>0)return 'profit';
+    // An expense with no positive income is the most severe loss band.
+    if(knownIncome<=0)return expenses>0?'loss10':null;
+    if(expenses>=knownIncome*10)return 'loss10';
+    if(expenses>=knownIncome*5)return 'loss5';
+    if(expenses>=knownIncome*3)return 'loss3';
+    if(expenses>=knownIncome*2)return 'loss2';
+    if(expenses<=knownIncome*1.05)return 'loss105';
+    if(expenses<=knownIncome*1.5)return 'loss150';
+    return 'loss200';
+  }
+  function selectResponse(database,state,figures,seed){
+    const condition=responseCondition(figures);
+    const candidates=(database?.responses||[]).filter(r=>r.role===state.role&&r.condition===condition);
+    if(!candidates.length)return null;
+    const draw=root.CinemaRules.seededRandom(`annual-response/v1/${seed}/${state.year}/${state.role}/${condition}`)();
+    return candidates[Math.floor(draw*candidates.length)];
+  }
   function summary(year,boxOffice,activation,foodRevenue,merchandise,distributor){
     const ticket=distributor?distributor.receipts.filter(r=>r.accountingYear===year).reduce((sum,r)=>sum+r.net,0):(boxOffice?.byYear[year]||0),space=(activation?.receipts||[]).filter(r=>(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.gross,0);
     const food=(foodRevenue?.receipts||[]).filter(r=>(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.gross,0);
@@ -1068,7 +1265,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     return svg;
   }
   let chartResizeObserver;
-  function render({state,cinemaName,figures,trend,topFive=[],showRanking=true,rankingByWeek=false}){
+  function render({state,cinemaName,figures,trend,seed,topFive=[],showRanking=true,rankingByWeek=false}){
     chartResizeObserver?.disconnect();
     const section=document.querySelector('#annual-meeting-section'),list=document.querySelector('#annual-meeting-content');section.hidden=false;
     const article=document.createElement('article');article.className='meeting-layout';
@@ -1080,7 +1277,11 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     const rankingTitle=rankingByWeek?'年度票房TOP 5週次':'年度票房TOP 5';
     if(showRanking&&topFive.length){const heading=document.createElement('h4');heading.textContent=rankingTitle;const ol=document.createElement('ol');for(const film of topFive){const li=document.createElement('li');li.textContent=film.title;if(rankingByWeek)li.dataset.week=String(film.week);else li.dataset.movieId=film.id;ol.append(li);}ranking.append(heading,ol);}
     if(!ranking.children.length){const heading=document.createElement('h4');heading.textContent=rankingTitle;const p=document.createElement('p');p.textContent=showRanking?'本年度尚無票房紀錄':'本院僅顯示合計票房';ranking.append(heading,p);}
-    const response=document.createElement('div');response.className='meeting-response';response.dataset.role=state.role;const speaker=document.createElement('h4');speaker.textContent=state.role==='shareholders'?'股東回應':'董事長回應';const reply=document.createElement('p');reply.textContent='⋯';reply.setAttribute('aria-label','回應尚未公布');response.append(speaker,reply);
+    const response=document.createElement('div');response.className='meeting-response';response.dataset.role=state.role;const speaker=document.createElement('h4');speaker.textContent=state.role==='shareholders'?'股東回應':'董事長回應';const reply=document.createElement('p');
+    const selected=selectResponse(root.CinemaAnnualResponses,state,figures,seed);
+    reply.textContent=selected?.text??'⋯';
+    if(selected)response.dataset.responseId=selected.id;else reply.setAttribute('aria-label','本年度損益尚無對應回應');
+    response.append(speaker,reply);
     content.append(h,text);article.append(content,visual,ranking,response);list.replaceChildren(article);
     let chartHeight=360;
     chartResizeObserver=new ResizeObserver(([entry])=>{
@@ -1092,7 +1293,7 @@ globalThis.CinemaMovieDatabase={"version":1,"movies":[{"id":"MV0001","title":"�
     });
     chartResizeObserver.observe(visual);
   }
-  const api={create,resolve,summary,topFilms,topWeeks,profitAxis,renderTrend,render};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMeeting=api;
+  const api={create,resolve,responseCondition,selectResponse,summary,topFilms,topWeeks,profitAxis,renderTrend,render};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMeeting=api;
 })(globalThis);
 
 ;
@@ -2424,7 +2625,7 @@ function initGame() {
   function renderBulletin(){
     if(annualMeeting){
       CinemaEvents.render({events:[]});
-      CinemaMeeting.render({state:annualMeeting,cinemaName:cinema.name,trend:CinemaFinancialTotals.annualTrend(gameDate.year,{distributor,activation,foodRevenue,merchandise,operatingExpenses,rent,propertyTax,managementFee,utilityBills,eventState}),figures:{...CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),knownIncome:financialSummary?.annual.income??0,expenses:financialSummary?.annual.expenses??null,preTaxProfit:financialSummary?.annual.profit??null,profit:financialSummary?.annual.afterTaxProfit??null},topFive:secondRun?CinemaMeeting.topWeeks(gameDate.year,boxOffice):CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),rankingByWeek:secondRun});
+      CinemaMeeting.render({state:annualMeeting,seed:runId,cinemaName:cinema.name,trend:CinemaFinancialTotals.annualTrend(gameDate.year,{distributor,activation,foodRevenue,merchandise,operatingExpenses,rent,propertyTax,managementFee,utilityBills,eventState}),figures:{...CinemaMeeting.summary(gameDate.year,boxOffice,activation,foodRevenue,merchandise,distributor),knownIncome:financialSummary?.annual.income??0,expenses:financialSummary?.annual.expenses??null,preTaxProfit:financialSummary?.annual.profit??null,profit:financialSummary?.annual.afterTaxProfit??null},topFive:secondRun?CinemaMeeting.topWeeks(gameDate.year,boxOffice):CinemaMeeting.topFilms(gameDate.year,boxOffice,CinemaMovieDatabase),rankingByWeek:secondRun});
     }else{
       document.querySelector('#annual-meeting-section').hidden=true;
       const week=currentWeek();

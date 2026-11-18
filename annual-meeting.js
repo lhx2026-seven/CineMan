@@ -2,6 +2,26 @@
 (function(root){
   function create(year,seed,settled=false){return{version:2,year,settled,role:root.CinemaRules.seededRandom(`annual-meeting/v1/${seed}/${year}`)()<.5?'shareholders':'chairperson'};}
   function resolve(saved,year,week,seed){if(saved==null)return null;if((week!==50&&!saved.early)||![1,2].includes(saved.version)||saved.year!==year||!['shareholders','chairperson'].includes(saved.role)||saved.role!==create(year,seed).role)throw Error('年度會議存檔錯誤');return{...saved,version:2,settled:saved.settled===true};}
+  function responseCondition({knownIncome,expenses,profit}){
+    if(![knownIncome,expenses,profit].every(Number.isFinite)||profit===0)return null;
+    if(profit>0)return 'profit';
+    // An expense with no positive income is the most severe loss band.
+    if(knownIncome<=0)return expenses>0?'loss10':null;
+    if(expenses>=knownIncome*10)return 'loss10';
+    if(expenses>=knownIncome*5)return 'loss5';
+    if(expenses>=knownIncome*3)return 'loss3';
+    if(expenses>=knownIncome*2)return 'loss2';
+    if(expenses<=knownIncome*1.05)return 'loss105';
+    if(expenses<=knownIncome*1.5)return 'loss150';
+    return 'loss200';
+  }
+  function selectResponse(database,state,figures,seed){
+    const condition=responseCondition(figures);
+    const candidates=(database?.responses||[]).filter(r=>r.role===state.role&&r.condition===condition);
+    if(!candidates.length)return null;
+    const draw=root.CinemaRules.seededRandom(`annual-response/v1/${seed}/${state.year}/${state.role}/${condition}`)();
+    return candidates[Math.floor(draw*candidates.length)];
+  }
   function summary(year,boxOffice,activation,foodRevenue,merchandise,distributor){
     const ticket=distributor?distributor.receipts.filter(r=>r.accountingYear===year).reduce((sum,r)=>sum+r.net,0):(boxOffice?.byYear[year]||0),space=(activation?.receipts||[]).filter(r=>(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.gross,0);
     const food=(foodRevenue?.receipts||[]).filter(r=>(r.accountingYear??(2022+Math.floor((r.bookedAt-1)/50)))===year).reduce((s,r)=>s+r.gross,0);
@@ -46,7 +66,7 @@
     return svg;
   }
   let chartResizeObserver;
-  function render({state,cinemaName,figures,trend,topFive=[],showRanking=true,rankingByWeek=false}){
+  function render({state,cinemaName,figures,trend,seed,topFive=[],showRanking=true,rankingByWeek=false}){
     chartResizeObserver?.disconnect();
     const section=document.querySelector('#annual-meeting-section'),list=document.querySelector('#annual-meeting-content');section.hidden=false;
     const article=document.createElement('article');article.className='meeting-layout';
@@ -58,7 +78,11 @@
     const rankingTitle=rankingByWeek?'年度票房TOP 5週次':'年度票房TOP 5';
     if(showRanking&&topFive.length){const heading=document.createElement('h4');heading.textContent=rankingTitle;const ol=document.createElement('ol');for(const film of topFive){const li=document.createElement('li');li.textContent=film.title;if(rankingByWeek)li.dataset.week=String(film.week);else li.dataset.movieId=film.id;ol.append(li);}ranking.append(heading,ol);}
     if(!ranking.children.length){const heading=document.createElement('h4');heading.textContent=rankingTitle;const p=document.createElement('p');p.textContent=showRanking?'本年度尚無票房紀錄':'本院僅顯示合計票房';ranking.append(heading,p);}
-    const response=document.createElement('div');response.className='meeting-response';response.dataset.role=state.role;const speaker=document.createElement('h4');speaker.textContent=state.role==='shareholders'?'股東回應':'董事長回應';const reply=document.createElement('p');reply.textContent='⋯';reply.setAttribute('aria-label','回應尚未公布');response.append(speaker,reply);
+    const response=document.createElement('div');response.className='meeting-response';response.dataset.role=state.role;const speaker=document.createElement('h4');speaker.textContent=state.role==='shareholders'?'股東回應':'董事長回應';const reply=document.createElement('p');
+    const selected=selectResponse(root.CinemaAnnualResponses,state,figures,seed);
+    reply.textContent=selected?.text??'⋯';
+    if(selected)response.dataset.responseId=selected.id;else reply.setAttribute('aria-label','本年度損益尚無對應回應');
+    response.append(speaker,reply);
     content.append(h,text);article.append(content,visual,ranking,response);list.replaceChildren(article);
     let chartHeight=360;
     chartResizeObserver=new ResizeObserver(([entry])=>{
@@ -70,5 +94,5 @@
     });
     chartResizeObserver.observe(visual);
   }
-  const api={create,resolve,summary,topFilms,topWeeks,profitAxis,renderTrend,render};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMeeting=api;
+  const api={create,resolve,responseCondition,selectResponse,summary,topFilms,topWeeks,profitAxis,renderTrend,render};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CinemaMeeting=api;
 })(globalThis);

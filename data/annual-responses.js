@@ -1,0 +1,174 @@
+'use strict';
+globalThis.CinemaAnnualResponses = {
+  "version": 1,
+  "responses": [
+    {
+      "id": "am001",
+      "role": "chairperson",
+      "condition": "loss10",
+      "trigger": "年度損益為負，支出為收入的10倍以上",
+      "text": "就這樣吧"
+    },
+    {
+      "id": "am002",
+      "role": "chairperson",
+      "condition": "loss5",
+      "trigger": "年度損益為負，支出為收入的5倍以上",
+      "text": "..."
+    },
+    {
+      "id": "am003",
+      "role": "chairperson",
+      "condition": "loss3",
+      "trigger": "年度損益為負，支出為收入的3倍以上",
+      "text": "公司不排除會有其它安排"
+    },
+    {
+      "id": "am004",
+      "role": "chairperson",
+      "condition": "loss2",
+      "trigger": "年度損益為負，支出為收入的2倍以上",
+      "text": "虧成這樣，都沒有自覺嗎？"
+    },
+    {
+      "id": "am005",
+      "role": "chairperson",
+      "condition": "loss2",
+      "trigger": "年度損益為負，支出為收入的2倍以上",
+      "text": "只能說，大家要共體時艱"
+    },
+    {
+      "id": "am006",
+      "role": "chairperson",
+      "condition": "loss200",
+      "trigger": "年度損益為負，支出為收入的200%以內",
+      "text": "緊急支出是刻不容緩的事"
+    },
+    {
+      "id": "am007",
+      "role": "chairperson",
+      "condition": "loss200",
+      "trigger": "年度損益為負，支出為收入的200%以內",
+      "text": "現在的人都不看電影了"
+    },
+    {
+      "id": "am008",
+      "role": "chairperson",
+      "condition": "loss150",
+      "trigger": "年度損益為負，支出為收入的150%以內",
+      "text": "Hard times are coming"
+    },
+    {
+      "id": "am009",
+      "role": "chairperson",
+      "condition": "loss105",
+      "trigger": "年度損益為負，支出為收入的105%以內",
+      "text": "可惜了，差一點就賺錢了"
+    },
+    {
+      "id": "am010",
+      "role": "chairperson",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "今年大片少，能做成這樣也不容易"
+    },
+    {
+      "id": "am011",
+      "role": "chairperson",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "希望大家明年繼續保持熱情、繼續努力"
+    },
+    {
+      "id": "am012",
+      "role": "chairperson",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "電影院產業的未來就靠你們了"
+    },
+    {
+      "id": "am013",
+      "role": "shareholders",
+      "condition": "loss10",
+      "trigger": "年度損益為負，支出為收入的10倍以上",
+      "text": "我們近期會討論一下，是否要繼續經營"
+    },
+    {
+      "id": "am014",
+      "role": "shareholders",
+      "condition": "loss5",
+      "trigger": "年度損益為負，支出為收入的5倍以上",
+      "text": "說句不好聽的，這樣下去沒有意義"
+    },
+    {
+      "id": "am015",
+      "role": "shareholders",
+      "condition": "loss3",
+      "trigger": "年度損益為負，支出為收入的3倍以上",
+      "text": "還要做下去嗎？我們打個問號"
+    },
+    {
+      "id": "am016",
+      "role": "shareholders",
+      "condition": "loss2",
+      "trigger": "年度損益為負，支出為收入的2倍以上",
+      "text": "是有同業來打聽啦！或許也是一條出路"
+    },
+    {
+      "id": "am017",
+      "role": "shareholders",
+      "condition": "loss2",
+      "trigger": "年度損益為負，支出為收入的2倍以上",
+      "text": "這樣真的不行"
+    },
+    {
+      "id": "am018",
+      "role": "shareholders",
+      "condition": "loss200",
+      "trigger": "年度損益為負，支出為收入的200%以內",
+      "text": "該花的花，不該花的不要花"
+    },
+    {
+      "id": "am019",
+      "role": "shareholders",
+      "condition": "loss200",
+      "trigger": "年度損益為負，支出為收入的200%以內",
+      "text": "票房不好，開銷又大，電影院就是這樣"
+    },
+    {
+      "id": "am020",
+      "role": "shareholders",
+      "condition": "loss150",
+      "trigger": "年度損益為負，支出為收入的150%以內",
+      "text": "是不是哪個環節出了問題"
+    },
+    {
+      "id": "am021",
+      "role": "shareholders",
+      "condition": "loss105",
+      "trigger": "年度損益為負，支出為收入的105%以內",
+      "text": "希望明年更進步"
+    },
+    {
+      "id": "am022",
+      "role": "shareholders",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "不簡單，大環境不好，但我們很爭氣"
+    },
+    {
+      "id": "am023",
+      "role": "shareholders",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "誰說電影院不景氣？"
+    },
+    {
+      "id": "am024",
+      "role": "shareholders",
+      "condition": "profit",
+      "trigger": "年度損益為正",
+      "text": "今年的努力，值得！"
+    }
+  ]
+};

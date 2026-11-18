@@ -9,3 +9,32 @@ assert.deepEqual(M.profitAxis(0,0),{upper:1,lower:-1,step:1});
 for(const [min,max] of [[-1,1],[-9999999,10000000],[123,123],[-123,-123]]){const a=M.profitAxis(min,max);assert(a.upper>=max&&a.lower<=min&&a.upper>a.lower&&a.upper>=0&&a.lower<=0);}
 assert.throws(()=>M.profitAxis(1,-1));assert.throws(()=>M.profitAxis(NaN,1));
 console.log('PASS outward rounded shared-magnitude axes, user examples, zero inclusion, exact boundaries, single-sign and flat series');
+
+const responses=require('../data/annual-responses.json');
+assert.equal(responses.responses.length,24);
+const cases=[
+ [1000,10000,-9000,'loss10'],[1000,9999,-8999,'loss5'],
+ [1000,5000,-4000,'loss5'],[1000,4999,-3999,'loss3'],
+ [1000,3000,-2000,'loss3'],[1000,2999,-1999,'loss2'],
+ [1000,2000,-1000,'loss2'],[1000,1999,-999,'loss200'],
+ [1000,1501,-501,'loss200'],[1000,1500,-500,'loss150'],
+ [1000,1051,-51,'loss150'],[1000,1050,-50,'loss105'],
+ [1000,900,-1,'loss105'], // Tax can turn a pre-tax gain into an annual loss.
+ [1000,900,1,'profit'],[1000,1000,0,null],
+ [0,100,-100,'loss10'],[-100,100,-200,'loss10'],[0,0,-1,null],
+];
+const reached=new Set();
+for(const role of ['chairperson','shareholders'])for(const [knownIncome,expenses,profit,condition]of cases){
+ const figures={knownIncome,expenses,profit},state={year:2022,role};
+ assert.equal(M.responseCondition(figures),condition);
+ for(let i=0;i<100;i++){
+  const seed='response-test/'+i,r=M.selectResponse(responses,state,figures,seed);
+  assert.deepEqual(M.selectResponse(responses,JSON.parse(JSON.stringify(state)),figures,seed),r);
+  if(condition){assert(r);assert.equal(r.role,role);assert.equal(r.condition,condition);reached.add(r.id);}
+  else assert.equal(r,null);
+ }
+}
+assert.equal(reached.size,24,'Every supplied response must be reachable');
+assert.equal(M.responseCondition({knownIncome:1,expenses:null,profit:-1}),null);
+assert.equal(M.responseCondition({knownIncome:NaN,expenses:1,profit:-1}),null);
+console.log('PASS all 24 supplied responses, both roles, exact ratio boundaries, after-tax profit, zero/nonpositive income and deterministic reload');
