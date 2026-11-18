@@ -3,8 +3,8 @@
   function create(year,seed,settled=false){return{version:2,year,settled,role:root.CinemaRules.seededRandom(`annual-meeting/v1/${seed}/${year}`)()<.5?'shareholders':'chairperson'};}
   function resolve(saved,year,week,seed){if(saved==null)return null;if((week!==50&&!saved.early)||![1,2].includes(saved.version)||saved.year!==year||!['shareholders','chairperson'].includes(saved.role)||saved.role!==create(year,seed).role)throw Error('年度會議存檔錯誤');return{...saved,version:2,settled:saved.settled===true};}
   function responseCondition({knownIncome,expenses,profit}){
-    if(![knownIncome,expenses,profit].every(Number.isFinite)||profit===0)return null;
-    if(profit>0)return 'profit';
+    if(![knownIncome,expenses,profit].every(Number.isFinite))return null;
+    if(profit>=0)return 'profit';
     // An expense with no positive income is the most severe loss band.
     if(knownIncome<=0)return expenses>0?'loss10':null;
     if(expenses>=knownIncome*10)return 'loss10';

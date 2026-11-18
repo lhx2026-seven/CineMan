@@ -20,7 +20,7 @@ const cases=[
  [1000,1501,-501,'loss200'],[1000,1500,-500,'loss150'],
  [1000,1051,-51,'loss150'],[1000,1050,-50,'loss105'],
  [1000,900,-1,'loss105'], // Tax can turn a pre-tax gain into an annual loss.
- [1000,900,1,'profit'],[1000,1000,0,null],
+ [1000,900,1,'profit'],[1000,1000,0,'profit'],[0,0,0,'profit'],
  [0,100,-100,'loss10'],[-100,100,-200,'loss10'],[0,0,-1,null],
 ];
 const reached=new Set();
