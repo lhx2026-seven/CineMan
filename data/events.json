@@ -746,7 +746,7 @@
     {
       "id": "ec004",
       "message": "發現多支滅火器過期",
-      "weight": 0.5,
+      "weight": 0.1,
       "repeatable": true,
       "triggerText": "每100週最多一次",
       "resultText": "depend on option",
