@@ -49,16 +49,18 @@
   function renderTrend(trend,height=360){
     const ns='http://www.w3.org/2000/svg';
     const el=(tag,attrs={},text)=>{const node=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))node.setAttribute(k,v);if(text!==undefined)node.textContent=text;return node;};
-    const {points,min,max,year}=trend,last=points.at(-1),left=228,right=610,top=36,bottom=height-36;
+    const {points,min,max,year}=trend,last=points.at(-1),right=622,top=18,bottom=height-18;
     const axis=profitAxis(min,max);
+    const labels=[...new Set([axis.upper,0,axis.lower])];
+    const left=24+Math.max(...labels.map(value=>value.toLocaleString('en-US').length))*12;
     const x=week=>left+(week-1)/(points.length-1)*(right-left);
     const y=value=>bottom-(value-axis.lower)/(axis.upper-axis.lower)*(bottom-top);
     const svg=el('svg',{viewBox:`0 0 640 ${height}`,width:640,height,role:'img','aria-label':`${year}年累計年度損益走勢，最低NT$${min.toLocaleString('zh-TW')}，最高NT$${max.toLocaleString('zh-TW')}，年度結算NT$${last.profit.toLocaleString('zh-TW')}`,class:'meeting-profit-chart','data-min':min,'data-max':max,'data-final-profit':last.profit,'data-axis-min':axis.lower,'data-axis-max':axis.upper});
     svg.append(el('rect',{width:640,height,rx:14,fill:'#17130e'}));
-    for(const value of new Set([axis.upper,0,axis.lower])){
+    for(const value of labels){
       const pos=y(value);
       svg.append(el('line',{x1:left,y1:pos,x2:right,y2:pos,stroke:value===0?'#c4ac7b80':'#b699624d',...(value===0?{}:{'stroke-dasharray':'5 7'})}));
-      svg.append(el('text',{x:208,y:pos,dy:'.35em',fill:'#d8c39c','font-size':26,'text-anchor':'end'},value.toLocaleString('en-US')));
+      svg.append(el('text',{x:left-12,y:pos,dy:'.35em',fill:'#d8c39c','font-size':20,'text-anchor':'end'},value.toLocaleString('en-US')));
     }
     const coordinates=points.map(point=>`${x(point.week).toFixed(2)},${y(point.profit).toFixed(2)}`).join(' ');
     svg.append(el('polyline',{points:coordinates,fill:'none',stroke:'#d8b778','stroke-width':3,'stroke-linejoin':'round','stroke-linecap':'round'}));
